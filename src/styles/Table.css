@@ -1,0 +1,265 @@
+.container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background-color: rgba(28, 17, 41, 0.88) !important;
+  border-radius: 0.5rem;
+  margin-bottom: 2rem;
+}
+/* Header Actions */
+.header-actions {
+  display: flex;
+  gap: 0.5rem; /* Space between action buttons */
+  align-items: center; /* Vertical alignment */
+}
+
+.page-heading {
+  margin: 0; /* Remove unnecessary top and bottom margin */
+  font-size: 1.7rem;
+  font-weight: bold;
+  color: white
+}
+
+.header-container {
+  display: flex;
+  align-items: center; /* Aligns items vertically centered */
+  justify-content: space-between; /* Places heading and button at opposite ends */
+  margin: 20px 0; /* Vertical margin for spacing */
+  margin-top: 40px; /* Adds more space specifically at the top to account for the sidebar */
+}
+
+.add-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  background-color: #1890ff; /* Ant Design primary color */
+  color: #fff;
+  text-decoration: none;
+  text-align: center;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-left: 0.5rem; /* Optional spacing between heading and button */
+}
+
+.add-button:hover {
+  background-color: #40a9ff;
+}
+
+.search-container {
+  flex-grow: 1; /* Allows search bar to take available space */
+  display: flex;
+  justify-content: flex-end; /* Aligns the search bar to the right */
+}
+
+.search-bar {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  width: 250px;
+  font-size: 14px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 8px; /* Adjust padding for a more compact table */
+  text-align: left;
+  font-size: 12px; /* Adjusted font size for table text */
+  color: gainsboro
+}
+
+.table th {
+  cursor: pointer;
+}
+
+
+.button-group {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-edit,
+.btn-delete {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  transition: background-color 0.3s;
+}
+
+.btn-edit:hover {
+  color: #1890ff;
+}
+
+.btn-delete:hover {
+  color: #ff4d4f;
+}
+
+.btn-convert {
+  background-color: #4caf50; /* Green color */
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-convert:hover {
+  background-color: #45a049; /* Darker green on hover */
+  transform: scale(1.05); /* Slightly enlarge the button */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow */
+}
+
+.btn-convert:focus {
+  outline: none;
+}
+
+.btn-convert svg {
+  margin-right: 8px; /* Space between icon and text */
+}
+
+.btn-convert:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* For Lead Status Badges */
+.badge-prospect {
+  background-color: #ff7a45; /* Orange-red */
+}
+
+.badge-lanes {
+  background-color: #ffbf00; /* Yellow */
+}
+
+.badge-product {
+  background-color: #52c41a; /* Green */
+}
+
+.badge-email {
+  background-color: #13c2c2; /* Cyan */
+}
+
+.badge-carrier {
+  background-color: #108ee9; /* Blue */
+}
+
+.badge-quotation {
+  background-color: #108ee9; /* Blue */
+}
+
+.badge-broker {
+  background-color: #f5222d; /* Red */
+}
+
+.badge-voicemail {
+  background-color: #fa8c16; /* Orange */
+}
+
+.badge-different {
+  background-color: #eb2f96; /* Pink */
+}
+
+.badge-callback {
+  background-color: #f5a623; /* Light Orange */
+}
+
+.badge-not-interested {
+  background-color: #d4380d; /* Dark Red */
+}
+
+.badge-asset {
+  background-color: #2f54eb; /* Blue */
+}
+
+.badge-default {
+  background-color: #d9d9d9; /* Gray */
+  color: #000; /* Black text */
+}
+
+.badge {
+  padding: 3px 8px;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 0.8rem; /* Smaller font size for badges */
+  font-weight: 500; /* Adjust font weight if needed */
+}
+
+.badge-new {
+  background-color: #52c41a; /* Green */
+}
+
+.badge-in-progress {
+  background-color: #fa8c16; /* Orange */
+}
+
+.badge-completed {
+  background-color: #108ee9; /* Blue */
+}
+
+.badge-on-hold {
+  background-color: #ffbf00; /* Yellow */
+}
+
+.badge-lost {
+  background-color: #f5222d; /* Red */
+}
+
+.pagination {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.pagination-controls {
+  display: inline-flex;
+  align-items: center;
+  color: gainsboro;
+}
+
+.previous,
+.next {
+  background: #1890ff;
+  border: none;
+  color: white;
+  padding: 5px 10px; /* Adjust padding for smaller buttons */
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-size: 0.8rem; /* Smaller font size for pagination text */
+}
+
+.previous:disabled,
+.next:disabled {
+  background: #d9d9d9;
+  cursor: not-allowed;
+}
+
+.previous:hover:not(:disabled),
+.next:hover:not(:disabled) {
+  background-color: #40a9ff;
+}
+
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid #1890ff;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
