@@ -8,7 +8,7 @@ import VendorMailingAddress from './VendorMailingAddress';
 import VendorCargoInsurance from './VendorCargoInsurance';
 import VendorLiabilityInsurance from './VendorLiabilityInsurance';
 import VendorAdditional from './VendorAdditional';
-import VendorAR from './VendorAR.JSX';
+import VendorAR from './VendorAR';
 import VendorAP from './VendorAP';
 import VendorBanking from './VendorBanking';
 import VendorContact from '../VendorContact';
