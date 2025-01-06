@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Form, Input, Button, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/Auth.css';
@@ -7,13 +7,24 @@ import axios from 'axios';
 const LoginPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const API_URL = import.meta.env.VITE_API_BASE_URL;
+
+  useEffect(() => {
+    const ensureCsrfCookie = async () => {
+      try {
+        await axios.get('/sanctum/csrf-cookie');
+        console.log('CSRF cookie ensured');
+      } catch (error) {
+        console.error('Error ensuring CSRF cookie:', error);
+      }
+    };
+
+    ensureCsrfCookie();
+  }, []);
 
   const onFinish = async (values) => {
     setLoading(true);
-
     try {
-      const response = await axios.post(`${API_URL}/login`, values);
+      const response = await axios.post('/login', values);
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('userId', response.data.user.id);
@@ -32,7 +43,7 @@ const LoginPage = () => {
       console.error('Login error:', error);
       message.error('Invalid username or password');
     } finally {
-      setLoading(false); // Ensure the loading spinner stops even on errors
+      setLoading(false);
     }
   };
 
