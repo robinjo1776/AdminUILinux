@@ -7,11 +7,12 @@ import axios from 'axios';
 const LoginPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const API_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     const ensureCsrfCookie = async () => {
       try {
-        await axios.get('/sanctum/csrf-cookie');
+        await axios.get(`${API_URL}/sanctum/csrf-cookie`);
         console.log('CSRF cookie ensured');
       } catch (error) {
         console.error('Error ensuring CSRF cookie:', error);
