@@ -102,118 +102,125 @@ function EditVendorMailingAddress({ formVendor, setFormVendor }) {
       {/* Only show the mailing address form if sameAsPrimary is false */}
       {!formVendor.sameAsPrimary && (
         <>
-          <div className="form-group">
-            <label htmlFor="mailingAddressStreet">Street</label>
-            <input
-              type="text"
-              ref={addressRef}
-              value={formVendor.mailing_address}
-              onChange={(e) =>
-                setFormVendor({
-                  ...formVendor,
-                  mailing_address: e.target.value,
-                })
-              }
-              placeholder="Enter your address"
-            />
-          </div>
+          <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label htmlFor="mailingAddressStreet">Street</label>
+              <input
+                type="text"
+                ref={addressRef}
+                value={formVendor.mailing_address}
+                onChange={(e) =>
+                  setFormVendor({
+                    ...formVendor,
+                    mailing_address: e.target.value,
+                  })
+                }
+                placeholder="Enter your address"
+              />
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="mailingAddressCity">City</label>
-            <input
-              type="text"
-              value={formVendor.mailing_city}
-              onChange={(e) =>
-                setFormVendor({
-                  ...formVendor,
-                  mailing_city: e.target.value,
-                })
-              }
-            />
-          </div>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label htmlFor="mailingAddressCity">City</label>
+              <input
+                type="text"
+                value={formVendor.mailing_city}
+                onChange={(e) =>
+                  setFormVendor({
+                    ...formVendor,
+                    mailing_city: e.target.value,
+                  })
+                }
+              />
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="mailingAddressState">State</label>
-            <input
-              type="text"
-              value={formVendor.mailing_state}
-              onChange={(e) =>
-                setFormVendor({
-                  ...formVendor,
-                  mailing_state: e.target.value,
-                })
-              }
-            />
+            <div className="form-group" style={{ flex: 1 }}>
+              <label htmlFor="mailingAddressState">State</label>
+              <input
+                type="text"
+                value={formVendor.mailing_state}
+                onChange={(e) =>
+                  setFormVendor({
+                    ...formVendor,
+                    mailing_state: e.target.value,
+                  })
+                }
+              />
+            </div>
           </div>
+          <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label htmlFor="mailingAddressCountry">Country</label>
+              <input
+                type="text"
+                value={formVendor.mailing_country}
+                onChange={(e) =>
+                  setFormVendor({
+                    ...formVendor,
+                    mailing_country: e.target.value,
+                  })
+                }
+              />
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="mailingAddressCountry">Country</label>
-            <input
-              type="text"
-              value={formVendor.mailing_country}
-              onChange={(e) =>
-                setFormVendor({
-                  ...formVendor,
-                  mailing_country: e.target.value,
-                })
-              }
-            />
+            <div className="form-group" style={{ flex: 1 }}>
+              <label htmlFor="mailingAddressPostalCode">Postal Code</label>
+              <input
+                type="text"
+                value={formVendor.mailing_postal}
+                onChange={(e) =>
+                  setFormVendor({
+                    ...formVendor,
+                    mailing_postal: e.target.value,
+                  })
+                }
+              />
+            </div>
+
+            <div className="form-group" style={{ flex: 1 }}>
+              <label htmlFor="mailingAddressUnitNo">Phone</label>
+              <input
+                type="text"
+                value={formVendor.mailing_phone}
+                onChange={(e) =>
+                  setFormVendor({
+                    ...formVendor,
+                    mailing_phone: e.target.value,
+                  })
+                }
+              />
+            </div>
           </div>
+          <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label htmlFor="mailingAddressUnitNo">Fax</label>
+              <input
+                type="text"
+                value={formVendor.mailing_fax}
+                onChange={(e) =>
+                  setFormVendor({
+                    ...formVendor,
+                    mailing_fax: e.target.value,
+                  })
+                }
+              />
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="mailingAddressPostalCode">Postal Code</label>
-            <input
-              type="text"
-              value={formVendor.mailing_postal}
-              onChange={(e) =>
-                setFormVendor({
-                  ...formVendor,
-                  mailing_postal: e.target.value,
-                })
-              }
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="mailingAddressUnitNo">Phone</label>
-            <input
-              type="text"
-              value={formVendor.mailing_phone}
-              onChange={(e) =>
-                setFormVendor({
-                  ...formVendor,
-                  mailing_phone: e.target.value,
-                })
-              }
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="mailingAddressUnitNo">Fax</label>
-            <input
-              type="text"
-              value={formVendor.mailing_fax}
-              onChange={(e) =>
-                setFormVendor({
-                  ...formVendor,
-                  mailing_fax: e.target.value,
-                })
-              }
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="mailingAddressUnitNo">Email</label>
-            <input
-              type="text"
-              value={formVendor.mailing_email}
-              onChange={(e) =>
-                setFormVendor({
-                  ...formVendor,
-                  mailing_email: e.target.value,
-                })
-              }
-            />
+            <div className="form-group" style={{ flex: 1 }}>
+              <label htmlFor="mailingAddressUnitNo">Email</label>
+              <input
+                type="text"
+                value={formVendor.mailing_email}
+                onChange={(e) =>
+                  setFormVendor({
+                    ...formVendor,
+                    mailing_email: e.target.value,
+                  })
+                }
+              />
+            </div>
+            <div className="form-group" style={{ flex: 1 }}>
+              <input type="hidden" />
+            </div>
           </div>
         </>
       )}

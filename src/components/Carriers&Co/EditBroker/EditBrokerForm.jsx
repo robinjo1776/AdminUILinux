@@ -51,7 +51,7 @@ function EditBrokerForm({ broker, onClose, onUpdate }) {
         return;
       }
 
-      const response = await axios.put(`${API_URL}/api/broker/${formBroker.id}`, formBroker, {
+      const response = await axios.put(`${API_URL}/broker/${formBroker.id}`, formBroker, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -83,9 +83,14 @@ function EditBrokerForm({ broker, onClose, onUpdate }) {
         className="form-main"
       >
         <EditBrokerDetails formBroker={formBroker} setFormBroker={setFormBroker} />
-        <button type="submit" className="btn-submit">
-          Update Broker
-        </button>
+        <div className="form-actions">
+          <button type="submit" className="btn-submit">
+            Save
+          </button>
+          <button type="button" className="btn-cancel" onClick={onClose}>
+            Cancel
+          </button>
+        </div>
       </form>
     </div>
   );

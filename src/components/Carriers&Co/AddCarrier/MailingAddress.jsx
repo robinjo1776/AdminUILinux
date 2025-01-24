@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef } from 'react';
 
 function MailingAddress({ carrier, setCarrier }) {
   const addressRef = useRef(null);
@@ -8,9 +8,8 @@ function MailingAddress({ carrier, setCarrier }) {
         initializeAutocomplete();
         return;
       }
-      const script = document.createElement("script");
-      script.src =
-        "https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places";
+      const script = document.createElement('script');
+      script.src = 'https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places';
       script.async = true;
       script.defer = true;
       script.onload = () => {
@@ -25,16 +24,13 @@ function MailingAddress({ carrier, setCarrier }) {
   }, []);
 
   const initializeAutocomplete = () => {
-    const autocomplete = new window.google.maps.places.Autocomplete(
-      addressRef.current,
-      {
-        types: ["address"],
-      }
-    );
-    autocomplete.addListener("place_changed", () => {
+    const autocomplete = new window.google.maps.places.Autocomplete(addressRef.current, {
+      types: ['address'],
+    });
+    autocomplete.addListener('place_changed', () => {
       const place = autocomplete.getPlace();
       if (!place || !place.address_components) {
-        console.error("No valid address selected");
+        console.error('No valid address selected');
         return;
       }
       updateAddressFields(place);
@@ -45,22 +41,18 @@ function MailingAddress({ carrier, setCarrier }) {
     const addressComponents = place.address_components;
 
     // Extract the main address (street_number + route)
-    const streetNumber = getComponent("street_number", "", addressComponents);
-    const route = getComponent("route", "", addressComponents);
+    const streetNumber = getComponent('street_number', '', addressComponents);
+    const route = getComponent('route', '', addressComponents);
     const mainAddress = `${streetNumber} ${route}`.trim(); // Combine street number and route
 
     // Update the form customer state with the relevant values
     setCarrier((prevCarrier) => ({
       ...prevCarrier,
       mailing_address: mainAddress, // Only store the main address in the state
-      mailing_city: getComponent("locality", "", addressComponents),
-      mailing_state: getComponent(
-        "administrative_area_level_1",
-        "",
-        addressComponents
-      ),
-      mailing_country: getComponent("country", "", addressComponents),
-      mailing_postal: getComponent("postal_code", "", addressComponents),
+      mailing_city: getComponent('locality', '', addressComponents),
+      mailing_state: getComponent('administrative_area_level_1', '', addressComponents),
+      mailing_country: getComponent('country', '', addressComponents),
+      mailing_postal: getComponent('postal_code', '', addressComponents),
     }));
   };
 
@@ -76,12 +68,12 @@ function MailingAddress({ carrier, setCarrier }) {
       ...prevCarrier,
       sameAsPrimary: checked, // Update the sameAsPrimary state
       // Optionally clear mailing address fields when checked
-      mailing_address: checked ? "" : prevCarrier.mailing_address,
-      mailing_city: checked ? "" : prevCarrier.mailing_city,
-      mailing_state: checked ? "" : prevCarrier.mailing_state,
-      mailing_country: checked ? "" : prevCarrier.mailing_country,
-      mailing_postal: checked ? "" : prevCarrier.mailing_postal,
-      mailing_unit_no: checked ? "" : prevCarrier.mailing_unit_no,
+      mailing_address: checked ? '' : prevCarrier.mailing_address,
+      mailing_city: checked ? '' : prevCarrier.mailing_city,
+      mailing_state: checked ? '' : prevCarrier.mailing_state,
+      mailing_country: checked ? '' : prevCarrier.mailing_country,
+      mailing_postal: checked ? '' : prevCarrier.mailing_postal,
+      mailing_unit_no: checked ? '' : prevCarrier.mailing_unit_no,
     }));
   };
 
@@ -92,9 +84,9 @@ function MailingAddress({ carrier, setCarrier }) {
       <div className="form-group">
         <label
           style={{
-            display: "inline-flex",
-            alignItems: "center",
-            width: "100%",
+            display: 'inline-flex',
+            alignItems: 'center',
+            width: '100%',
           }}
           htmlFor="mailingAddressSame"
         >
@@ -111,90 +103,98 @@ function MailingAddress({ carrier, setCarrier }) {
       {/* Only show the mailing address form if sameAsPrimary is false */}
       {!carrier.sameAsPrimary && (
         <>
-          <div className="form-group">
-            <label htmlFor="mailingAddressStreet">Street</label>
-            <input
-              type="text"
-              ref={addressRef}
-              value={carrier.mailing_address}
-              onChange={(e) =>
-                setCarrier({
-                  ...carrier,
-                  mailing_address: e.target.value,
-                })
-              }
-              placeholder="Enter your address"
-            />
-          </div>
+          <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label htmlFor="mailingAddressStreet">Street</label>
+              <input
+                type="text"
+                ref={addressRef}
+                value={carrier.mailing_address}
+                onChange={(e) =>
+                  setCarrier({
+                    ...carrier,
+                    mailing_address: e.target.value,
+                  })
+                }
+                placeholder="Street"
+              />
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="mailingAddressCity">City</label>
-            <input
-              type="text"
-              value={carrier.mailing_city}
-              onChange={(e) =>
-                setCarrier({
-                  ...carrier,
-                  mailing_city: e.target.value,
-                })
-              }
-            />
-          </div>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label htmlFor="mailingAddressCity">City</label>
+              <input
+                type="text"
+                value={carrier.mailing_city}
+                onChange={(e) =>
+                  setCarrier({
+                    ...carrier,
+                    mailing_city: e.target.value,
+                  })
+                }
+                placeholder="City"
+              />
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="mailingAddressState">State</label>
-            <input
-              type="text"
-              value={carrier.mailing_state}
-              onChange={(e) =>
-                setCarrier({
-                  ...carrier,
-                  mailing_state: e.target.value,
-                })
-              }
-            />
+            <div className="form-group" style={{ flex: 1 }}>
+              <label htmlFor="mailingAddressState">State</label>
+              <input
+                type="text"
+                value={carrier.mailing_state}
+                onChange={(e) =>
+                  setCarrier({
+                    ...carrier,
+                    mailing_state: e.target.value,
+                  })
+                }
+                placeholder="State"
+              />
+            </div>
           </div>
+          <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label htmlFor="mailingAddressCountry">Country</label>
+              <input
+                type="text"
+                value={carrier.mailing_country}
+                onChange={(e) =>
+                  setCarrier({
+                    ...carrier,
+                    mailing_country: e.target.value,
+                  })
+                }
+                placeholder="Country"
+              />
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="mailingAddressCountry">Country</label>
-            <input
-              type="text"
-              value={carrier.mailing_country}
-              onChange={(e) =>
-                setCarrier({
-                  ...carrier,
-                  mailing_country: e.target.value,
-                })
-              }
-            />
-          </div>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label htmlFor="mailingAddressPostalCode">Postal Code</label>
+              <input
+                type="text"
+                value={carrier.mailing_postal}
+                onChange={(e) =>
+                  setCarrier({
+                    ...carrier,
+                    mailing_postal: e.target.value,
+                  })
+                }
+                placeholder="Postal Code"
+              />
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="mailingAddressPostalCode">Postal Code</label>
-            <input
-              type="text"
-              value={carrier.mailing_postal}
-              onChange={(e) =>
-                setCarrier({
-                  ...carrier,
-                  mailing_postal: e.target.value,
-                })
-              }
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="mailingAddressUnitNo">Phone</label>
-            <input
-              type="text"
-              value={carrier.mailing_phone}
-              onChange={(e) =>
-                setCarrier({
-                  ...carrier,
-                  mailing_phone: e.target.value,
-                })
-              }
-            />
+            <div className="form-group" style={{ flex: 1 }}>
+              <label htmlFor="mailingAddressUnitNo">Phone</label>
+              <input
+                type="text"
+                value={carrier.mailing_phone}
+                onChange={(e) =>
+                  setCarrier({
+                    ...carrier,
+                    mailing_phone: e.target.value,
+                  })
+                }
+                placeholder="Phone"
+              />
+            </div>
           </div>
         </>
       )}

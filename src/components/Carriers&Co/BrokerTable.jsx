@@ -3,7 +3,7 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import Table from '../common/Table';
 import Modal from '../common/Modal';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, MailOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import AddBrokerForm from './AddBroker/AddBrokerForm';
 import EditBrokerForm from './EditBroker/EditBrokerForm';
 
@@ -17,8 +17,11 @@ const BrokerTable = () => {
   const [selectedBroker, setSelectedBroker] = useState(null);
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [isAddModalOpen, setAddModalOpen] = useState(false);
+  const [selectedBrokers, setSelectedBrokers] = useState([]);
+  const [isEmailModalOpen, setEmailModalOpen] = useState(false);
+  const [rowsPerPage, setRowsPerPage] = useState(8);
+  const [emailData, setEmailData] = useState({ subject: '', content: '' });
   const API_URL = import.meta.env.VITE_API_BASE_URL;
-  const perPage = 100;
 
   useEffect(() => {
     const fetchBrokers = async () => {
@@ -29,7 +32,7 @@ const BrokerTable = () => {
         }
 
         setLoading(true);
-        const { data } = await axios.get(`${API_URL}/api/broker`, {
+        const { data } = await axios.get(`${API_URL}/broker`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -61,13 +64,34 @@ const BrokerTable = () => {
     setBrokers((prevBrokers) => prevBrokers.map((broker) => (broker.id === updatedBroker.id ? { ...broker, ...updatedBroker } : broker)));
   };
 
-  const deleteBroker = async (id) => {
+  const toggleSelectAll = () => {
+    if (selectedBrokers.length === paginatedData.length) {
+      setSelectedBrokers([]);
+    } else {
+      setSelectedBrokers(paginatedData.map((broker) => broker.id));
+    }
+  };
+
+  const toggleSelect = (id) => {
+    setSelectedBrokers((prev) => (prev.includes(id) ? prev.filter((selectedId) => selectedId !== id) : [...prev, id]));
+  };
+
+  const deleteSelected = async () => {
+    if (selectedBrokers.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'No record selected',
+        text: 'Please select a record to delete.',
+      });
+      return;
+    }
+
     const confirmed = await Swal.fire({
       title: 'Are you sure?',
       text: 'This action cannot be undone.',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Yes, delete it!',
+      confirmButtonText: 'Yes, delete selected!',
       cancelButtonText: 'No, cancel!',
     });
 
@@ -78,23 +102,33 @@ const BrokerTable = () => {
           throw new Error('No token found');
         }
 
-        const response = await axios.delete(`${API_URL}/api/broker/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        await Promise.all(
+          selectedBrokers.map((id) =>
+            axios.delete(`${API_URL}/broker/${id}`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            })
+          )
+        );
 
-        console.log('Delete Response:', response);
-        setBrokers((prevBrokers) => prevBrokers.filter((broker) => broker.id !== id));
-        Swal.fire('Deleted!', 'The broker has been deleted.', 'success');
+        setBrokers((prevBrokers) => prevBrokers.filter((broker) => !selectedBrokers.includes(broker.id)));
+        setSelectedBrokers([]);
+        Swal.fire('Deleted!', 'Selected brokers have been deleted.', 'success');
       } catch (error) {
-        console.error('Error deleting broker:', error);
-        Swal.fire('Error!', 'Failed to delete the broker.', 'error');
+        console.error('Error deleting brokers:', error);
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Error!',
+          text: 'Failed to delete selected brokers.',
+        });
       }
     }
   };
 
   const handleSort = (column) => {
+    if (column === 'checkbox') return;
     if (sortBy === column) {
       setSortDesc(!sortDesc);
     } else {
@@ -122,11 +156,18 @@ const BrokerTable = () => {
     return sortDesc ? valB - valA : valA - valB;
   });
 
-  const paginatedData = sortedBrokers.slice((currentPage - 1) * perPage, currentPage * perPage);
+  const paginatedData = sortedBrokers.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
-  const totalPages = Math.ceil(filteredBrokers.length / perPage);
+  const totalPages = Math.ceil(filteredBrokers.length / rowsPerPage);
 
   const headers = [
+    {
+      key: 'select',
+      label: (
+        <input type="checkbox" onChange={toggleSelectAll} checked={selectedBrokers.length === paginatedData.length && paginatedData.length > 0} />
+      ),
+      render: (item) => <input type="checkbox" checked={selectedBrokers.includes(item.id)} onChange={() => toggleSelect(item.id)} />,
+    },
     { key: 'broker_name', label: 'Name' },
     { key: 'broker_address', label: 'Street' },
     { key: 'broker_city', label: 'City' },
@@ -137,15 +178,12 @@ const BrokerTable = () => {
     { key: 'broker_fax', label: 'Fax' },
     { key: 'broker_ext', label: ' Phone Ext' },
     {
-      key: 'actions',
-      label: 'Actions',
+      key: 'edit',
+      label: 'Edit',
       render: (item) => (
         <>
           <button onClick={() => openEditModal(item)} className="btn-edit">
             <EditOutlined />
-          </button>
-          <button onClick={() => deleteBroker(item.id)} className="btn-delete">
-            <DeleteOutlined />
           </button>
         </>
       ),
@@ -169,35 +207,123 @@ const BrokerTable = () => {
   const closeAddModal = () => {
     setAddModalOpen(false);
   };
+  const sendEmails = async (subject, content) => {
+    if (selectedBrokers.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'No brokers selected',
+        text: 'Please select brokers to send emails to.',
+      });
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No token found');
+      }
+
+      const emailData = {
+        ids: selectedBrokers,
+        subject,
+        content,
+        module: 'brokers',
+      };
+
+      const response = await axios.post(`${API_URL}/email`, emailData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      Swal.fire('Success!', 'Emails have been sent.', 'success');
+      setEmailModalOpen(false);
+      setSelectedBrokers([]);
+    } catch (error) {
+      console.error('Error sending emails:', error.response ? error.response.data : error.message);
+      Swal.fire('Error!', 'Failed to send emails.', 'error');
+    }
+  };
 
   return (
     <div>
       <div className="header-container">
         <div className="header-actions">
           <h1 className="page-heading">Brokers</h1>
-          <button onClick={openAddModal} className="add-button">
-            Add
-          </button>
         </div>
         <div className="search-container">
-          <input className="search-bar" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search ..." />
+          <div className="search-input-wrapper">
+            <SearchOutlined className="search-icon" />
+            <input className="search-bar" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search..." />
+          </div>
+          <button onClick={openAddModal} className="add-button">
+            <PlusOutlined />
+          </button>
         </div>
       </div>
-
+      <div className="controls-container">
+        <div className="pagination-controls">
+          <div className="rows-per-page-container">
+            <label htmlFor="rowsPerPage">Rows per page: </label>
+            <select
+              id="rowsPerPage"
+              value={rowsPerPage}
+              onChange={(e) => {
+                setRowsPerPage(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+            >
+              <option value={8}>8</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+              <option value={200}>200</option>
+              <option value={500}>500</option>
+            </select>
+          </div>
+        </div>
+        <div className="button-group">
+          <button onClick={() => setEmailModalOpen(true)} className="send-email-button" disabled={selectedBrokers.length === 0}>
+            Email&nbsp; <MailOutlined />
+          </button>
+          <button onClick={deleteSelected} className="delete-button">
+            Delete&nbsp; <DeleteOutlined />
+          </button>
+        </div>
+      </div>
       {loading ? (
         <div>Loading...</div>
+      ) : brokers.length === 0 ? (
+        <div>No records found</div>
       ) : (
         <Table
           data={paginatedData}
-          headers={headers.map((header) => ({
-            ...header,
-            label: (
-              <div className="sortable-header" onClick={() => handleSort(header.key)}>
-                {header.label}
-                {sortBy === header.key && <span className="sort-icon">{sortDesc ? '▲' : '▼'}</span>}
-              </div>
-            ),
-          }))}
+          headers={headers.map((header) => {
+            // Prevent sorting logic for the checkbox column
+            if (header.key === 'select') {
+              return {
+                ...header,
+                label: (
+                  <input
+                    type="checkbox"
+                    onChange={toggleSelectAll}
+                    checked={selectedBrokers.length === paginatedData.length && paginatedData.length > 0}
+                  />
+                ),
+              };
+            }
+
+            return {
+              ...header,
+              label: (
+                <div className="sortable-header" onClick={() => handleSort(header.key)}>
+                  {header.label}
+                  {sortBy === header.key && <span className="sort-icon">{sortDesc ? '▲' : '▼'}</span>}
+                </div>
+              ),
+            };
+          })}
           handleSort={handleSort}
           sortBy={sortBy}
           sortDesc={sortDesc}
@@ -221,6 +347,23 @@ const BrokerTable = () => {
             closeAddModal();
           }}
         />
+      </Modal>
+
+      {/* Email Modal */}
+      <Modal isOpen={isEmailModalOpen} onClose={() => setEmailModalOpen(false)} title="Send Email">
+        <div className="email-modal">
+          <div>
+            <label htmlFor="subject">Subject:</label>
+            <input type="text" placeholder="Subject" onChange={(e) => setEmailData({ ...emailData, subject: e.target.value })} />
+          </div>
+          <div>
+            <label htmlFor="content">Content:</label>
+            <textarea placeholder="Content" onChange={(e) => setEmailData({ ...emailData, content: e.target.value })} />
+          </div>
+          <button type="submit" onClick={() => sendEmails(emailData.subject, emailData.content)}>
+            Send
+          </button>
+        </div>
       </Modal>
     </div>
   );

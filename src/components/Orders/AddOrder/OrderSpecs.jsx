@@ -2,8 +2,8 @@ function OrderSpecs({ order, setOrder }) {
   return (
     <fieldset className="form-section">
       <legend>Load Specifications</legend>
-      <div className="form-row">
-        <div className="form-group">
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label
             htmlFor="hot"
             style={{
@@ -16,7 +16,7 @@ function OrderSpecs({ order, setOrder }) {
             <input type="checkbox" checked={order.hot} onChange={(e) => setOrder({ ...order, hot: e.target.checked })} id="hot" />
           </label>
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label
             htmlFor="team"
             style={{
@@ -29,7 +29,7 @@ function OrderSpecs({ order, setOrder }) {
             <input type="checkbox" checked={order.team} onChange={(e) => setOrder({ ...order, team: e.target.checked })} id="team" />
           </label>
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label
             htmlFor="air_ride"
             style={{
@@ -42,7 +42,7 @@ function OrderSpecs({ order, setOrder }) {
             <input type="checkbox" checked={order.air_ride} onChange={(e) => setOrder({ ...order, air_ride: e.target.checked })} id="air_ride" />
           </label>
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label
             htmlFor="tarp"
             style={{
@@ -55,7 +55,7 @@ function OrderSpecs({ order, setOrder }) {
             <input type="checkbox" checked={order.tarp} onChange={(e) => setOrder({ ...order, tarp: e.target.checked })} id="tarp" />
           </label>
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label
             htmlFor="hazmat"
             style={{

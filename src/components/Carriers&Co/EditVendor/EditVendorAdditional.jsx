@@ -2,8 +2,8 @@ function EditVendorAdditional({ formVendor, setFormVendor }) {
   return (
     <fieldset className="form-section">
       <legend>Additional Details</legend>
-      <div className="form-row">
-        <div className="form-group">
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="legalName">US Tax id</label>
           <input
             type="text"
@@ -12,7 +12,7 @@ function EditVendorAdditional({ formVendor, setFormVendor }) {
             id="legalName"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="remitName">Payroll#</label>
           <input
             type="text"
@@ -21,7 +21,7 @@ function EditVendorAdditional({ formVendor, setFormVendor }) {
             id="remitName"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="accNo">WCB#</label>
           <input type="text" value={formVendor.wcb_no} onChange={(e) => setFormVendor({ ...formVendor, wcb_no: e.target.value })} id="accNo" />
         </div>

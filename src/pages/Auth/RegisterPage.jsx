@@ -65,6 +65,8 @@ const Register = () => {
             <Select placeholder="Select Role" onChange={handleRoleChange}>
               <Option value="admin">Admin</Option>
               <Option value="employee">Employee</Option>
+              <Option value="carrier">Carrier</Option>
+              <Option value="customer">Customer</Option>
             </Select>
           </Form.Item>
           {role === 'employee' && (

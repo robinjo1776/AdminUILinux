@@ -3,12 +3,12 @@ function EditGeneral({ formCarrier, setformCarrier }) {
   return (
     <fieldset className="form-section">
       <legend>General</legend>
-      <div className="form-row">
-        <div className="form-group">
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="dba">DBA*</label>
           <input type="text" value={formCarrier.dba} onChange={(e) => setformCarrier({ ...formCarrier, dba: e.target.value })} id="dba" required />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="legalName">Legal Name</label>
           <input
             type="text"
@@ -17,7 +17,7 @@ function EditGeneral({ formCarrier, setformCarrier }) {
             id="legalName"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="remitName">Remit Name</label>
           <input
             type="text"
@@ -26,19 +26,23 @@ function EditGeneral({ formCarrier, setformCarrier }) {
             id="remitName"
           />
         </div>
-        <div className="form-group">
+      </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="accNo">Account Number</label>
           <input type="text" value={formCarrier.acc_no} onChange={(e) => setformCarrier({ ...formCarrier, acc_no: e.target.value })} id="accNo" />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="branch">Branch</label>
           <input type="text" value={formCarrier.branch} onChange={(e) => setformCarrier({ ...formCarrier, branch: e.target.value })} id="branch" />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="website">Website</label>
           <input type="text" value={formCarrier.website} onChange={(e) => setformCarrier({ ...formCarrier, website: e.target.value })} id="website" />
         </div>
-        <div className="form-group">
+      </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="fedIdNo">Federal ID Number</label>
           <input
             type="text"
@@ -47,7 +51,7 @@ function EditGeneral({ formCarrier, setformCarrier }) {
             id="fedIdNo"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="creditStatus">Preferred Currency</label>
           <select
             name="creditStatus"
@@ -67,7 +71,7 @@ function EditGeneral({ formCarrier, setformCarrier }) {
             ))}
           </select>
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="payTerms">Payment Terms</label>
           <input
             type="text"
@@ -76,7 +80,9 @@ function EditGeneral({ formCarrier, setformCarrier }) {
             id="payTerms"
           />
         </div>
-        <div className="form-group">
+      </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label
             style={{
               display: 'inline-flex',
@@ -98,7 +104,7 @@ function EditGeneral({ formCarrier, setformCarrier }) {
             />
           </label>
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label
             style={{
               display: 'inline-flex',
@@ -120,7 +126,7 @@ function EditGeneral({ formCarrier, setformCarrier }) {
             />
           </label>
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="advertiseEmail">Advertise Email</label>
           <input
             type="email"

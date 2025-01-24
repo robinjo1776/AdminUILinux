@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect } from 'react';
 
 function OrderTax({ order, setOrder }) {
   // Helper function to calculate the total price
@@ -16,74 +16,75 @@ function OrderTax({ order, setOrder }) {
   return (
     <fieldset className="form-section">
       <legend>Tax</legend>
-      <div className="form-row">
-        <div className="form-group">
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="basePrice">Base Price</label>
           <input
             type="number"
             step="0.01"
-            value={order.base_price || ""}
-            onChange={(e) =>
-              setOrder({ ...order, base_price: e.target.value })
-            }
+            value={order.base_price || ''}
+            onChange={(e) => setOrder({ ...order, base_price: e.target.value })}
             id="basePrice"
+            placeholder="Base Price"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="gst">GST</label>
           <input
             type="number"
             step="0.01"
-            value={order.gst || ""}
+            value={order.gst || ''}
             onChange={(e) => setOrder({ ...order, gst: e.target.value })}
             id="gst"
+            placeholder="GST"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="pst">PST</label>
           <input
             type="number"
             step="0.01"
-            value={order.pst || ""}
+            value={order.pst || ''}
             onChange={(e) => setOrder({ ...order, pst: e.target.value })}
             id="pst"
+            placeholder="PST"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="hst">HST</label>
           <input
             type="number"
             step="0.01"
-            value={order.hst || ""}
+            value={order.hst || ''}
             onChange={(e) => setOrder({ ...order, hst: e.target.value })}
             id="hst"
+            placeholder="HST"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="qst">QST</label>
           <input
             type="number"
             step="0.01"
-            value={order.qst || ""}
+            value={order.qst || ''}
             onChange={(e) => setOrder({ ...order, qst: e.target.value })}
             id="qst"
+            placeholder="QST"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="finalPrice">Final Price</label>
-          <input
-            type="text"
-            value={order.final_price || ""}
-            readOnly
-            id="finalPrice"
-          />
+          <input type="text" value={order.final_price || ''} readOnly id="finalPrice" />
         </div>
-        <div className="form-group">
+      </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="notes">Notes</label>
           <textarea
-            value={order.notes || ""}
+            value={order.notes || ''}
             onChange={(e) => setOrder({ ...order, notes: e.target.value })}
             id="notes"
+            placeholder="Notes"
           ></textarea>
         </div>
       </div>

@@ -5,6 +5,7 @@ import LeadContactForm from '../LeadContactForm';
 import EditLeadDetails from './EditLeadDetails';
 import EditAddressDetails from './EditAddressDetails';
 import EditAdditionalInfo from './EditAdditionalInfo';
+import { PlusOutlined } from '@ant-design/icons';
 
 const EditLeadForm = ({ lead, onClose, onUpdate }) => {
   const [formLead, setFormLead] = useState({
@@ -29,22 +30,6 @@ const EditLeadForm = ({ lead, onClose, onUpdate }) => {
     contacts: [{ name: '', phone: '', email: '' }],
   });
   const API_URL = import.meta.env.VITE_API_BASE_URL;
-  const equipmentTypeOptions = ['Van', 'Reefer', 'Flatbed', 'Triaxle', 'Maxi', 'Btrain', 'Roll tite'];
-  const leadTypeOptions = ['AB', 'BC', 'BDS', 'CA', 'DPD MAGMA', 'MB', 'ON', 'Super Leads', 'TBAB', 'USA'];
-  const leadStatusOptions = [
-    'Prospect customer',
-    'Lanes discussed',
-    'Product/Equipment discussed',
-    'E-mail sent to concerned person',
-    'Carrier portal registration',
-    'Quotations',
-    'Fob/Have broker',
-    'Voicemail/No answer',
-    'Different Department',
-    'No answer/Callback/Voicemail',
-    'Not interested',
-    'Asset based only',
-  ];
 
   useEffect(() => {
     if (lead) {
@@ -136,47 +121,7 @@ const EditLeadForm = ({ lead, onClose, onUpdate }) => {
         className="form-main"
       >
         <EditLeadDetails formLead={formLead} setFormLead={setFormLead} />
-
         <EditAddressDetails formLead={formLead} setFormLead={setFormLead} />
-
-        <fieldset className="form-section">
-          <legend>Equipment & Lead Type</legend>
-          <div className="form-group">
-            <label htmlFor="equipmentType">Equipment Type</label>
-            <select id="equipmentType" value={formLead.equipment_type} onChange={(e) => setFormLead({ ...formLead, equipment_type: e.target.value })}>
-              <option value="">Select Equipment Type</option>
-              {equipmentTypeOptions.map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="form-group">
-            <label htmlFor="leadType">Lead Type*</label>
-            <select id="leadType" value={formLead.lead_type} onChange={(e) => setFormLead({ ...formLead, lead_type: e.target.value })}>
-              <option value="">Select Lead Type</option>
-              {leadTypeOptions.map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="form-group">
-            <label htmlFor="leadStatus">Lead Status*</label>
-            <select id="leadStatus" value={formLead.lead_status} onChange={(e) => setFormLead({ ...formLead, lead_status: e.target.value })}>
-              <option value="">Select Lead Status</option>
-              {leadStatusOptions.map((status) => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
-              ))}
-            </select>
-          </div>
-        </fieldset>
-
-        {/* Additional Fields */}
         <EditAdditionalInfo formLead={formLead} setFormLead={setFormLead} />
 
         {/* Contacts */}
@@ -186,15 +131,19 @@ const EditLeadForm = ({ lead, onClose, onUpdate }) => {
             {formLead.contacts.map((contact, index) => (
               <LeadContactForm key={index} contact={contact} index={index} onChange={handleContactChange} onRemove={handleRemoveContact} />
             ))}
-            <button type="button" onClick={handleAddContact} className="add">
-              Add Contact
+            <button type="button" onClick={handleAddContact} className="add-button">
+              <PlusOutlined />
             </button>
           </div>
         </fieldset>
-
-        <button type="submit" className="btn-submit">
-          Update Lead
-        </button>
+        <div className="form-actions">
+          <button type="submit" className="btn-submit">
+            Save
+          </button>
+          <button type="button" className="btn-cancel" onClick={onClose}>
+            Cancel
+          </button>
+        </div>
       </form>
     </div>
   );

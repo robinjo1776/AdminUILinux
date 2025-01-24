@@ -41,7 +41,7 @@ const AddBrokerForm = ({ onClose, onAddBroker }) => {
           response = await axios.put(`${API_URL}/broker/${broker.id}`, broker, { headers });
           Swal.fire('Updated!', 'Broker data has been updated successfully.', 'success');
         } else {
-          response = await axios.post(`${API_URL}api/broker`, broker, {
+          response = await axios.post(`${API_URL}/broker`, broker, {
             headers,
           });
           Swal.fire('Saved!', 'Broker data has been saved successfully.', 'success');
@@ -83,9 +83,12 @@ const AddBrokerForm = ({ onClose, onAddBroker }) => {
     <div className="form-container">
       <form onSubmit={handleSubmit} className="form-main">
         <BrokerDetails broker={broker} setBroker={setBroker} />
-        <div className="submit-button-container">
+        <div className="form-actions">
           <button type="submit" className="btn-submit">
-            Submit Broker
+            Add Broker
+          </button>
+          <button type="button" className="btn-cancel" onClick={onClose}>
+            Cancel
           </button>
         </div>
       </form>

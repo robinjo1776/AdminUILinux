@@ -9,8 +9,8 @@ function EditVendorCargoInsurance({ formVendor, setFormVendor }) {
   return (
     <fieldset className="form-section">
       <legend>Cargo Insurance Details</legend>
-      <div className="form-row">
-        <div className="form-group">
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="ciProvider">Cargo Insurance Provider</label>
           <input
             type="text"
@@ -20,7 +20,7 @@ function EditVendorCargoInsurance({ formVendor, setFormVendor }) {
           />
         </div>
 
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="ciStartDate">Start Date</label>
           <input
             type="date"
@@ -29,7 +29,7 @@ function EditVendorCargoInsurance({ formVendor, setFormVendor }) {
             id="ciStartDate"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="ciEndDate">End Date</label>
           <input
             type="date"
@@ -38,7 +38,7 @@ function EditVendorCargoInsurance({ formVendor, setFormVendor }) {
             id="ciEndDate"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="ciCoverage">Coverage Amount</label>
           <input
             type="number"

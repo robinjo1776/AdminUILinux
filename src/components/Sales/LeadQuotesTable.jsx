@@ -3,7 +3,7 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import Table from '../common/Table';
 import Modal from '../common/Modal';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
 import { UserContext } from '../../UserProvider';
 import EditLeadQuotesForm from './EditLead/EditLeadQuotesForm';
 
@@ -17,8 +17,9 @@ const LeadQuotesTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedLead, setSelectedLead] = useState(null);
   const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [selectedLeadQuotes, setSelectedLeadQuotes] = useState([]);
+  const [rowsPerPage, setRowsPerPage] = useState(8);
   const API_URL = import.meta.env.VITE_API_BASE_URL;
-  const perPage = 100;
 
   const getUserNameById = (id) => {
     const user = users.find((user) => user.id === id);
@@ -67,50 +68,73 @@ const LeadQuotesTable = () => {
     setLeads((prevLeads) => prevLeads.map((lead) => (lead.id === updatedLead.id ? { ...lead, ...updatedLead } : lead)));
   };
 
-  const deleteLead = async (id) => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No token found');
-      }
+  const toggleSelectAll = () => {
+    if (selectedLeadQuotes.length === paginatedData.length) {
+      setSelectedLeadQuotes([]);
+    } else {
+      setSelectedLeadQuotes(paginatedData.map((quote) => quote.id));
+    }
+  };
 
-      const response = await axios.delete(`${API_URL}/lead/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+  const toggleSelect = (id) => {
+    setSelectedLeadQuotes((prev) => (prev.includes(id) ? prev.filter((selectedId) => selectedId !== id) : [...prev, id]));
+  };
+
+  const deleteSelected = async () => {
+    if (selectedLeadQuotes.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'No record selected',
+        text: 'Please select a record to delete.',
       });
-      console.log('Delete Response:', response);
-      setLeads((prevLeads) => prevLeads.filter((lead) => lead.id !== id));
-      Swal.fire('Deleted!', 'The lead has been deleted.', 'success');
-    } catch (error) {
-      console.error('Error deleting lead:', error);
+      return;
+    }
 
-      if (error.response) {
-        if (error.response.status === 401) {
-          // Token is invalid or expired
-          Swal.fire({
-            icon: 'error',
-            title: 'Unauthorized',
-            text: 'Your session has expired. Please log in again.',
-          });
-        } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error!',
-            text: 'Failed to delete the lead.',
-          });
+    const confirmed = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'This action cannot be undone.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete selected!',
+      cancelButtonText: 'No, cancel!',
+    });
+
+    if (confirmed.isConfirmed) {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          throw new Error('No token found');
         }
-      } else {
+
+        await Promise.all(
+          selectedLeadQuotes.map((id) =>
+            axios.delete(`${API_URL}/lead/${id}`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            })
+          )
+        );
+
+        setLeads((prevLeads) => prevLeads.filter((lead) => !selectedLeadQuotes.includes(lead.id)));
+
+        setSelectedLeadQuotes([]); // Clear selected customers after deletion
+        Swal.fire('Deleted!', 'Selected quotes have been deleted.', 'success');
+      } catch (error) {
+        console.error('Error deleting quotes:', error);
+
         Swal.fire({
           icon: 'error',
           title: 'Error!',
-          text: 'An unexpected error occurred.',
+          text: 'Failed to delete selected quotes.',
         });
       }
     }
   };
 
+  // Sorting logic
   const handleSort = (column) => {
+    if (column === 'checkbox') return;
     if (sortBy === column) {
       setSortDesc(!sortDesc);
     } else {
@@ -168,7 +192,7 @@ const LeadQuotesTable = () => {
 
         // If the conversion is successful, remove the lead from the leads table
         // Delete the lead from the API and remove it from the table view
-        await deleteLead(lead.id); // Call the delete function after conversion
+        await deleteSelected(lead.id); // Call the delete function after conversion
 
         Swal.fire('Converted!', 'The lead has been converted to a customer.', 'success');
       } catch (error) {
@@ -213,11 +237,18 @@ const LeadQuotesTable = () => {
     return sortDesc ? valB - valA : valA - valB;
   });
 
-  const paginatedData = sortedLeads.slice((currentPage - 1) * perPage, currentPage * perPage);
+  const paginatedData = sortedLeads.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
-  const totalPages = Math.ceil(filteredLeads.length / perPage);
+  const totalPages = Math.ceil(filteredLeads.length / rowsPerPage);
 
   const headers = [
+    {
+      key: 'select',
+      label: (
+        <input type="checkbox" onChange={toggleSelectAll} checked={selectedLeadQuotes.length === paginatedData.length && paginatedData.length > 0} />
+      ),
+      render: (item) => <input type="checkbox" checked={selectedLeadQuotes.includes(item.id)} onChange={() => toggleSelect(item.id)} />,
+    },
     { key: 'lead_no', label: 'Lead#' },
     { key: 'lead_date', label: 'Date' },
     { key: 'follow_up_date', label: 'Follow Up' },
@@ -228,15 +259,12 @@ const LeadQuotesTable = () => {
     { key: 'lead_type', label: 'Type' },
     { key: 'assigned_to', label: 'Assigned To' },
     {
-      key: 'actions',
-      label: 'Actions',
+      key: 'edit',
+      label: 'Edit',
       render: (item) => (
         <>
           <button onClick={() => openEditModal(item)} className="btn-edit">
             <EditOutlined />
-          </button>
-          <button onClick={() => deleteLead(item.id)} className="btn-delete">
-            <DeleteOutlined />
           </button>
           {item.lead_status === 'Quotations' && (
             <button onClick={() => convertToCustomer(item)} className="btn-convert">
@@ -253,20 +281,46 @@ const LeadQuotesTable = () => {
       {/* Header with Add Lead button and search input */}
       <div className="header-container">
         <div className="header-actions">
-          <h1 className="page-heading">Lead quotes</h1>
+          <h1 className="page-heading">Leads with Quotes</h1>
         </div>
         <div className="search-container">
-          <input className="search-bar" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search..." />
+          <div className="search-input-wrapper">
+            <SearchOutlined className="search-icon" />
+            <input className="search-bar" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search..." />
+          </div>
         </div>
       </div>
-
-      {/* Loading state: Show a loading indicator */}
-      {loading ? (
-        <div className="loading-indicator">
-          <span>Loading leads...</span>
+      <div className="controls-container">
+        <div className="pagination-controls">
+          <div className="rows-per-page-container">
+            <label htmlFor="rowsPerPage">Rows per page: </label>
+            <select
+              id="rowsPerPage"
+              value={rowsPerPage}
+              onChange={(e) => {
+                setRowsPerPage(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+            >
+              <option value={8}>8</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+              <option value={200}>200</option>
+              <option value={500}>500</option>
+            </select>
+          </div>
         </div>
+        <button onClick={deleteSelected} className="delete-button">
+          Delete&nbsp; <DeleteOutlined />
+        </button>
+      </div>
+
+      {loading ? (
+        <div>Loading...</div>
+      ) : leads.length === 0 ? (
+        <div>No records found</div>
       ) : (
-        // Table will show only once data is fetched
         <Table
           data={paginatedData}
           headers={headers.map((header) => ({

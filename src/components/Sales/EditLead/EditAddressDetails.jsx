@@ -64,8 +64,8 @@ function EditAddressDetails({ formLead, setFormLead }) {
   return (
     <fieldset className="form-section">
       <legend>Address Details</legend>
-      <div className="form-row">
-        <div className="form-group">
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="address">Address</label>
           <input
             type="text"
@@ -76,25 +76,32 @@ function EditAddressDetails({ formLead, setFormLead }) {
             placeholder="Enter your address"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="unitNo">Unit No</label>
           <input type="text" value={formLead.unit_no} onChange={(e) => setFormLead({ ...formLead, unit_no: e.target.value })} id="unitNo" />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="city">City</label>
           <input type="text" value={formLead.city} onChange={(e) => setFormLead({ ...formLead, city: e.target.value })} id="city" />
         </div>
-        <div className="form-group">
+      </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="state">State</label>
           <input type="text" value={formLead.state} onChange={(e) => setFormLead({ ...formLead, state: e.target.value })} id="state" />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="country">Country</label>
           <input type="text" value={formLead.country} onChange={(e) => setFormLead({ ...formLead, country: e.target.value })} id="country" />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="postalCode">Postal Code</label>
-          <input type="text" value={formLead.postal_code} onChange={(e) => setFormLead({ ...formLead, postal_code: e.target.value })} id="postalCode" />
+          <input
+            type="text"
+            value={formLead.postal_code}
+            onChange={(e) => setFormLead({ ...formLead, postal_code: e.target.value })}
+            id="postalCode"
+          />
         </div>
       </div>
     </fieldset>

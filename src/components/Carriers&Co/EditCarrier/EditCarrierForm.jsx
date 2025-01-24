@@ -11,6 +11,7 @@ import EditMailingAddress from './EditMailingAddress';
 import CarrierContact from '../CarrierContact';
 import CarrierEquipment from '../CarrierEquipment';
 import CarrierLane from '../CarrierLane';
+import { PlusOutlined } from '@ant-design/icons';
 
 function EditCarrierForm({ carrier, onClose, onUpdate }) {
   const users = useContext(UserContext);
@@ -205,56 +206,63 @@ function EditCarrierForm({ carrier, onClose, onUpdate }) {
         <EditCargoInsurance formCarrier={formCarrier} setformCarrier={setformCarrier} />
         <EditPrimaryAddress formCarrier={formCarrier} setformCarrier={setformCarrier} />
         <EditMailingAddress formCarrier={formCarrier} setformCarrier={setformCarrier} />
-        {/* Contacts */}
         <fieldset className="form-section">
           <legend>Contacts</legend>
           <div className="form-row">
-            {Array.isArray(formCarrier.contact) && formCarrier.contact.length > 0 ? (
+            {Array.isArray(formCarrier.contact) &&
               formCarrier.contact.map((contact, index) => (
-                <CarrierContact key={index} contact={contact} index={index} onChange={handleContactChange} onRemove={handleRemoveContact} />
-              ))
-            ) : (
-              <p>No contacts available</p>
-            )}
-            <button type="button" onClick={handleAddContact} className="add">
-              Add Contact
+                <CarrierContact
+                  key={index}
+                  contact={contact}
+                  index={index}
+                  handleContactChange={handleContactChange}
+                  handleRemoveContact={handleRemoveContact}
+                />
+              ))}
+            <button type="button" onClick={handleAddContact} className="add-button">
+              <PlusOutlined />
             </button>
           </div>
         </fieldset>
         <fieldset className="form-section">
           <legend>Equipments</legend>
           <div className="form-row">
-            {Array.isArray(formCarrier.equipment) && formCarrier.equipment.length > 0 ? (
+            {Array.isArray(formCarrier.equipment) &&
               formCarrier.equipment.map((equipment, index) => (
-                <CarrierEquipment key={index} equipment={equipment} index={index} onChange={handleEquipmentChange} onRemove={handleRemoveEquipment} />
-              ))
-            ) : (
-              <p>No equipment available</p>
-            )}
-            <button type="button" onClick={handleAddEquipment} className="add">
-              Add Equipment
+                <CarrierEquipment
+                  key={index}
+                  equipment={equipment}
+                  index={index}
+                  handleEquipmentChange={handleEquipmentChange}
+                  handleRemoveEquipment={handleRemoveEquipment}
+                />
+              ))}
+            <button type="button" onClick={handleAddEquipment} className="add-button">
+              <PlusOutlined />
             </button>
           </div>
         </fieldset>
         <fieldset className="form-section">
-          <legend>Lane</legend>
+          <legend>Lanes</legend>
           <div className="form-row">
-            {Array.isArray(formCarrier.lane) && formCarrier.lane.length > 0 ? (
+            {Array.isArray(formCarrier.lane) &&
               formCarrier.lane.map((lane, index) => (
-                <CarrierLane key={index} lane={lane} index={index} onChange={handleLaneChange} onRemove={handleRemoveLane} />
-              ))
-            ) : (
-              <p>No lanes available</p>
-            )}
-            <button type="button" onClick={handleAddLane} className="add">
-              Add Lane
+                <CarrierLane key={index} lane={lane} index={index} handleLaneChange={handleLaneChange} handleRemoveLane={handleRemoveLane} />
+              ))}
+            <button type="button" onClick={handleAddLane} className="add-button">
+              <PlusOutlined />
             </button>
           </div>
         </fieldset>
 
-        <button type="submit" className="btn-submit">
-          Update Carrier
-        </button>
+        <div className="form-actions">
+          <button type="submit" className="btn-submit">
+            Save
+          </button>
+          <button type="button" className="btn-cancel" onClick={onClose}>
+            Cancel
+          </button>
+        </div>
       </form>
     </div>
   );

@@ -1,5 +1,4 @@
-import { useContext, useState } from 'react';
-import { UserContext } from '../../../UserProvider';
+import { useState } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import '../../../styles/Form.css';
@@ -12,9 +11,10 @@ import MailingAddress from './MailingAddress';
 import CarrierContact from '../CarrierContact';
 import CarrierEquipment from '../CarrierEquipment';
 import CarrierLane from '../CarrierLane';
+import { PlusOutlined } from '@ant-design/icons';
+import InternalNotes from './InternalNotes';
 
 const AddCarrierForm = ({ onClose, onAddCarrier }) => {
-  const { currentUser } = useContext(UserContext);
   const [carrier, setCarrier] = useState({
     id: '',
     dba: '',
@@ -73,37 +73,70 @@ const AddCarrierForm = ({ onClose, onAddCarrier }) => {
   const API_URL = import.meta.env.VITE_API_BASE_URL;
 
   // Handle changes in contacts, equipment, or lanes
-  const handleContactChange = (index, updatedContact) => {
-    const updatedContacts = [...carrier.contact];
-    updatedContacts[index] = updatedContact;
-    setCarrier({ ...carrier, contact: updatedContacts });
+  const handleAddContact = () => {
+    setCarrier((prevCarrier) => ({
+      ...prevCarrier,
+      contact: [...(prevCarrier.contact || []), { name: '', phone: '', email: '', fax: '', designation: '' }],
+    }));
   };
 
   const handleRemoveContact = (index) => {
-    const updatedContacts = carrier.contact.filter((_, i) => i !== index);
-    setCarrier({ ...carrier, contact: updatedContacts });
+    setCarrier((prevCarrier) => ({
+      ...prevCarrier,
+      contact: (prevCarrier.contact || []).filter((_, i) => i !== index),
+    }));
   };
 
-  const handleEquipmentChange = (index, updatedEquipment) => {
-    const updatedEquipments = [...carrier.equipment];
-    updatedEquipments[index] = updatedEquipment;
-    setCarrier({ ...carrier, equipment: updatedEquipments });
+  const handleContactChange = (index, updatedContact) => {
+    const updatedContacts = (carrier.contact || []).map((contact, i) => (i === index ? updatedContact : contact));
+    setCarrier((prevCarrier) => ({
+      ...prevCarrier,
+      contact: updatedContacts,
+    }));
+  };
+
+  const handleAddEquipment = () => {
+    setCarrier((prevCarrier) => ({
+      ...prevCarrier,
+      equipment: [...(prevCarrier.equipment || []), { equipment: '' }],
+    }));
   };
 
   const handleRemoveEquipment = (index) => {
-    const updatedEquipments = carrier.equipment.filter((_, i) => i !== index);
-    setCarrier({ ...carrier, equipment: updatedEquipments });
+    setCarrier((prevCarrier) => ({
+      ...prevCarrier,
+      equipment: (prevCarrier.equipment || []).filter((_, i) => i !== index),
+    }));
   };
 
-  const handleLaneChange = (index, updatedLane) => {
-    const updatedLanes = [...carrier.lane];
-    updatedLanes[index] = updatedLane;
-    setCarrier({ ...carrier, lane: updatedLanes });
+  const handleEquipmentChange = (index, updatedEquipment) => {
+    const updatedEquipments = (carrier.equipment || []).map((equipment, i) => (i === index ? updatedEquipment : equipment));
+    setCarrier((prevCarrier) => ({
+      ...prevCarrier,
+      equipment: updatedEquipments,
+    }));
+  };
+
+  const handleAddLane = () => {
+    setCarrier((prevCarrier) => ({
+      ...prevCarrier,
+      lane: [...(prevCarrier.lane || []), { lane: '' }],
+    }));
   };
 
   const handleRemoveLane = (index) => {
-    const updatedLanes = carrier.lane.filter((_, i) => i !== index);
-    setCarrier({ ...carrier, lane: updatedLanes });
+    setCarrier((prevCarrier) => ({
+      ...prevCarrier,
+      lane: (prevCarrier.lane || []).filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleLaneChange = (index, updatedLane) => {
+    const updatedLanes = (carrier.lane || []).map((lane, i) => (i === index ? updatedLane : lane));
+    setCarrier((prevCarrier) => ({
+      ...prevCarrier,
+      lane: updatedLanes,
+    }));
   };
 
   const validateCarrier = () => {
@@ -128,10 +161,10 @@ const AddCarrierForm = ({ onClose, onAddCarrier }) => {
         };
 
         if (carrier.id) {
-          response = await axios.put(`${API_URL}/api/carrier/${carrier.id}`, carrier, { headers });
+          response = await axios.put(`${API_URL}/carrier/${carrier.id}`, carrier, { headers });
           Swal.fire('Updated!', 'Carrier data has been updated successfully.', 'success');
         } else {
-          response = await axios.post(`${API_URL}/api/carrier`, carrier, {
+          response = await axios.post(`${API_URL}/carrier`, carrier, {
             headers,
           });
           Swal.fire('Saved!', 'Carrier data has been saved successfully.', 'success');
@@ -216,43 +249,22 @@ const AddCarrierForm = ({ onClose, onAddCarrier }) => {
         <CargoInsurance carrier={carrier} setCarrier={setCarrier} />
         <PrimaryAddress carrier={carrier} setCarrier={setCarrier} />
         <MailingAddress carrier={carrier} setCarrier={setCarrier} />
-
-        <fieldset className="form-section">
-          <legend>Internal Notes</legend>
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="legalName">Internal Notes</label>
-              <input type="text" value={carrier.int_notes} onChange={(e) => setCarrier({ ...carrier, int_notes: e.target.value })} id="legalName" />
-            </div>
-          </div>
-        </fieldset>
-
+        <InternalNotes carrier={carrier} setCarrier={setCarrier} />
         <fieldset className="form-section">
           <legend>Contacts</legend>
           <div className="form-row">
-            {carrier.contact.map((contact, index) => (
-              <CarrierContact key={index} contact={contact} index={index} onChange={handleContactChange} onRemove={handleRemoveContact} />
-            ))}
-            <button
-              type="button"
-              onClick={() =>
-                setCarrier((prevCarrier) => ({
-                  ...prevCarrier,
-                  contact: [
-                    ...prevCarrier.contact,
-                    {
-                      name: '',
-                      phone: '',
-                      email: '',
-                      fax: '',
-                      designation: '',
-                    },
-                  ],
-                }))
-              }
-              className="add"
-            >
-              Add Contact
+            {Array.isArray(carrier.contact) &&
+              carrier.contact.map((contact, index) => (
+                <CarrierContact
+                  key={index}
+                  contact={contact}
+                  index={index}
+                  handleContactChange={handleContactChange}
+                  handleRemoveContact={handleRemoveContact}
+                />
+              ))}
+            <button type="button" onClick={handleAddContact} className="add-button">
+              <PlusOutlined />
             </button>
           </div>
         </fieldset>
@@ -260,20 +272,18 @@ const AddCarrierForm = ({ onClose, onAddCarrier }) => {
         <fieldset className="form-section">
           <legend>Equipment</legend>
           <div className="form-row">
-            {carrier.equipment.map((equipment, index) => (
-              <CarrierEquipment key={index} equipment={equipment} index={index} onChange={handleEquipmentChange} onRemove={handleRemoveEquipment} />
-            ))}
-            <button
-              type="button"
-              onClick={() =>
-                setCarrier((prevCarrier) => ({
-                  ...prevCarrier,
-                  equipment: [...prevCarrier.equipment, { equipment_type: '', quantity: '', details: '' }],
-                }))
-              }
-              className="add"
-            >
-              Add Equipment
+            {Array.isArray(carrier.equipment) &&
+              carrier.equipment.map((equipment, index) => (
+                <CarrierEquipment
+                  key={index}
+                  equipment={equipment}
+                  index={index}
+                  handleEquipmentChange={handleEquipmentChange}
+                  handleRemoveEquipment={handleRemoveEquipment}
+                />
+              ))}
+            <button type="button" onClick={handleAddEquipment} className="add-button">
+              <PlusOutlined />
             </button>
           </div>
         </fieldset>
@@ -281,27 +291,22 @@ const AddCarrierForm = ({ onClose, onAddCarrier }) => {
         <fieldset className="form-section">
           <legend>Lanes</legend>
           <div className="form-row">
-            {carrier.lane.map((lane, index) => (
-              <CarrierLane key={index} lane={lane} index={index} onChange={handleLaneChange} onRemove={handleRemoveLane} />
-            ))}
-            <button
-              type="button"
-              onClick={() =>
-                setCarrier((prevCarrier) => ({
-                  ...prevCarrier,
-                  lane: [...prevCarrier.lane, { origin: '', destination: '', lane_type: '' }],
-                }))
-              }
-              className="add"
-            >
-              Add Lane
+            {Array.isArray(carrier.lane) &&
+              carrier.lane.map((lane, index) => (
+                <CarrierLane key={index} lane={lane} index={index} handleLaneChange={handleLaneChange} handleRemoveLane={handleRemoveLane} />
+              ))}
+            <button type="button" onClick={handleAddLane} className="add-button">
+              <PlusOutlined />
             </button>
           </div>
         </fieldset>
 
-        <div className="submit-button-container">
+        <div className="form-actions">
           <button type="submit" className="btn-submit">
-            Submit Carrier
+          Add Carrier
+          </button>
+          <button type="button" className="btn-cancel" onClick={onClose}>
+            Cancel
           </button>
         </div>
       </form>

@@ -52,8 +52,8 @@ function EditAdditionalInfo({ formLead, setFormLead }) {
   return (
     <fieldset className="form-section">
       <legend>Additional Information</legend>
-      <div className="form-row">
-        <div className="form-group">
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="contactPerson">Contact Person</label>
           <input
             type="text"
@@ -62,11 +62,8 @@ function EditAdditionalInfo({ formLead, setFormLead }) {
             id="contactPerson"
           />
         </div>
-        <div className="form-group">
-          <label htmlFor="notes">Notes</label>
-          <textarea value={formLead.notes} onChange={(e) => setFormLead({ ...formLead, notes: e.target.value })} id="notes" />
-        </div>
-        <div className="form-group">
+
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="follow_up_date">Next Follow-Up Date</label>
           <input
             type="date"
@@ -75,7 +72,7 @@ function EditAdditionalInfo({ formLead, setFormLead }) {
             id="follow_up_date"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="equipmentType">Equipment Type</label>
           <select id="equipmentType" value={formLead.equipment_type} onChange={(e) => setFormLead({ ...formLead, equipment_type: e.target.value })}>
             <option value="">Select Equipment Type</option>
@@ -86,7 +83,7 @@ function EditAdditionalInfo({ formLead, setFormLead }) {
             ))}
           </select>
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="assignedTo">Assigned To</label>
           <select id="assignedTo" value={formLead.assigned_to} onChange={(e) => setFormLead({ ...formLead, assigned_to: e.target.value })}>
             <option value="">Select Employee</option>
@@ -98,6 +95,10 @@ function EditAdditionalInfo({ formLead, setFormLead }) {
             ))}
           </select>
         </div>
+      </div>
+      <div className="form-group" style={{ flex: 1 }}>
+        <label htmlFor="notes">Notes</label>
+        <textarea value={formLead.notes} onChange={(e) => setFormLead({ ...formLead, notes: e.target.value })} id="notes" />
       </div>
     </fieldset>
   );

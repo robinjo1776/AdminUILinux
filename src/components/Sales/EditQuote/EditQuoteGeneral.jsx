@@ -52,8 +52,8 @@ function EditQuoteGeneral({ formQuote, setFormQuote }) {
   return (
     <fieldset className="form-section">
       <legend>General</legend>
-      <div className="form-row">
-        <div className="form-group">
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="quoteType">Quote Type*</label>
 
           <select id="quoteType" value={formQuote.quote_type} onChange={(e) => setFormQuote({ ...formQuote, quote_type: e.target.value })} required>
@@ -64,35 +64,51 @@ function EditQuoteGeneral({ formQuote, setFormQuote }) {
             ))}
           </select>
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="quote_customer">Customer</label>
-          <Select
+          <select
             id="quote_customer"
-            options={customers}
-            value={customers.find((c) => c.value === formQuote.quote_customer) || null}
-            onChange={(selected) => {
-              console.log('Selected customer:', selected); // Debugging selected customer
-              setFormQuote({ ...formQuote, quote_customer: selected ? selected.value : '' });
+            value={formQuote.quote_customer || ''}
+            onChange={(e) => {
+              console.log('Selected customer:', e.target.value); // Debugging selected customer
+              setFormQuote({ ...formQuote, quote_customer: e.target.value });
             }}
-            placeholder="Select a customer"
-            isClearable
-          />
+            required
+          >
+            <option value="" disabled>
+              Select a customer
+            </option>
+            {customers.map((customer) => (
+              <option key={customer.value} value={customer.value}>
+                {customer.label}
+              </option>
+            ))}
+          </select>
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="customerRefNo">Customer Ref. No</label>
-          <Select
-            id="customerRefNo"
-            options={customerRefNos}
-            value={customerRefNos.find((c) => c.value === formQuote.quote_cust_ref_no) || null}
-            onChange={(selected) => {
-              console.log('Selected refNo:', selected); // Debugging selected refNo
-              setFormQuote({ ...formQuote, quote_cust_ref_no: selected ? selected.value : '' });
+          <select
+            id="quote_customer"
+            value={formQuote.quote_cust_ref_no || ''}
+            onChange={(e) => {
+              console.log('Selected customer:', e.target.value);
+              setFormQuote({ ...formQuote, quote_cust_ref_no: e.target.value });
             }}
-            placeholder="Select a reference number"
-            isClearable
-          />
+            required
+          >
+            <option value="" disabled>
+              Select a reference number
+            </option>
+            {customerRefNos.map((quote_cust_ref_no) => (
+              <option key={quote_cust_ref_no.value} value={quote_cust_ref_no.value}>
+                {quote_cust_ref_no.label}
+              </option>
+            ))}
+          </select>
         </div>
-        <div className="form-group">
+      </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="accNo">Booked By</label>
           <input
             type="text"
@@ -101,7 +117,7 @@ function EditQuoteGeneral({ formQuote, setFormQuote }) {
             id="accNo"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="branch">Temperature</label>
           <input
             type="text"
@@ -111,7 +127,7 @@ function EditQuoteGeneral({ formQuote, setFormQuote }) {
           />
         </div>
 
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label
             style={{
               display: 'inline-flex',
@@ -133,7 +149,7 @@ function EditQuoteGeneral({ formQuote, setFormQuote }) {
             />
           </label>
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label
             style={{
               display: 'inline-flex',
@@ -155,7 +171,7 @@ function EditQuoteGeneral({ formQuote, setFormQuote }) {
             />
           </label>
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label
             style={{
               display: 'inline-flex',
@@ -177,7 +193,7 @@ function EditQuoteGeneral({ formQuote, setFormQuote }) {
             />
           </label>
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label
             style={{
               display: 'inline-flex',
@@ -199,7 +215,7 @@ function EditQuoteGeneral({ formQuote, setFormQuote }) {
             />
           </label>
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label
             style={{
               display: 'inline-flex',

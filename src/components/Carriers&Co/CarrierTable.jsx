@@ -5,7 +5,7 @@ import Table from '../common/Table';
 import Modal from '../common/Modal';
 import EditCarrierForm from './EditCarrier/EditCarrierForm';
 import AddCarrierForm from './AddCarrier/AddCarrierForm';
-import { EditOutlined, DeleteOutlined, MailOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, MailOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { UserContext } from '../../UserProvider';
 
 const CarrierTable = () => {
@@ -21,9 +21,9 @@ const CarrierTable = () => {
   const [isAddModalOpen, setAddModalOpen] = useState(false);
   const [selectedCarriers, setSelectedCarriers] = useState([]);
   const [isEmailModalOpen, setEmailModalOpen] = useState(false);
+  const [rowsPerPage, setRowsPerPage] = useState(8);
   const [emailData, setEmailData] = useState({ subject: '', content: '' });
   const API_URL = import.meta.env.VITE_API_BASE_URL;
-  const perPage = 100;
 
   useEffect(() => {
     const fetchCarriers = async () => {
@@ -34,7 +34,7 @@ const CarrierTable = () => {
         }
 
         setLoading(true);
-        const { data } = await axios.get(`${API_URL}/api/carrier`, {
+        const { data } = await axios.get(`${API_URL}/carrier`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -65,14 +65,34 @@ const CarrierTable = () => {
   const updateCarrier = (updatedCarrier) => {
     setCarriers((prevCarriers) => prevCarriers.map((carrier) => (carrier.id === updatedCarrier.id ? { ...carrier, ...updatedCarrier } : carrier)));
   };
+  const toggleSelectAll = () => {
+    if (selectedCarriers.length === paginatedData.length) {
+      setSelectedCarriers([]);
+    } else {
+      setSelectedCarriers(paginatedData.map((carrier) => carrier.id));
+    }
+  };
 
-  const deleteCarrier = async (id) => {
+  const toggleSelect = (id) => {
+    setSelectedCarriers((prev) => (prev.includes(id) ? prev.filter((selectedId) => selectedId !== id) : [...prev, id]));
+  };
+
+  const deleteSelected = async () => {
+    if (selectedCarriers.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'No record selected',
+        text: 'Please select a record to delete.',
+      });
+      return;
+    }
+
     const confirmed = await Swal.fire({
       title: 'Are you sure?',
       text: 'This action cannot be undone.',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Yes, delete it!',
+      confirmButtonText: 'Yes, delete selected!',
       cancelButtonText: 'No, cancel!',
     });
 
@@ -83,23 +103,33 @@ const CarrierTable = () => {
           throw new Error('No token found');
         }
 
-        const response = await axios.delete(`${API_URL}/api/carrier/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        await Promise.all(
+          selectedCarriers.map((id) =>
+            axios.delete(`${API_URL}/carrier/${id}`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            })
+          )
+        );
 
-        console.log('Delete Response:', response);
-        setCarriers((prevCarriers) => prevCarriers.filter((carrier) => carrier.id !== id));
-        Swal.fire('Deleted!', 'The carrier has been deleted.', 'success');
+        setCarriers((prevCarriers) => prevCarriers.filter((carrier) => !selectedCarriers.includes(carrier.id)));
+        setSelectedCarriers([]);
+        Swal.fire('Deleted!', 'Selected carriers have been deleted.', 'success');
       } catch (error) {
-        console.error('Error deleting carrier:', error);
-        Swal.fire('Error!', 'Failed to delete the carrier.', 'error');
+        console.error('Error deleting carriers:', error);
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Error!',
+          text: 'Failed to delete selected carriers.',
+        });
       }
     }
   };
 
   const handleSort = (column) => {
+    if (column === 'checkbox') return;
     if (sortBy === column) {
       setSortDesc(!sortDesc);
     } else {
@@ -127,15 +157,17 @@ const CarrierTable = () => {
     return sortDesc ? valB - valA : valA - valB;
   });
 
-  const paginatedData = sortedCarriers.slice((currentPage - 1) * perPage, currentPage * perPage);
+  const paginatedData = sortedCarriers.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
-  const totalPages = Math.ceil(filteredCarriers.length / perPage);
+  const totalPages = Math.ceil(filteredCarriers.length / rowsPerPage);
 
   const headers = [
     {
       key: 'select',
-      label: 'Select',
-      render: (item) => <input type="checkbox" checked={selectedCarriers.includes(item.id)} onChange={() => toggleCarrierSelection(item.id)} />,
+      label: (
+        <input type="checkbox" onChange={toggleSelectAll} checked={selectedCarriers.length === paginatedData.length && paginatedData.length > 0} />
+      ),
+      render: (item) => <input type="checkbox" checked={selectedCarriers.includes(item.id)} onChange={() => toggleSelect(item.id)} />,
     },
     { key: 'dba', label: 'DBA' },
     { key: 'legal_name', label: 'Legal Name' },
@@ -161,15 +193,12 @@ const CarrierTable = () => {
     { key: 'primary_phone', label: 'Phone' },
     { key: 'li_coverage', label: 'Liability Coverage' },
     {
-      key: 'actions',
-      label: 'Actions',
+      key: 'edit',
+      label: 'Edit',
       render: (item) => (
         <>
           <button onClick={() => openEditModal(item)} className="btn-edit">
             <EditOutlined />
-          </button>
-          <button onClick={() => deleteCarrier(item.id)} className="btn-delete">
-            <DeleteOutlined />
           </button>
         </>
       ),
@@ -194,52 +223,43 @@ const CarrierTable = () => {
     setAddModalOpen(false);
   };
 
-  const toggleCarrierSelection = (id) => {
-    setSelectedCarriers((prevSelected) => (prevSelected.includes(id) ? prevSelected.filter((carrierId) => carrierId !== id) : [...prevSelected, id]));
-  };
-
   const sendEmails = async (subject, content) => {
+    if (selectedCarriers.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'No carriers selected',
+        text: 'Please select carriers to send emails to.',
+      });
+      return;
+    }
+
     try {
       const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('No token found');
       }
 
-      if (selectedCarriers.length === 0) {
-        Swal.fire('Error!', 'Please select at least one carrier to send the email.', 'error');
-        return;
-      }
-
       const emailData = {
-        ids: selectedCarriers, // The carrier IDs for email sending
+        ids: selectedCarriers,
         subject,
         content,
+        module: 'carriers',
       };
 
-      const response = await axios.post(`${API_URL}/api/email`, emailData, {
+      const response = await axios.post(`${API_URL}/email`, emailData, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
 
-      console.log('Email Response:', response);
       Swal.fire('Success!', 'Emails have been sent.', 'success');
       setEmailModalOpen(false);
-      setSelectedCarriers([]); // Clear the selected carriers after sending the email
+      setSelectedCarriers([]);
     } catch (error) {
       console.error('Error sending emails:', error.response ? error.response.data : error.message);
       Swal.fire('Error!', 'Failed to send emails.', 'error');
     }
-  };
-
-  const handleEmailSubmit = () => {
-    if (!emailData.subject || !emailData.content) {
-      Swal.fire('Error!', 'Please provide both subject and content for the email.', 'error');
-      return;
-    }
-
-    sendEmails(emailData.subject, emailData.content);
   };
 
   return (
@@ -247,32 +267,79 @@ const CarrierTable = () => {
       <div className="header-container">
         <div className="header-actions">
           <h1 className="page-heading">Carriers</h1>
+        </div>
+        <div className="search-container">
+          <div className="search-input-wrapper">
+            <SearchOutlined className="search-icon" />
+            <input className="search-bar" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search..." />
+          </div>
           <button onClick={openAddModal} className="add-button">
-            Add
+            <PlusOutlined />
           </button>
         </div>
-        <button onClick={() => setEmailModalOpen(true)} className="send-email-button" disabled={selectedCarriers.length === 0}>
-          Email <MailOutlined />
-        </button>
-        <div className="search-container">
-          <input className="search-bar" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search carriers..." />
+      </div>
+      <div className="controls-container">
+        <div className="pagination-controls">
+          <div className="rows-per-page-container">
+            <label htmlFor="rowsPerPage">Rows per page: </label>
+            <select
+              id="rowsPerPage"
+              value={rowsPerPage}
+              onChange={(e) => {
+                setRowsPerPage(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+            >
+              <option value={8}>8</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+              <option value={200}>200</option>
+              <option value={500}>500</option>
+            </select>
+          </div>
+        </div>
+        <div className="button-group">
+          <button onClick={() => setEmailModalOpen(true)} className="send-email-button" disabled={selectedCarriers.length === 0}>
+            Email&nbsp; <MailOutlined />
+          </button>
+          <button onClick={deleteSelected} className="delete-button">
+            Delete&nbsp; <DeleteOutlined />
+          </button>
         </div>
       </div>
-
       {loading ? (
         <div>Loading...</div>
+      ) : carriers.length === 0 ? (
+        <div>No records found</div>
       ) : (
         <Table
           data={paginatedData}
-          headers={headers.map((header) => ({
-            ...header,
-            label: (
-              <div className="sortable-header" onClick={() => handleSort(header.key)}>
-                {header.label}
-                {sortBy === header.key && <span className="sort-icon">{sortDesc ? '▲' : '▼'}</span>}
-              </div>
-            ),
-          }))}
+          headers={headers.map((header) => {
+            // Prevent sorting logic for the checkbox column
+            if (header.key === 'select') {
+              return {
+                ...header,
+                label: (
+                  <input
+                    type="checkbox"
+                    onChange={toggleSelectAll}
+                    checked={selectedCarriers.length === paginatedData.length && paginatedData.length > 0}
+                  />
+                ),
+              };
+            }
+
+            return {
+              ...header,
+              label: (
+                <div className="sortable-header" onClick={() => handleSort(header.key)}>
+                  {header.label}
+                  {sortBy === header.key && <span className="sort-icon">{sortDesc ? '▲' : '▼'}</span>}
+                </div>
+              ),
+            };
+          })}
           handleSort={handleSort}
           sortBy={sortBy}
           sortDesc={sortDesc}

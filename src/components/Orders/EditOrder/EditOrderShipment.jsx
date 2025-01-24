@@ -5,12 +5,12 @@ function EditOrderShipment({ formOrder, setFormOrder }) {
   return (
     <fieldset className="form-section">
       <legend>Shipment</legend>
-      <div className="form-row">
-        <div className="form-group">
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="dba">Commodity</label>
           <input type="text" value={formOrder.commodity} onChange={(e) => setFormOrder({ ...formOrder, commodity: e.target.value })} id="dba" />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="creditStatus">Equipment</label>
           <select
             name="creditStatus"
@@ -30,7 +30,7 @@ function EditOrderShipment({ formOrder, setFormOrder }) {
             ))}
           </select>
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="creditStatus">Load Type</label>
           <select
             name="creditStatus"
@@ -50,7 +50,7 @@ function EditOrderShipment({ formOrder, setFormOrder }) {
             ))}
           </select>
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="accNo">Temperature</label>
           <input type="text" value={formOrder.temperature} onChange={(e) => setFormOrder({ ...formOrder, temperature: e.target.value })} id="accNo" />
         </div>

@@ -64,8 +64,8 @@ function AddressDetails({ lead, setLead }) {
   return (
     <fieldset className="form-section">
       <legend>Address Details</legend>
-      <div className="form-row">
-        <div className="form-group">
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="address">Address</label>
           <input
             type="text"
@@ -73,28 +73,42 @@ function AddressDetails({ lead, setLead }) {
             onChange={(e) => setLead({ ...lead, address: e.target.value })}
             id="address"
             ref={addressRef}
-            placeholder="Enter your address"
+            placeholder="Address"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="unitNo">Unit No</label>
-          <input type="text" value={lead.unit_no} onChange={(e) => setLead({ ...lead, unit_no: e.target.value })} id="unitNo" />
+          <input type="text" value={lead.unit_no} onChange={(e) => setLead({ ...lead, unit_no: e.target.value })} id="unitNo" placeholder="Unit No" />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="city">City</label>
-          <input type="text" value={lead.city} onChange={(e) => setLead({ ...lead, city: e.target.value })} id="city" />
+          <input type="text" value={lead.city} onChange={(e) => setLead({ ...lead, city: e.target.value })} id="city" placeholder="City" />
         </div>
-        <div className="form-group">
+      </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="state">State</label>
-          <input type="text" value={lead.state} onChange={(e) => setLead({ ...lead, state: e.target.value })} id="state" />
+          <input type="text" value={lead.state} onChange={(e) => setLead({ ...lead, state: e.target.value })} id="state" placeholder="State" />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="country">Country</label>
-          <input type="text" value={lead.country} onChange={(e) => setLead({ ...lead, country: e.target.value })} id="country" />
+          <input
+            type="text"
+            value={lead.country}
+            onChange={(e) => setLead({ ...lead, country: e.target.value })}
+            id="country"
+            placeholder="Country"
+          />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="postalCode">Postal Code</label>
-          <input type="text" value={lead.postal_code} onChange={(e) => setLead({ ...lead, postal_code: e.target.value })} id="postalCode" />
+          <input
+            type="text"
+            value={lead.postal_code}
+            onChange={(e) => setLead({ ...lead, postal_code: e.target.value })}
+            id="postalCode"
+            placeholder="Postal Code"
+          />
         </div>
       </div>
     </fieldset>

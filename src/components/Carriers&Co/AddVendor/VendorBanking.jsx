@@ -60,28 +60,60 @@ function VendorBanking({ vendor, setVendor }) {
   return (
     <fieldset className="form-section">
       <legend>Bank Details</legend>
-      <div className="form-row">
-        <div className="form-group">
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="legalName">Name</label>
-          <input type="text" value={vendor.bank_name} onChange={(e) => setVendor({ ...vendor, bank_name: e.target.value })} id="legalName" />
+          <input
+            type="text"
+            value={vendor.bank_name}
+            onChange={(e) => setVendor({ ...vendor, bank_name: e.target.value })}
+            id="legalName"
+            placeholder="Name"
+          />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="remitName">Phone</label>
-          <input type="text" value={vendor.bank_phone} onChange={(e) => setVendor({ ...vendor, bank_phone: e.target.value })} id="remitName" />
+          <input
+            type="text"
+            value={vendor.bank_phone}
+            onChange={(e) => setVendor({ ...vendor, bank_phone: e.target.value })}
+            id="remitName"
+            placeholder="Phone"
+          />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="accNo">Email</label>
-          <input type="text" value={vendor.bank_email} onChange={(e) => setVendor({ ...vendor, bank_email: e.target.value })} id="accNo" />
+          <input
+            type="text"
+            value={vendor.bank_email}
+            onChange={(e) => setVendor({ ...vendor, bank_email: e.target.value })}
+            id="accNo"
+            placeholder="Email"
+          />
         </div>
-        <div className="form-group">
+      </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="accNo">US Account No</label>
-          <input type="text" value={vendor.bank_us_acc_no} onChange={(e) => setVendor({ ...vendor, bank_us_acc_no: e.target.value })} id="accNo" />
+          <input
+            type="text"
+            value={vendor.bank_us_acc_no}
+            onChange={(e) => setVendor({ ...vendor, bank_us_acc_no: e.target.value })}
+            id="accNo"
+            placeholder="US Account No"
+          />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="accNo">Canadian Account No</label>
-          <input type="text" value={vendor.bank_cdn_acc_no} onChange={(e) => setVendor({ ...vendor, bank_cdn_acc_no: e.target.value })} id="accNo" />
+          <input
+            type="text"
+            value={vendor.bank_cdn_acc_no}
+            onChange={(e) => setVendor({ ...vendor, bank_cdn_acc_no: e.target.value })}
+            id="accNo"
+            placeholder="Canadian Account No"
+          />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="mailingAddressStreet">Address</label>
           <input
             type="text"
@@ -93,7 +125,7 @@ function VendorBanking({ vendor, setVendor }) {
                 bank_address: e.target.value,
               })
             }
-            placeholder="Enter address"
+            placeholder="Address"
           />
         </div>
       </div>

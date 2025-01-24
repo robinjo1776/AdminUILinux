@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Form, Input, Button, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/Auth.css';
@@ -9,31 +9,24 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const API_URL = import.meta.env.VITE_API_BASE_URL;
 
-  useEffect(() => {
-    const ensureCsrfCookie = async () => {
-      try {
-        await axios.get(`${API_URL}/sanctum/csrf-cookie`);
-        console.log('CSRF cookie ensured');
-      } catch (error) {
-        console.error('Error ensuring CSRF cookie:', error);
-      }
-    };
-
-    ensureCsrfCookie();
-  }, []);
-
   const onFinish = async (values) => {
     setLoading(true);
+
     try {
-      const response = await axios.post('/login', values);
+      const response = await axios.post(`${API_URL}/login`, values);
       if (response.data.token) {
+        // Save the token and other user data to localStorage
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('userId', response.data.user.id);
         localStorage.setItem('userRole', response.data.user.role);
 
+        // Set the token in Axios headers for future requests
+        axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+
         console.log('User ID saved:', response.data.user.id);
         console.log('User Role saved:', response.data.user.role);
 
+        // Navigate based on user role
         if (response.data.user.role === 'admin') {
           navigate('/lead');
         } else {
@@ -44,7 +37,7 @@ const LoginPage = () => {
       console.error('Login error:', error);
       message.error('Invalid username or password');
     } finally {
-      setLoading(false);
+      setLoading(false); // Ensure the loading spinner stops even on errors
     }
   };
 

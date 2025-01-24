@@ -1,3 +1,4 @@
+import { DeleteOutlined } from '@ant-design/icons';
 function OrderCharges({ setOrder, order, charge = {}, index, onRemove }) {
   const rateOptions = ['Flat', 'Percentage'];
 
@@ -14,29 +15,15 @@ function OrderCharges({ setOrder, order, charge = {}, index, onRemove }) {
     <div className="contact-form">
       <div className="form-group">
         <label>Type</label>
-        <input
-          type="text"
-          name="type"
-          value={charge.type || ''}
-          onChange={handleOrderChange}
-        />
+        <input type="text" name="type" value={charge.type || ''} onChange={handleOrderChange} />
       </div>
       <div className="form-group">
         <label>Charge</label>
-        <input
-          type="tel"
-          name="charge"
-          value={charge.charge || ''}
-          onChange={handleOrderChange}
-        />
+        <input type="tel" name="charge" value={charge.charge || ''} onChange={handleOrderChange} />
       </div>
       <div className="form-group">
         <label htmlFor="percent">Percent/Flat Rate</label>
-        <select
-          name="percent"
-          value={charge.percent || ''}
-          onChange={handleOrderChange}
-        >
+        <select name="percent" value={charge.percent || ''} onChange={handleOrderChange}>
           <option value="">Select..</option>
           {rateOptions.map((option) => (
             <option key={option} value={option}>
@@ -47,7 +34,7 @@ function OrderCharges({ setOrder, order, charge = {}, index, onRemove }) {
       </div>
 
       <button type="button" onClick={() => onRemove(index)} className="remove">
-        Remove
+        <DeleteOutlined />
       </button>
     </div>
   );

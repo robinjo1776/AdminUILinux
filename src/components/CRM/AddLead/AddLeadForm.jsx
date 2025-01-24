@@ -7,6 +7,7 @@ import '../../../styles/Form.css';
 import LeadDetails from './LeadDetails';
 import AddressDetails from './AddressDetails';
 import AdditionalInfo from './AdditionalInfo';
+import { PlusOutlined } from '@ant-design/icons';
 
 const AddLeadForm = ({ onClose, onAddLead }) => {
   const { currentUser } = useContext(UserContext);
@@ -33,21 +34,6 @@ const AddLeadForm = ({ onClose, onAddLead }) => {
     contacts: [],
   });
   const API_URL = import.meta.env.VITE_API_BASE_URL;
-  const leadTypeOptions = ['AB', 'BC', 'BDS', 'CA', 'DPD MAGMA', 'MB', 'ON', 'Super Leads', 'TBAB', 'USA'];
-  const leadStatusOptions = [
-    'Prospect customer',
-    'Lanes discussed',
-    'Product/Equipment discussed',
-    'E-mail sent to concerned person',
-    'Carrier portal registration',
-    'Quotations',
-    'Fob/Have broker',
-    'Voicemail/No answer',
-    'Different Department',
-    'No answer/Callback/Voicemail',
-    'Not interested',
-    'Asset based only',
-  ];
 
   const handleContactChange = (index, updatedContact) => {
     // When a contact changes, update the specific contact in the contacts array
@@ -134,40 +120,6 @@ const AddLeadForm = ({ onClose, onAddLead }) => {
       <form onSubmit={handleSubmit} className="form-main">
         <LeadDetails lead={lead} setLead={setLead} />
         <AddressDetails lead={lead} setLead={setLead} />
-        <fieldset className="form-section">
-          <legend>Lead Type</legend>
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="leadType">Lead Type*</label>
-              <select id="leadType" value={lead.lead_type} onChange={(e) => setLead({ ...lead, lead_type: e.target.value })} required>
-                <option value="">Select Lead Type</option>
-                {leadTypeOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </fieldset>
-
-        <fieldset className="form-section">
-          <legend>Lead Status</legend>
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="leadStatus">Lead Status*</label>
-              <select id="leadStatus" value={lead.lead_status} onChange={(e) => setLead({ ...lead, lead_status: e.target.value })} required>
-                <option value="">Select Lead Status</option>
-                {leadStatusOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </fieldset>
-
         <AdditionalInfo lead={lead} setLead={setLead} />
         <fieldset className="form-section">
           <legend>Contacts</legend>
@@ -183,15 +135,18 @@ const AddLeadForm = ({ onClose, onAddLead }) => {
                   contacts: [...prevLead.contacts, { name: '', phone: '', email: '' }],
                 }))
               }
-              className="add"
+              className="add-button"
             >
-              Add Contact
+              <PlusOutlined />
             </button>
           </div>
         </fieldset>
-        <div className="submit-button-container">
+        <div className="form-actions">
           <button type="submit" className="btn-submit">
-            Submit
+            Create Lead
+          </button>
+          <button type="button" className="btn-cancel" onClick={onClose}>
+            Cancel
           </button>
         </div>
       </form>

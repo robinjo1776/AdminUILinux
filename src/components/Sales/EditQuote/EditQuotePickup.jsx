@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { DeleteOutlined } from '@ant-design/icons';
 
 function EditQuotePickup({ pickup, index, onChange, onRemove }) {
   const addressRef = useRef(null);
@@ -117,7 +118,7 @@ function EditQuotePickup({ pickup, index, onChange, onRemove }) {
       </div>
 
       <button type="button" onClick={() => onRemove(index)} className="remove">
-        Remove
+        <DeleteOutlined />
       </button>
     </div>
   );

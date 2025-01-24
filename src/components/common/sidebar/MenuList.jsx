@@ -48,7 +48,7 @@ const MenuList = ({ darkTheme, userRole }) => {
     {
       key: 'home',
       icon: <HomeOutlined />,
-      label: <Link to="/">Home</Link>,
+      label: <Link to="/dashboard">Home</Link>,
     },
     {
       key: 'orders-menu',
@@ -69,10 +69,10 @@ const MenuList = ({ darkTheme, userRole }) => {
       icon: <DollarCircleOutlined />,
       label: 'Quotes',
       children: [
-        { key: 'shipment', label: <Link to="/shipment">Shipment</Link> },
+        { key: 'shipment', label: <Link to="/shipment">Quotes</Link> },
         {
           key: 'quotes-leads',
-          label: <Link to="/quotes-lead">Leads</Link>,
+          label: <Link to="/quotes-lead">Leads with Quotes</Link>,
         },
       ],
     },

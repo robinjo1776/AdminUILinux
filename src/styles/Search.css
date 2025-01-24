@@ -1,0 +1,31 @@
+.search-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  
+  .search-icon {
+    position: absolute;
+    left: 10px;
+    font-size: 16px;
+    color: #999;
+  }
+  
+  .search-bar {
+    width: 500px; 
+    padding: 8px 12px 8px 30px;
+    border: 1px solid #ccc;
+    border-radius: 1rem;
+    font-size: 14px;
+  }
+  
+  .search-bar:focus {
+    outline: none;
+    border-color: #007bff; 
+  }

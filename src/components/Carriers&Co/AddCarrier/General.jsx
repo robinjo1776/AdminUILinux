@@ -3,36 +3,83 @@ function General({ carrier, setCarrier }) {
   return (
     <fieldset className="form-section">
       <legend>General</legend>
-      <div className="form-row">
-        <div className="form-group">
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="dba">DBA*</label>
-          <input type="text" value={carrier.dba} onChange={(e) => setCarrier({ ...carrier, dba: e.target.value })} id="dba" required />
+          <input
+            type="text"
+            value={carrier.dba}
+            onChange={(e) => setCarrier({ ...carrier, dba: e.target.value })}
+            id="dba"
+            required
+            placeholder="DBA"
+          />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="legalName">Legal Name</label>
-          <input type="text" value={carrier.legal_name} onChange={(e) => setCarrier({ ...carrier, legal_name: e.target.value })} id="legalName" />
+          <input
+            type="text"
+            value={carrier.legal_name}
+            onChange={(e) => setCarrier({ ...carrier, legal_name: e.target.value })}
+            id="legalName"
+            placeholder="Legal Name"
+          />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="remitName">Remit Name</label>
-          <input type="text" value={carrier.remit_name} onChange={(e) => setCarrier({ ...carrier, remit_name: e.target.value })} id="remitName" />
+          <input
+            type="text"
+            value={carrier.remit_name}
+            onChange={(e) => setCarrier({ ...carrier, remit_name: e.target.value })}
+            id="remitName"
+            placeholder="Remit Name"
+          />
         </div>
-        <div className="form-group">
+      </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="accNo">Account Number</label>
-          <input type="text" value={carrier.acc_no} onChange={(e) => setCarrier({ ...carrier, acc_no: e.target.value })} id="accNo" />
+          <input
+            type="text"
+            value={carrier.acc_no}
+            onChange={(e) => setCarrier({ ...carrier, acc_no: e.target.value })}
+            id="accNo"
+            placeholder="Account Number"
+          />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="branch">Branch</label>
-          <input type="text" value={carrier.branch} onChange={(e) => setCarrier({ ...carrier, branch: e.target.value })} id="branch" />
+          <input
+            type="text"
+            value={carrier.branch}
+            onChange={(e) => setCarrier({ ...carrier, branch: e.target.value })}
+            id="branch"
+            placeholder="Branch"
+          />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="website">Website</label>
-          <input type="text" value={carrier.website} onChange={(e) => setCarrier({ ...carrier, website: e.target.value })} id="website" />
+          <input
+            type="text"
+            value={carrier.website}
+            onChange={(e) => setCarrier({ ...carrier, website: e.target.value })}
+            id="website"
+            placeholder="Website"
+          />
         </div>
-        <div className="form-group">
+      </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="fedIdNo">Federal ID Number</label>
-          <input type="text" value={carrier.fed_id_no} onChange={(e) => setCarrier({ ...carrier, fed_id_no: e.target.value })} id="fedIdNo" />
+          <input
+            type="text"
+            value={carrier.fed_id_no}
+            onChange={(e) => setCarrier({ ...carrier, fed_id_no: e.target.value })}
+            id="fedIdNo"
+            placeholder="Federal ID Number"
+          />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="creditStatus">Preferred Currency</label>
           <select
             name="creditStatus"
@@ -52,11 +99,19 @@ function General({ carrier, setCarrier }) {
             ))}
           </select>
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="payTerms">Payment Terms</label>
-          <input type="text" value={carrier.pay_terms} onChange={(e) => setCarrier({ ...carrier, pay_terms: e.target.value })} id="payTerms" />
+          <input
+            type="text"
+            value={carrier.pay_terms}
+            onChange={(e) => setCarrier({ ...carrier, pay_terms: e.target.value })}
+            id="payTerms"
+            placeholder="Payment Terms"
+          />
         </div>
-        <div className="form-group">
+      </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label
             style={{
               display: 'inline-flex',
@@ -78,7 +133,7 @@ function General({ carrier, setCarrier }) {
             />
           </label>
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label
             style={{
               display: 'inline-flex',
@@ -100,13 +155,14 @@ function General({ carrier, setCarrier }) {
             />
           </label>
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="advertiseEmail">Advertise Email</label>
           <input
             type="email"
             value={carrier.advertise_email}
             onChange={(e) => setCarrier({ ...carrier, advertise_email: e.target.value })}
             id="advertiseEmail"
+            placeholder="Advertise Email"
           />
         </div>
       </div>

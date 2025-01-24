@@ -80,8 +80,8 @@ function EditCarrierDetails({ formCarrier, setformCarrier }) {
   return (
     <fieldset className="form-section">
       <legend>Carrier Details</legend>
-      <div className="form-row">
-        <div className="form-group">
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="carrType">Carrier Type</label>
           <select
             name="carrType"
@@ -102,7 +102,7 @@ function EditCarrierDetails({ formCarrier, setformCarrier }) {
           </select>
         </div>
 
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="rating">Rating</label>
           <select
             name="rating"
@@ -123,7 +123,7 @@ function EditCarrierDetails({ formCarrier, setformCarrier }) {
           </select>
         </div>
 
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="brokCarrAggmt">Broker Carrier Agreement</label>
           <input type="file" name="brokCarrAggmt" onChange={(e) => handleFileChange(e, 'brok_carr_aggmt')} accept="application/pdf" />
           {/* Show existing file download link if a file exists */}
@@ -131,7 +131,9 @@ function EditCarrierDetails({ formCarrier, setformCarrier }) {
           {uploading && <p>Uploading...</p>}
         </div>
 
-        <div className="form-group">
+        </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="docketNo">Docket Number</label>
           <input
             type="text"
@@ -141,7 +143,7 @@ function EditCarrierDetails({ formCarrier, setformCarrier }) {
           />
         </div>
 
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="dotNumber">DOT Number</label>
           <input
             type="text"
@@ -151,12 +153,14 @@ function EditCarrierDetails({ formCarrier, setformCarrier }) {
           />
         </div>
 
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="wcbNo">WCB Number</label>
           <input type="text" value={formCarrier.wcb_no} onChange={(e) => setformCarrier({ ...formCarrier, wcb_no: e.target.value })} id="wcbNo" />
         </div>
 
-        <div className="form-group">
+        </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="caBondNo">California Bond Number</label>
           <input
             type="text"
@@ -166,7 +170,7 @@ function EditCarrierDetails({ formCarrier, setformCarrier }) {
           />
         </div>
 
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="usBondNo">US Bond Number</label>
           <input
             type="text"
@@ -176,13 +180,14 @@ function EditCarrierDetails({ formCarrier, setformCarrier }) {
           />
         </div>
 
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="scac">SCAC</label>
           <input type="text" value={formCarrier.scac} onChange={(e) => setformCarrier({ ...formCarrier, scac: e.target.value })} id="scac" />
         </div>
 
-        <div className="form-group">
-          <label
+        </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>          <label
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -204,7 +209,7 @@ function EditCarrierDetails({ formCarrier, setformCarrier }) {
           </label>
         </div>
 
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label
             style={{
               display: 'inline-flex',
@@ -222,7 +227,7 @@ function EditCarrierDetails({ formCarrier, setformCarrier }) {
           </label>
         </div>
 
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="smscCode">SMS Code</label>
           <input
             type="text"
@@ -232,7 +237,7 @@ function EditCarrierDetails({ formCarrier, setformCarrier }) {
           />
         </div>
 
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label
             style={{
               display: 'inline-flex',

@@ -65,144 +65,148 @@ function EditBrokerDetails({ formBroker, setFormBroker }) {
 
   return (
     <fieldset>
-      <div className="form-group">
-        <label htmlFor="formBrokerName">Name</label>
-        <input
-          type="text"
-          value={formBroker.broker_name}
-          onChange={(e) =>
-            setFormBroker({
-              ...formBroker,
-              broker_name: e.target.value,
-            })
-          }
-        />
-      </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="formBrokerName">Name</label>
+          <input
+            type="text"
+            value={formBroker.broker_name}
+            onChange={(e) =>
+              setFormBroker({
+                ...formBroker,
+                broker_name: e.target.value,
+              })
+            }
+          />
+        </div>
 
-      <div className="form-group">
-        <label htmlFor="primaryAddressStreet">Street</label>
-        <input
-          type="text"
-          ref={addressRef}
-          placeholder="Enter your address"
-          value={formBroker.broker_address}
-          onChange={(e) =>
-            setFormBroker({
-              ...formBroker,
-              broker_address: e.target.value,
-            })
-          }
-        />
-      </div>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="primaryAddressStreet">Street</label>
+          <input
+            type="text"
+            ref={addressRef}
+            placeholder="Enter your address"
+            value={formBroker.broker_address}
+            onChange={(e) =>
+              setFormBroker({
+                ...formBroker,
+                broker_address: e.target.value,
+              })
+            }
+          />
+        </div>
 
-      <div className="form-group">
-        <label htmlFor="primaryAddressCity">City</label>
-        <input
-          type="text"
-          value={formBroker.broker_city}
-          onChange={(e) =>
-            setFormBroker({
-              ...formBroker,
-              broker_city: e.target.value,
-            })
-          }
-        />
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="primaryAddressCity">City</label>
+          <input
+            type="text"
+            value={formBroker.broker_city}
+            onChange={(e) =>
+              setFormBroker({
+                ...formBroker,
+                broker_city: e.target.value,
+              })
+            }
+          />
+        </div>
       </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="primaryAddressState">State</label>
+          <input
+            type="text"
+            value={formBroker.broker_state}
+            onChange={(e) =>
+              setFormBroker({
+                ...formBroker,
+                broker_state: e.target.value,
+              })
+            }
+          />
+        </div>
 
-      <div className="form-group">
-        <label htmlFor="primaryAddressState">State</label>
-        <input
-          type="text"
-          value={formBroker.broker_state}
-          onChange={(e) =>
-            setFormBroker({
-              ...formBroker,
-              broker_state: e.target.value,
-            })
-          }
-        />
-      </div>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="primaryAddressCountry">Country</label>
+          <input
+            type="text"
+            value={formBroker.broker_country}
+            onChange={(e) =>
+              setFormBroker({
+                ...formBroker,
+                broker_country: e.target.value,
+              })
+            }
+          />
+        </div>
 
-      <div className="form-group">
-        <label htmlFor="primaryAddressCountry">Country</label>
-        <input
-          type="text"
-          value={formBroker.broker_country}
-          onChange={(e) =>
-            setFormBroker({
-              ...formBroker,
-              broker_country: e.target.value,
-            })
-          }
-        />
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="primaryAddressPostalCode">Postal Code</label>
+          <input
+            type="text"
+            value={formBroker.broker_postal}
+            onChange={(e) =>
+              setFormBroker({
+                ...formBroker,
+                broker_postal: e.target.value,
+              })
+            }
+          />
+        </div>
       </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="primaryAddressUnitNo">Email</label>
+          <input
+            type="text"
+            value={formBroker.broker_email}
+            onChange={(e) =>
+              setFormBroker({
+                ...formBroker,
+                broker_email: e.target.value,
+              })
+            }
+          />
+        </div>
 
-      <div className="form-group">
-        <label htmlFor="primaryAddressPostalCode">Postal Code</label>
-        <input
-          type="text"
-          value={formBroker.broker_postal}
-          onChange={(e) =>
-            setFormBroker({
-              ...formBroker,
-              broker_postal: e.target.value,
-            })
-          }
-        />
-      </div>
-
-      <div className="form-group">
-        <label htmlFor="primaryAddressUnitNo">Email</label>
-        <input
-          type="text"
-          value={formBroker.broker_email}
-          onChange={(e) =>
-            setFormBroker({
-              ...formBroker,
-              broker_email: e.target.value,
-            })
-          }
-        />
-      </div>
-
-      <div className="form-group">
-        <label htmlFor="primaryAddressUnitNo">Phone</label>
-        <input
-          type="text"
-          value={formBroker.broker_phone}
-          onChange={(e) =>
-            setFormBroker({
-              ...formBroker,
-              broker_phone: e.target.value,
-            })
-          }
-        />
-      </div>
-      <div className="form-group">
-        <label htmlFor="primaryAddressUnitNo">Phone Extension</label>
-        <input
-          type="text"
-          value={formBroker.broker_ext}
-          onChange={(e) =>
-            setFormBroker({
-              ...formBroker,
-              broker_ext: e.target.value,
-            })
-          }
-        />
-      </div>
-      <div className="form-group">
-        <label htmlFor="primaryAddressUnitNo">Fax</label>
-        <input
-          type="text"
-          value={formBroker.broker_fax}
-          onChange={(e) =>
-            setFormBroker({
-              ...formBroker,
-              broker_fax: e.target.value,
-            })
-          }
-        />
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="primaryAddressUnitNo">Phone</label>
+          <input
+            type="text"
+            value={formBroker.broker_phone}
+            onChange={(e) =>
+              setFormBroker({
+                ...formBroker,
+                broker_phone: e.target.value,
+              })
+            }
+          />
+        </div>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="primaryAddressUnitNo">Phone Extension</label>
+          <input
+            type="text"
+            value={formBroker.broker_ext}
+            onChange={(e) =>
+              setFormBroker({
+                ...formBroker,
+                broker_ext: e.target.value,
+              })
+            }
+          />
+        </div>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="primaryAddressUnitNo">Fax</label>
+          <input
+            type="text"
+            value={formBroker.broker_fax}
+            onChange={(e) =>
+              setFormBroker({
+                ...formBroker,
+                broker_fax: e.target.value,
+              })
+            }
+          />
+        </div>
       </div>
     </fieldset>
   );

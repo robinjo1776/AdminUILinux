@@ -16,8 +16,8 @@ function EditOrderTax({ formOrder, setFormOrder }) {
   return (
     <fieldset className="form-section">
       <legend>Tax</legend>
-      <div className="form-row">
-        <div className="form-group">
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="basePrice">Base Price</label>
           <input
             type="number"
@@ -27,7 +27,7 @@ function EditOrderTax({ formOrder, setFormOrder }) {
             id="basePrice"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="gst">GST</label>
           <input
             type="number"
@@ -37,7 +37,7 @@ function EditOrderTax({ formOrder, setFormOrder }) {
             id="gst"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="pst">PST</label>
           <input
             type="number"
@@ -47,7 +47,7 @@ function EditOrderTax({ formOrder, setFormOrder }) {
             id="pst"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="hst">HST</label>
           <input
             type="number"
@@ -57,7 +57,7 @@ function EditOrderTax({ formOrder, setFormOrder }) {
             id="hst"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="qst">QST</label>
           <input
             type="number"
@@ -67,11 +67,13 @@ function EditOrderTax({ formOrder, setFormOrder }) {
             id="qst"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="finalPrice">Final Price</label>
           <input type="text" value={formOrder.final_price || ''} readOnly id="finalPrice" />
         </div>
-        <div className="form-group">
+      </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="notes">Notes</label>
           <textarea value={formOrder.notes || ''} onChange={(e) => setFormOrder({ ...formOrder, notes: e.target.value })} id="notes"></textarea>
         </div>

@@ -5,12 +5,18 @@ function OrderShipment({ order, setOrder }) {
   return (
     <fieldset className="form-section">
       <legend>Shipment</legend>
-      <div className="form-row">
-        <div className="form-group">
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="dba">Commodity</label>
-          <input type="text" value={order.commodity} onChange={(e) => setOrder({ ...order, commodity: e.target.value })} id="dba" />
+          <input
+            type="text"
+            value={order.commodity}
+            onChange={(e) => setOrder({ ...order, commodity: e.target.value })}
+            id="dba"
+            placeholder="Commodity"
+          />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="creditStatus">Equipment</label>
           <select
             name="creditStatus"
@@ -30,7 +36,7 @@ function OrderShipment({ order, setOrder }) {
             ))}
           </select>
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="creditStatus">Load Type</label>
           <select
             name="creditStatus"
@@ -50,9 +56,15 @@ function OrderShipment({ order, setOrder }) {
             ))}
           </select>
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="accNo">Temperature</label>
-          <input type="text" value={order.temperature} onChange={(e) => setOrder({ ...order, temperature: e.target.value })} id="accNo" />
+          <input
+            type="text"
+            value={order.temperature}
+            onChange={(e) => setOrder({ ...order, temperature: e.target.value })}
+            id="accNo"
+            placeholder="Temperature"
+          />
         </div>
       </div>
     </fieldset>

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { DeleteOutlined } from '@ant-design/icons';
 
 function EditQuoteDelivery({ delivery, index, onChange, onRemove }) {
   const addressRef = useRef(null);
@@ -67,62 +68,79 @@ function EditQuoteDelivery({ delivery, index, onChange, onRemove }) {
   };
 
   return (
-    <div className="contact-form">
-      <div className="form-group">
-        <label>Address</label>
-        <input type="text" name="address" value={delivery.address} onChange={handleDeliveryChange} ref={addressRef} placeholder="Enter address" />
+    <fieldset className="form-section">
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label>Address</label>
+          <input type="text" name="address" value={delivery.address} onChange={handleDeliveryChange} ref={addressRef} placeholder="Address" />
+        </div>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label>City</label>
+          <input type="text" name="city" value={delivery.city} onChange={handleDeliveryChange} placeholder="City" />
+        </div>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label>State</label>
+          <input type="text" name="state" value={delivery.state} onChange={handleDeliveryChange} placeholder="State" />
+        </div>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label>Postal Code</label>
+          <input
+            type="tel"
+            name="postal"
+            value={delivery.postal}
+            onChange={handleDeliveryChange}
+            pattern="[0-9]{5}"
+            maxLength="5"
+            placeholder="Postal Code"
+          />
+        </div>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label>Country</label>
+          <input type="text" name="country" value={delivery.country} onChange={handleDeliveryChange} placeholder="Country" />
+        </div>
       </div>
-      <div className="form-group">
-        <label>City</label>
-        <input type="text" name="city" value={delivery.city} onChange={handleDeliveryChange} />
-      </div>
-      <div className="form-group">
-        <label>State</label>
-        <input type="text" name="state" value={delivery.state} onChange={handleDeliveryChange} />
-      </div>
-      <div className="form-group">
-        <label>Postal Code</label>
-        <input type="tel" name="postal" value={delivery.postal} onChange={handleDeliveryChange} pattern="[0-9]{5}" maxLength="5" />
-      </div>
-      <div className="form-group">
-        <label>Country</label>
-        <input type="text" name="country" value={delivery.country} onChange={handleDeliveryChange} />
-      </div>
-      <div className="form-group">
-        <label>Rate</label>
-        <input type="number" name="rate" value={delivery.rate} onChange={handleDeliveryChange} placeholder="Enter rate" />
-      </div>
-      <div className="form-group">
-        <label>Currency</label>
-        <input type="text" name="currency" value={delivery.currency} onChange={handleDeliveryChange} placeholder="Enter currency code" />
-      </div>
-      <div className="form-group">
-        <label>Equipment</label>
-        <input type="text" name="equipment" value={delivery.equipment} onChange={handleDeliveryChange} placeholder="Enter equipment type" />
-      </div>
-      <div className="form-group">
-        <label>Notes</label>
-        <textarea name="notes" value={delivery.notes} onChange={handleDeliveryChange} placeholder="Enter notes" />
-      </div>
-      <div className="form-group">
-        <label>Packages</label>
-        <input type="number" name="packages" value={delivery.packages} onChange={handleDeliveryChange} placeholder="Enter number of packages" />
-      </div>
-      <div className="form-group">
-        <label>Dimensions</label>
-        <input
-          type="text"
-          name="dimensions"
-          value={delivery.dimensions}
-          onChange={handleDeliveryChange}
-          placeholder="Enter dimensions (e.g., 20x20x20 cm)"
-        />
-      </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label>Rate</label>
+          <input type="number" name="rate" value={delivery.rate} onChange={handleDeliveryChange} placeholder="Rate" />
+        </div>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label>Currency</label>
+          <input type="text" name="currency" value={delivery.currency} onChange={handleDeliveryChange} placeholder="Currency" />
+        </div>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label>Equipment</label>
+          <input type="text" name="equipment" value={delivery.equipment} onChange={handleDeliveryChange} placeholder="Equipment" />
+        </div>
 
-      <button type="button" onClick={() => onRemove(index)} className="remove">
-        Remove
+        <div className="form-group" style={{ flex: 1 }}>
+          <label>Packages</label>
+          <input type="number" name="packages" value={delivery.packages} onChange={handleDeliveryChange} placeholder="Packages" />
+        </div>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label>Dimensions</label>
+          <input
+            type="text"
+            name="dimensions"
+            value={delivery.dimensions}
+            onChange={handleDeliveryChange}
+            placeholder="Enter dimensions (e.g., 20x20x20 cm)"
+          />
+        </div>
+      </div>
+      <div className="form-group" style={{ flex: 1 }}>
+        <label>Notes</label>
+        <textarea name="notes" value={delivery.notes} onChange={handleDeliveryChange} placeholder="Notes" />
+      </div>
+      <button
+        type="button"
+        onClick={() => onRemove(index)}
+        className="org-des-remove"
+        style={{ float: 'right', marginTop: '10px', display: 'inline-block' }}
+      >
+        <DeleteOutlined />
       </button>
-    </div>
+    </fieldset>
   );
 }
 

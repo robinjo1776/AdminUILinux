@@ -3,7 +3,7 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import Table from '../common/Table';
 import Modal from '../common/Modal';
-import { EditOutlined, DeleteOutlined, MailOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
 import EditQuoteForm from './EditQuote/EditQuoteForm';
 
 const QuoteTable = () => {
@@ -13,13 +13,13 @@ const QuoteTable = () => {
   const [sortBy, setSortBy] = useState('created_at');
   const [sortDesc, setSortDesc] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedQuoteIds, setSelectedQuoteIds] = useState([]); // For multiple selection
   const [selectedQuote, setSelectedQuote] = useState(null); // For editing a single quote
   const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [selectedQuotes, setSelectedQuotes] = useState([]);
   const [isEmailModalOpen, setEmailModalOpen] = useState(false);
   const [emailData, setEmailData] = useState({ subject: '', content: '' });
+  const [rowsPerPage, setRowsPerPage] = useState(8);
   const API_URL = import.meta.env.VITE_API_BASE_URL;
-  const perPage = 100;
 
   useEffect(() => {
     const fetchQuotes = async () => {
@@ -62,13 +62,34 @@ const QuoteTable = () => {
     setQuotes((prevQuotes) => prevQuotes.map((quote) => (quote.id === updatedQuote.id ? { ...quote, ...updatedQuote } : quote)));
   };
 
-  const deleteQuote = async (id) => {
+  const toggleSelectAll = () => {
+    if (selectedQuotes.length === paginatedData.length) {
+      setSelectedQuotes([]);
+    } else {
+      setSelectedQuotes(paginatedData.map((quote) => quote.id));
+    }
+  };
+
+  const toggleSelect = (id) => {
+    setSelectedQuotes((prev) => (prev.includes(id) ? prev.filter((selectedId) => selectedId !== id) : [...prev, id]));
+  };
+
+  const deleteSelected = async () => {
+    if (selectedQuotes.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'No record selected',
+        text: 'Please select a record to delete.',
+      });
+      return;
+    }
+
     const confirmed = await Swal.fire({
       title: 'Are you sure?',
       text: 'This action cannot be undone.',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Yes, delete it!',
+      confirmButtonText: 'Yes, delete selected!',
       cancelButtonText: 'No, cancel!',
     });
 
@@ -79,44 +100,35 @@ const QuoteTable = () => {
           throw new Error('No token found');
         }
 
-        const response = await axios.delete(`${API_URL}/quote/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        await Promise.all(
+          selectedQuotes.map((id) =>
+            axios.delete(`${API_URL}/quote/${id}`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            })
+          )
+        );
 
-        console.log('Delete Response:', response);
-        setQuotes((prevQuotes) => prevQuotes.filter((quote) => quote.id !== id));
-        Swal.fire('Deleted!', 'The quote has been deleted.', 'success');
+        setQuotes((prevQuotes) => prevQuotes.filter((quote) => !selectedQuotes.includes(quote.id)));
+
+        setSelectedQuotes([]); // Clear selected customers after deletion
+        Swal.fire('Deleted!', 'Selected quotes have been deleted.', 'success');
       } catch (error) {
-        console.error('Error deleting quote:', error);
+        console.error('Error deleting quotes:', error);
 
-        if (error.response) {
-          if (error.response.status === 401) {
-            Swal.fire({
-              icon: 'error',
-              title: 'Unauthorized',
-              text: 'Your session has expired. Please log in again.',
-            });
-          } else {
-            Swal.fire({
-              icon: 'error',
-              title: 'Error!',
-              text: 'Failed to delete the quote.',
-            });
-          }
-        } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error!',
-            text: 'An unexpected error occurred.',
-          });
-        }
+        Swal.fire({
+          icon: 'error',
+          title: 'Error!',
+          text: 'Failed to delete selected quotes.',
+        });
       }
     }
   };
 
+  // Sorting logic
   const handleSort = (column) => {
+    if (column === 'checkbox') return;
     if (sortBy === column) {
       setSortDesc(!sortDesc);
     } else {
@@ -154,40 +166,44 @@ const QuoteTable = () => {
     return sortDesc ? valB - valA : valA - valB;
   });
 
-  const paginatedData = sortedQuotes.slice((currentPage - 1) * perPage, currentPage * perPage);
-  const totalPages = Math.ceil(filteredQuotes.length / perPage);
+  const paginatedData = sortedQuotes.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+  const totalPages = Math.ceil(filteredQuotes.length / rowsPerPage);
 
   const headers = [
     {
       key: 'select',
-      label: 'Select',
-      render: (item) => <input type="checkbox" checked={selectedQuoteIds.includes(item.id)} onChange={() => toggleQuoteSelection(item.id)} />,
+      label: (
+        <input type="checkbox" onChange={toggleSelectAll} checked={selectedQuotes.length === paginatedData.length && paginatedData.length > 0} />
+      ),
+      render: (item) => <input type="checkbox" checked={selectedQuotes.includes(item.id)} onChange={() => toggleSelect(item.id)} />,
     },
-    { key: 'quote_type', label: 'Type' },
     { key: 'quote_customer', label: 'Customer' },
     { key: 'quote_cust_ref_no', label: 'Customer Ref#' },
+    { key: 'quote_type', label: 'Type' },
     { key: 'quote_booked_by', label: 'Booked by' },
     {
-      key: 'actions',
-      label: 'Actions',
+      key: 'edit',
+      label: 'Edit',
       render: (item) => (
         <>
           <button onClick={() => openEditModal(item)} className="btn-edit">
             <EditOutlined />
-          </button>
-          <button onClick={() => deleteQuote(item.id)} className="btn-delete">
-            <DeleteOutlined />
           </button>
         </>
       ),
     },
   ];
 
-  const toggleQuoteSelection = (id) => {
-    setSelectedQuoteIds((prevSelected) => (prevSelected.includes(id) ? prevSelected.filter((quoteId) => quoteId !== id) : [...prevSelected, id]));
-  };
-
   const sendEmails = async (subject, content) => {
+    if (selectedQuotes.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'No customers selected',
+        text: 'Please select customers to send emails to.',
+      });
+      return;
+    }
+
     try {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -195,23 +211,22 @@ const QuoteTable = () => {
       }
 
       const emailData = {
-        ids: selectedQuoteIds,
+        ids: selectedQuotes,
         subject,
         content,
         module: 'quotes',
       };
 
-      const response = await axios.post('http://127.0.0.1:8000/api/email', emailData, {
+      const response = await axios.post(`${API_URL}/email`, emailData, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
 
-      console.log('Email Response:', response);
       Swal.fire('Success!', 'Emails have been sent.', 'success');
       setEmailModalOpen(false);
-      setSelectedQuoteIds([]);
+      setSelectedQuotes([]);
     } catch (error) {
       console.error('Error sending emails:', error.response ? error.response.data : error.message);
       Swal.fire('Error!', 'Failed to send emails.', 'error');
@@ -222,30 +237,73 @@ const QuoteTable = () => {
     <div>
       <div className="header-container">
         <div className="header-actions">
-          <h1 className="page-heading">Customer quotes</h1>
+          <h1 className="page-heading">Quotes</h1>
         </div>
-        <button onClick={() => setEmailModalOpen(true)} className="send-email-button" disabled={selectedQuoteIds.length === 0}>
-          Email <MailOutlined />
-        </button>
         <div className="search-container">
-          <input className="search-bar" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search quotes..." />
+          <div className="search-input-wrapper">
+            <SearchOutlined className="search-icon" />
+            <input className="search-bar" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search..." />
+          </div>
         </div>
+      </div>
+      <div className="controls-container">
+        <div className="pagination-controls">
+          <div className="rows-per-page-container">
+            <label htmlFor="rowsPerPage">Rows per page: </label>
+            <select
+              id="rowsPerPage"
+              value={rowsPerPage}
+              onChange={(e) => {
+                setRowsPerPage(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+            >
+              <option value={8}>8</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+              <option value={200}>200</option>
+              <option value={500}>500</option>
+            </select>
+          </div>
+        </div>
+        <button onClick={deleteSelected} className="delete-button">
+          Delete&nbsp;<DeleteOutlined />
+        </button>
       </div>
 
       {loading ? (
         <div>Loading...</div>
+      ) : quotes.length === 0 ? (
+        <div>No records found</div>
       ) : (
         <Table
           data={paginatedData}
-          headers={headers.map((header) => ({
-            ...header,
-            label: (
-              <div className="sortable-header" onClick={() => handleSort(header.key)}>
-                {header.label}
-                {sortBy === header.key && <span className="sort-icon">{sortDesc ? '▲' : '▼'}</span>}
-              </div>
-            ),
-          }))}
+          headers={headers.map((header) => {
+            // Prevent sorting logic for the checkbox column
+            if (header.key === 'select') {
+              return {
+                ...header,
+                label: (
+                  <input
+                    type="checkbox"
+                    onChange={toggleSelectAll}
+                    checked={selectedQuotes.length === paginatedData.length && paginatedData.length > 0}
+                  />
+                ),
+              };
+            }
+
+            return {
+              ...header,
+              label: (
+                <div className="sortable-header" onClick={() => handleSort(header.key)}>
+                  {header.label}
+                  {sortBy === header.key && <span className="sort-icon">{sortDesc ? '▲' : '▼'}</span>}
+                </div>
+              ),
+            };
+          })}
           handleSort={handleSort}
           sortBy={sortBy}
           sortDesc={sortDesc}

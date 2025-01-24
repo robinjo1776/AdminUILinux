@@ -67,118 +67,125 @@ function EditVendorPrimaryAddress({ formVendor, setFormVendor }) {
     <fieldset>
       <legend>Primary Address</legend>
 
-      <div className="form-group">
-        <label htmlFor="primaryAddressStreet">Street</label>
-        <input
-          type="text"
-          ref={addressRef}
-          placeholder="Enter your address"
-          value={formVendor.primary_address}
-          onChange={(e) =>
-            setFormVendor({
-              ...formVendor,
-              primary_address: e.target.value,
-            })
-          }
-        />
-      </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="primaryAddressStreet">Street</label>
+          <input
+            type="text"
+            ref={addressRef}
+            placeholder="Enter your address"
+            value={formVendor.primary_address}
+            onChange={(e) =>
+              setFormVendor({
+                ...formVendor,
+                primary_address: e.target.value,
+              })
+            }
+          />
+        </div>
 
-      <div className="form-group">
-        <label htmlFor="primaryAddressCity">City</label>
-        <input
-          type="text"
-          value={formVendor.primary_city}
-          onChange={(e) =>
-            setFormVendor({
-              ...formVendor,
-              primary_city: e.target.value,
-            })
-          }
-        />
-      </div>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="primaryAddressCity">City</label>
+          <input
+            type="text"
+            value={formVendor.primary_city}
+            onChange={(e) =>
+              setFormVendor({
+                ...formVendor,
+                primary_city: e.target.value,
+              })
+            }
+          />
+        </div>
 
-      <div className="form-group">
-        <label htmlFor="primaryAddressState">State</label>
-        <input
-          type="text"
-          value={formVendor.primary_state}
-          onChange={(e) =>
-            setFormVendor({
-              ...formVendor,
-              primary_state: e.target.value,
-            })
-          }
-        />
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="primaryAddressState">State</label>
+          <input
+            type="text"
+            value={formVendor.primary_state}
+            onChange={(e) =>
+              setFormVendor({
+                ...formVendor,
+                primary_state: e.target.value,
+              })
+            }
+          />
+        </div>
       </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="primaryAddressCountry">Country</label>
+          <input
+            type="text"
+            value={formVendor.primary_country}
+            onChange={(e) =>
+              setFormVendor({
+                ...formVendor,
+                primary_country: e.target.value,
+              })
+            }
+          />
+        </div>
 
-      <div className="form-group">
-        <label htmlFor="primaryAddressCountry">Country</label>
-        <input
-          type="text"
-          value={formVendor.primary_country}
-          onChange={(e) =>
-            setFormVendor({
-              ...formVendor,
-              primary_country: e.target.value,
-            })
-          }
-        />
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="primaryAddressPostalCode">Postal Code</label>
+          <input
+            type="text"
+            value={formVendor.primary_postal}
+            onChange={(e) =>
+              setFormVendor({
+                ...formVendor,
+                primary_postal: e.target.value,
+              })
+            }
+          />
+        </div>
+
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="primaryAddressUnitNo">Email</label>
+          <input
+            type="text"
+            value={formVendor.primary_email}
+            onChange={(e) =>
+              setFormVendor({
+                ...formVendor,
+                primary_email: e.target.value,
+              })
+            }
+          />
+        </div>
       </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="primaryAddressUnitNo">Phone</label>
+          <input
+            type="text"
+            value={formVendor.primary_phone}
+            onChange={(e) =>
+              setFormVendor({
+                ...formVendor,
+                primary_phone: e.target.value,
+              })
+            }
+          />
+        </div>
 
-      <div className="form-group">
-        <label htmlFor="primaryAddressPostalCode">Postal Code</label>
-        <input
-          type="text"
-          value={formVendor.primary_postal}
-          onChange={(e) =>
-            setFormVendor({
-              ...formVendor,
-              primary_postal: e.target.value,
-            })
-          }
-        />
-      </div>
-
-      <div className="form-group">
-        <label htmlFor="primaryAddressUnitNo">Email</label>
-        <input
-          type="text"
-          value={formVendor.primary_email}
-          onChange={(e) =>
-            setFormVendor({
-              ...formVendor,
-              primary_email: e.target.value,
-            })
-          }
-        />
-      </div>
-
-      <div className="form-group">
-        <label htmlFor="primaryAddressUnitNo">Phone</label>
-        <input
-          type="text"
-          value={formVendor.primary_phone}
-          onChange={(e) =>
-            setFormVendor({
-              ...formVendor,
-              primary_phone: e.target.value,
-            })
-          }
-        />
-      </div>
-
-      <div className="form-group">
-        <label htmlFor="primaryAddressUnitNo">Fax</label>
-        <input
-          type="text"
-          value={formVendor.primary_fax}
-          onChange={(e) =>
-            setFormVendor({
-              ...formVendor,
-              primary_fax: e.target.value,
-            })
-          }
-        />
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="primaryAddressUnitNo">Fax</label>
+          <input
+            type="text"
+            value={formVendor.primary_fax}
+            onChange={(e) =>
+              setFormVendor({
+                ...formVendor,
+                primary_fax: e.target.value,
+              })
+            }
+          />
+        </div>
+        <div className="form-group" style={{ flex: 1 }}>
+          <input type="hidden" />
+        </div>
       </div>
     </fieldset>
   );

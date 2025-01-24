@@ -67,90 +67,93 @@ function PrimaryAddress({ formCustomer, setformCustomer }) {
     <fieldset>
       <legend>Primary Address</legend>
 
-      <div className="form-group">
-        <label htmlFor="primaryAddressStreet">Street</label>
-        <input
-          type="text"
-          ref={addressRef}
-          placeholder="Enter your address"
-          value={formCustomer.cust_primary_address}
-          onChange={(e) =>
-            setformCustomer({
-              ...formCustomer,
-              cust_primary_address: e.target.value,
-            })
-          }
-        />
-      </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="primaryAddressStreet">Street</label>
+          <input
+            type="text"
+            ref={addressRef}
+            placeholder="Enter your address"
+            value={formCustomer.cust_primary_address}
+            onChange={(e) =>
+              setformCustomer({
+                ...formCustomer,
+                cust_primary_address: e.target.value,
+              })
+            }
+          />
+        </div>
 
-      <div className="form-group">
-        <label htmlFor="primaryAddressCity">City</label>
-        <input
-          type="text"
-          value={formCustomer.cust_primary_city}
-          onChange={(e) =>
-            setformCustomer({
-              ...formCustomer,
-              cust_primary_city: e.target.value,
-            })
-          }
-        />
-      </div>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="primaryAddressCity">City</label>
+          <input
+            type="text"
+            value={formCustomer.cust_primary_city}
+            onChange={(e) =>
+              setformCustomer({
+                ...formCustomer,
+                cust_primary_city: e.target.value,
+              })
+            }
+          />
+        </div>
 
-      <div className="form-group">
-        <label htmlFor="primaryAddressState">State</label>
-        <input
-          type="text"
-          value={formCustomer.cust_primary_state}
-          onChange={(e) =>
-            setformCustomer({
-              ...formCustomer,
-              cust_primary_state: e.target.value,
-            })
-          }
-        />
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="primaryAddressState">State</label>
+          <input
+            type="text"
+            value={formCustomer.cust_primary_state}
+            onChange={(e) =>
+              setformCustomer({
+                ...formCustomer,
+                cust_primary_state: e.target.value,
+              })
+            }
+          />
+        </div>
       </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="primaryAddressCountry">Country</label>
+          <input
+            type="text"
+            value={formCustomer.cust_primary_country}
+            onChange={(e) =>
+              setformCustomer({
+                ...formCustomer,
+                cust_primary_country: e.target.value,
+              })
+            }
+          />
+        </div>
 
-      <div className="form-group">
-        <label htmlFor="primaryAddressCountry">Country</label>
-        <input
-          type="text"
-          value={formCustomer.cust_primary_country}
-          onChange={(e) =>
-            setformCustomer({
-              ...formCustomer,
-              cust_primary_country: e.target.value,
-            })
-          }
-        />
-      </div>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="primaryAddressPostalCode">Postal Code</label>
+          <input
+            type="text"
+            value={formCustomer.cust_primary_postal}
+            onChange={(e) =>
+              setformCustomer({
+                ...formCustomer,
+                cust_primary_postal: e.target.value,
+              })
+            }
+          />
+        </div>
 
-      <div className="form-group">
-        <label htmlFor="primaryAddressPostalCode">Postal Code</label>
-        <input
-          type="text"
-          value={formCustomer.cust_primary_postal}
-          onChange={(e) =>
-            setformCustomer({
-              ...formCustomer,
-              cust_primary_postal: e.target.value,
-            })
-          }
-        />
-      </div>
-
-      <div className="form-group">
-        <label htmlFor="primaryAddressUnitNo">Unit No</label>
-        <input
-          type="text"
-          value={formCustomer.cust_primary_unit_no}
-          onChange={(e) =>
-            setformCustomer({
-              ...formCustomer,
-              cust_primary_unit_no: e.target.value,
-            })
-          }
-        />
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="primaryAddressUnitNo">Unit No</label>
+          <input
+            type="text"
+            value={formCustomer.cust_primary_unit_no}
+            onChange={(e) =>
+              setformCustomer({
+                ...formCustomer,
+                cust_primary_unit_no: e.target.value,
+              })
+            }
+          />
+        </div>
       </div>
     </fieldset>
   );

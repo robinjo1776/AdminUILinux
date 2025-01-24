@@ -50,38 +50,60 @@ function EditOrderGeneral({ formOrder, setFormOrder }) {
   return (
     <fieldset className="form-section">
       <legend>General</legend>
-      <div className="form-row">
-        <div className="form-group">
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="customer">Customer</label>
-          <Select
-            id="customer"
-            options={customers}
-            value={customers.find((c) => c.value === formOrder.customer) || null}
-            onChange={(selected) => setFormOrder({ ...formOrder, customer: selected ? selected.value : '' })}
-            placeholder="Select a customer"
-            isClearable
-          />
+          <select
+            id="quote_customer"
+            value={formOrder.customer || ''}
+            onChange={(e) => {
+              console.log('Selected customer:', e.target.value); // Debugging selected customer
+              setFormOrder({ ...formOrder, customer: e.target.value });
+            }}
+            required
+          >
+            <option value="" disabled>
+              Select a customer
+            </option>
+            {customers.map((customer) => (
+              <option key={customer.value} value={customer.value}>
+                {customer.label}
+              </option>
+            ))}
+          </select>
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="customerRefNo">Customer Ref. No</label>
-          <Select
-            id="customerRefNo"
-            options={customerRefNos}
-            value={customerRefNos.find((c) => c.value === formOrder.customer_ref_no) || null}
-            onChange={(selected) => setFormOrder({ ...formOrder, customer_ref_no: selected ? selected.value : '' })}
-            placeholder="Select a reference number"
-            isClearable
-          />
+          <select
+            id="quote_customer"
+            value={formOrder.customer_ref_no || ''}
+            onChange={(e) => {
+              console.log('Selected customer:', e.target.value);
+              setFormOrder({ ...formOrder, customer_ref_no: e.target.value });
+            }}
+            required
+          >
+            <option value="" disabled>
+              Select a reference number
+            </option>
+            {customerRefNos.map((customer_ref_no) => (
+              <option key={customer_ref_no.value} value={customer_ref_no.value}>
+                {customer_ref_no.label}
+              </option>
+            ))}
+          </select>
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="remitName">Branch</label>
           <input type="text" value={formOrder.branch} onChange={(e) => setFormOrder({ ...formOrder, branch: e.target.value })} id="remitName" />
         </div>
-        <div className="form-group">
+      </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="accNo">Booked By</label>
           <input type="text" value={formOrder.booked_by} onChange={(e) => setFormOrder({ ...formOrder, booked_by: e.target.value })} id="accNo" />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="branch">Account Rep</label>
           <input
             type="text"
@@ -90,11 +112,11 @@ function EditOrderGeneral({ formOrder, setFormOrder }) {
             id="branch"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="website">Sales Rep</label>
           <input type="text" value={formOrder.sales_rep} onChange={(e) => setFormOrder({ ...formOrder, sales_rep: e.target.value })} id="website" />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="fedIdNo">Customer PO Number</label>
           <input
             type="text"

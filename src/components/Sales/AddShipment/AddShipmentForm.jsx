@@ -77,11 +77,9 @@ const AddShipmentForm = ({ onClose, onAddShipment }) => {
       <form onSubmit={handleSubmit} className="form-main">
         <ShipmentDetails shipment={shipment} setShipment={setShipment} />
 
-        <div className="submit-button-container">
           <button type="submit" className="btn-submit">
             Submit
           </button>
-        </div>
       </form>
     </div>
   );

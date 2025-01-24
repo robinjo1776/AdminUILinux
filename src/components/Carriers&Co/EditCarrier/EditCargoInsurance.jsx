@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from 'react';
 
 function EditCargoInsurance({ formCarrier, setformCarrier }) {
   // State to store uploading status
@@ -9,29 +9,29 @@ function EditCargoInsurance({ formCarrier, setformCarrier }) {
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-  
+
     setUploading(true);
-  
+
     const formData = new FormData();
-    formData.append("file", file);  // Match the key here to 'file'
-  
-    const token = localStorage.getItem("token");  // Assuming you are sending a token for authorization
+    formData.append('file', file); // Match the key here to 'file'
+
+    const token = localStorage.getItem('token'); // Assuming you are sending a token for authorization
     try {
       const response = await fetch(`${API_URL}/api/upload`, {
-        method: "POST",
+        method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
         },
         body: formData,
       });
-  
+
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("Upload failed:", errorText);
-        alert("File upload failed. Please try again.");
+        console.error('Upload failed:', errorText);
+        alert('File upload failed. Please try again.');
         return;
       }
-  
+
       const data = await response.json();
       if (data.fileUrl) {
         setformCarrier({
@@ -39,18 +39,16 @@ function EditCargoInsurance({ formCarrier, setformCarrier }) {
           coi_cert: data.fileUrl, // Update the correct field in state
         });
       } else {
-        console.error("File URL not returned in the response");
-        alert("File upload failed: No file URL returned.");
+        console.error('File URL not returned in the response');
+        alert('File upload failed: No file URL returned.');
       }
     } catch (error) {
-      console.error("Error uploading file:", error);
-      alert("Error uploading file. Please try again.");
+      console.error('Error uploading file:', error);
+      alert('Error uploading file. Please try again.');
     } finally {
       setUploading(false);
     }
   };
-  
-  
 
   // Render download link if file URL exists
   const renderDownloadLink = (fileUrl, fileLabel) => {
@@ -69,73 +67,60 @@ function EditCargoInsurance({ formCarrier, setformCarrier }) {
   return (
     <fieldset className="form-section">
       <legend>Cargo Insurance Details</legend>
-      <div className="form-row">
-        <div className="form-group">
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="ciProvider">Cargo Insurance Provider</label>
           <input
             type="text"
             value={formCarrier.ci_provider}
-            onChange={(e) =>
-              setformCarrier({ ...formCarrier, ci_provider: e.target.value })
-            }
+            onChange={(e) => setformCarrier({ ...formCarrier, ci_provider: e.target.value })}
             id="ciProvider"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="ciPolicyNo">Policy Number</label>
           <input
             type="text"
             value={formCarrier.ci_policy_no}
-            onChange={(e) =>
-              setformCarrier({ ...formCarrier, ci_policy_no: e.target.value })
-            }
+            onChange={(e) => setformCarrier({ ...formCarrier, ci_policy_no: e.target.value })}
             id="ciPolicyNo"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="ciCoverage">Coverage Amount</label>
           <input
             type="number"
             value={formCarrier.ci_coverage}
-            onChange={(e) =>
-              setformCarrier({ ...formCarrier, ci_coverage: e.target.value })
-            }
+            onChange={(e) => setformCarrier({ ...formCarrier, ci_coverage: e.target.value })}
             id="ciCoverage"
           />
         </div>
-        <div className="form-group">
+      </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="ciStartDate">Start Date</label>
           <input
             type="date"
             value={formCarrier.ci_start_date}
-            onChange={(e) =>
-              setformCarrier({ ...formCarrier, ci_start_date: e.target.value })
-            }
+            onChange={(e) => setformCarrier({ ...formCarrier, ci_start_date: e.target.value })}
             id="ciStartDate"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="ciEndDate">End Date</label>
           <input
             type="date"
             value={formCarrier.ci_end_date}
-            onChange={(e) =>
-              setformCarrier({ ...formCarrier, ci_end_date: e.target.value })
-            }
+            onChange={(e) => setformCarrier({ ...formCarrier, ci_end_date: e.target.value })}
             id="ciEndDate"
           />
         </div>
 
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="coiCert">Certificate of Insurance</label>
-          <input
-            type="file"
-            name="coiCert"
-            onChange={(e) => handleFileChange(e, "coi_cert")}
-            accept="application/pdf"
-          />
+          <input type="file" name="coiCert" onChange={(e) => handleFileChange(e, 'coi_cert')} accept="application/pdf" />
           {/* Show existing file download link if a file exists */}
-          {renderDownloadLink(formCarrier.coi_cert, "Certificate of Insurance")}
+          {renderDownloadLink(formCarrier.coi_cert, 'Certificate of Insurance')}
           {uploading && <p>Uploading...</p>}
         </div>
       </div>

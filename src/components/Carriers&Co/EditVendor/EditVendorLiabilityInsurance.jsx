@@ -9,8 +9,8 @@ function EditVendorLiabilityInsurance({ formVendor, setFormVendor }) {
   return (
     <fieldset className="form-section">
       <legend>Liability Insurance Details</legend>
-      <div className="form-row">
-        <div className="form-group">
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="liProvider">Liability Insurance Provider</label>
           <input
             type="text"
@@ -19,7 +19,7 @@ function EditVendorLiabilityInsurance({ formVendor, setFormVendor }) {
             id="liProvider"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="liStartDate">Start Date</label>
           <input
             type="date"
@@ -28,7 +28,7 @@ function EditVendorLiabilityInsurance({ formVendor, setFormVendor }) {
             id="liStartDate"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="liEndDate">End Date</label>
           <input
             type="date"
@@ -37,7 +37,7 @@ function EditVendorLiabilityInsurance({ formVendor, setFormVendor }) {
             id="liEndDate"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="liCoverage">Coverage Amount</label>
           <input
             type="number"

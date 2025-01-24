@@ -1,0 +1,100 @@
+/* Lead badges */
+
+.badge-prospect {
+  background-color: #ffccbc;
+  color: #212121;
+}
+
+.badge-lanes {
+  background-color: #fff3e0;
+  color: #212121;
+}
+
+.badge-product {
+  background-color: #a5d6a7;
+  color: #212121;
+}
+
+.badge-email {
+  background-color: #b2ebf2;
+  color: #212121;
+}
+
+.badge-carrier {
+  background-color: #90caf9;
+  color: #212121;
+}
+
+.badge-quotation {
+  background-color: #64b5f6;
+  color: #212121;
+}
+
+.badge-broker {
+  background-color: #f8bbd0;
+  color: #212121;
+}
+
+.badge-voicemail {
+  background-color: #ffcc80;
+  color: #212121;
+}
+
+.badge-different {
+  background-color: #e1bee7;
+  color: #212121;
+}
+
+.badge-callback {
+  background-color: #ffecb3;
+  color: #212121;
+}
+
+.badge-not-interested {
+  background-color: #ffcdd2;
+  color: #212121;
+}
+
+.badge-asset {
+  background-color: #b39ddb;
+  color: #212121;
+}
+
+.badge-default {
+  background-color: #e0e0e0;
+  color: #212121;
+}
+
+.badge {
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* Lead Follow-up badges */
+
+.badge-new {
+  background-color: #a5d6a7;
+  color: #212121;
+}
+
+.badge-in-progress {
+  background-color: #ffecb3;
+  color: #212121;
+}
+
+.badge-completed {
+  background-color: #90caf9;
+  color: #212121;
+}
+
+.badge-on-hold {
+  background-color: #fff9c4;
+  color: #212121;
+}
+
+.badge-lost {
+  background-color: #ef9a9a;
+  color: #212121;
+}

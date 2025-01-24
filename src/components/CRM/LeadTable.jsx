@@ -1,15 +1,13 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import Table from '../common/Table';
 import Modal from '../common/Modal';
 import EditLeadForm from './EditLead/EditLeadForm';
 import AddLeadForm from './AddLead/AddLeadForm';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { UserContext } from '../../UserProvider';
+import { EditOutlined, DeleteOutlined, EnvironmentOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 
 const LeadTable = () => {
-  const users = useContext(UserContext);
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -19,13 +17,9 @@ const LeadTable = () => {
   const [selectedLead, setSelectedLead] = useState(null);
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [isAddModalOpen, setAddModalOpen] = useState(false);
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [rowsPerPage, setRowsPerPage] = useState(8);
   const API_URL = import.meta.env.VITE_API_BASE_URL;
-  const perPage = 100;
-
-  const getUserNameById = (id) => {
-    const user = users.find((user) => user.id === id);
-    return user ? user.name : 'Unknown';
-  };
 
   useEffect(() => {
     const fetchLeads = async () => {
@@ -68,13 +62,38 @@ const LeadTable = () => {
     setLeads((prevLeads) => prevLeads.map((lead) => (lead.id === updatedLead.id ? { ...lead, ...updatedLead } : lead)));
   };
 
-  const deleteLead = async (id) => {
+  const toggleSelectAll = () => {
+    if (selectedIds.length === paginatedData.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(paginatedData.map((lead) => lead.id));
+    }
+  };
+
+  const toggleSelect = (id) => {
+    if (selectedIds.includes(id)) {
+      setSelectedIds((prev) => prev.filter((selectedId) => selectedId !== id));
+    } else {
+      setSelectedIds((prev) => [...prev, id]);
+    }
+  };
+
+  const deleteSelected = async () => {
+    if (selectedIds.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'No record selected',
+        text: 'Please select a record to delete.',
+      });
+      return;
+    }
+
     const confirmed = await Swal.fire({
       title: 'Are you sure?',
       text: 'This action cannot be undone.',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Yes, delete it!',
+      confirmButtonText: 'Yes, delete selected!',
       cancelButtonText: 'No, cancel!',
     });
 
@@ -85,44 +104,33 @@ const LeadTable = () => {
           throw new Error('No token found');
         }
 
-        const response = await axios.delete(`${API_URL}/lead/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        await Promise.all(
+          selectedIds.map((id) =>
+            axios.delete(`${API_URL}/lead/${id}`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            })
+          )
+        );
 
-        console.log('Delete Response:', response);
-        setLeads((prevLeads) => prevLeads.filter((lead) => lead.id !== id));
-        Swal.fire('Deleted!', 'The lead has been deleted.', 'success');
+        setLeads((prevLeads) => prevLeads.filter((lead) => !selectedIds.includes(lead.id)));
+        setSelectedIds([]);
+        Swal.fire('Deleted!', 'Selected leads have been deleted.', 'success');
       } catch (error) {
-        console.error('Error deleting lead:', error);
+        console.error('Error deleting leads:', error);
 
-        if (error.response) {
-          if (error.response.status === 401) {
-            Swal.fire({
-              icon: 'error',
-              title: 'Unauthorized',
-              text: 'Your session has expired. Please log in again.',
-            });
-          } else {
-            Swal.fire({
-              icon: 'error',
-              title: 'Error!',
-              text: 'Failed to delete the lead.',
-            });
-          }
-        } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error!',
-            text: 'An unexpected error occurred.',
-          });
-        }
+        Swal.fire({
+          icon: 'error',
+          title: 'Error!',
+          text: 'Failed to delete selected leads.',
+        });
       }
     }
   };
 
   const handleSort = (column) => {
+    if (column === 'checkbox') return;
     if (sortBy === column) {
       setSortDesc(!sortDesc);
     } else {
@@ -172,18 +180,36 @@ const LeadTable = () => {
     return sortDesc ? valB - valA : valA - valB;
   });
 
-  const paginatedData = sortedLeads.slice((currentPage - 1) * perPage, currentPage * perPage);
+  const paginatedData = sortedLeads.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
-  const totalPages = Math.ceil(filteredLeads.length / perPage);
+  const totalPages = Math.ceil(filteredLeads.length / rowsPerPage);
 
   const headers = [
+    {
+      key: 'checkbox',
+      label: (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <input type="checkbox" checked={selectedIds.length === paginatedData.length && paginatedData.length > 0} onChange={toggleSelectAll} />
+        </div>
+      ),
+      render: (lead) => <input type="checkbox" checked={selectedIds.includes(lead.id)} onChange={() => toggleSelect(lead.id)} />,
+    },
     { key: 'lead_no', label: 'Lead#' },
     { key: 'lead_date', label: 'Date' },
     { key: 'follow_up_date', label: 'Follow Up' },
     { key: 'customer_name', label: 'Name' },
-    { key: 'email', label: 'Email' },
     { key: 'equipment_type', label: 'Equipment Type' },
-    { key: 'state', label: 'Province/State' },
+    {
+      key: 'state',
+      label: 'Province/State',
+      render: (item) => (
+        <span>
+          <EnvironmentOutlined style={{ marginRight: 5 }} />
+          {item.state}
+        </span>
+      ),
+    },
+
     { key: 'lead_type', label: 'Type' },
     {
       key: 'assigned_to',
@@ -196,15 +222,12 @@ const LeadTable = () => {
       render: (item) => <span className={`badge ${getStatusClass(item.lead_status)}`}>{item.lead_status}</span>,
     },
     {
-      key: 'actions',
-      label: 'Actions',
+      key: 'edit',
+      label: 'Edit',
       render: (item) => (
         <>
           <button onClick={() => openEditModal(item)} className="btn-edit">
             <EditOutlined />
-          </button>
-          <button onClick={() => deleteLead(item.id)} className="btn-delete">
-            <DeleteOutlined />
           </button>
         </>
       ),
@@ -213,29 +236,29 @@ const LeadTable = () => {
 
   const getStatusClass = (status) => {
     switch (status) {
-      case 'Prospect customer':
+      case 'Prospect':
         return 'badge-prospect';
       case 'Lanes discussed':
         return 'badge-lanes';
-      case 'Product/Equipment discussed':
+      case 'Prod/Equip noted':
         return 'badge-product';
-      case 'E-mail sent to concerned person':
+      case 'E-mail sent':
         return 'badge-email';
-      case 'Carrier portal registration':
+      case 'Portal registration':
         return 'badge-carrier';
       case 'Quotations':
         return 'badge-quotation';
       case 'Fob/Have broker':
         return 'badge-broker';
-      case 'Voicemail/No answer':
+      case 'VM/No answer':
         return 'badge-voicemail';
-      case 'Different Department':
+      case 'Diff Dept.':
         return 'badge-different';
-      case 'No answer/Callback/Voicemail':
+      case 'No reply':
         return 'badge-callback';
-      case 'Not interested':
+      case 'Not Int.':
         return 'badge-not-interested';
-      case 'Asset based only':
+      case 'Asset based':
         return 'badge-asset';
       default:
         return 'badge-default';
@@ -247,17 +270,47 @@ const LeadTable = () => {
       <div className="header-container">
         <div className="header-actions">
           <h1 className="page-heading">Leads</h1>
-          <button onClick={openAddModal} className="add-button">
-            Add
-          </button>
         </div>
         <div className="search-container">
-          <input className="search-bar" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search leads..." />
+          <div className="search-input-wrapper">
+            <SearchOutlined className="search-icon" />
+            <input className="search-bar" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search..." />
+          </div>
+          <button onClick={openAddModal} className="add-button">
+            <PlusOutlined />
+          </button>
         </div>
       </div>
-
+      <div className="controls-container">
+        <div className="pagination-controls">
+          <div className="rows-per-page-container">
+            <label htmlFor="rowsPerPage">Rows per page: </label>
+            <select
+              id="rowsPerPage"
+              value={rowsPerPage}
+              onChange={(e) => {
+                setRowsPerPage(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+            >
+              <option value={8}>8</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+              <option value={200}>200</option>
+              <option value={500}>500</option>
+            </select>
+          </div>
+        </div>
+        <button onClick={deleteSelected} className="delete-button">
+          Delete&nbsp;
+          <DeleteOutlined />
+        </button>
+      </div>
       {loading ? (
         <div>Loading...</div>
+      ) : leads.length === 0 ? (
+        <div>No records found</div>
       ) : (
         <Table
           data={paginatedData}

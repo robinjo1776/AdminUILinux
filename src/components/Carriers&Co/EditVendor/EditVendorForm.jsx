@@ -11,6 +11,8 @@ import EditVendorBanking from './EditVendorBanking';
 import EditVendorCargoInsurance from './EditVendorCargoInsurance';
 import EditVendorLiabilityInsurance from './EditVendorLiabilityInsurance';
 import VendorContact from '../VendorContact';
+import { PlusOutlined } from '@ant-design/icons';
+import EditVendorType from './EditVendorType';
 
 function EditVendorForm({ vendor, onClose, onUpdate }) {
   const [formVendor, setFormVendor] = useState({
@@ -99,7 +101,7 @@ function EditVendorForm({ vendor, onClose, onUpdate }) {
           return;
         }
 
-        const response = await axios.put(`${API_URL}/api/vendor/${formVendor.id}`, formVendor, {
+        const response = await axios.put(`${API_URL}/vendor/${formVendor.id}`, formVendor, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -144,8 +146,6 @@ function EditVendorForm({ vendor, onClose, onUpdate }) {
     }));
   };
 
-  const vendorTypeOptions = ['Vendor', 'Factoring Company'];
-
   return (
     <div className="form-container">
       <form
@@ -155,32 +155,7 @@ function EditVendorForm({ vendor, onClose, onUpdate }) {
         }}
         className="form-main"
       >
-        <fieldset className="form-section">
-          <legend>Vendor Type</legend>
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="carrType">Vendor Type*</label>
-              <select
-                name="carrType"
-                value={formVendor.type}
-                onChange={(e) =>
-                  setFormVendor({
-                    ...formVendor,
-                    type: e.target.value,
-                  })
-                }
-                required
-              >
-                <option value="">Select..</option>
-                {vendorTypeOptions.map((status) => (
-                  <option key={status} value={status}>
-                    {status}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </fieldset>
+        <EditVendorType formVendor={formVendor} setFormVendor={setFormVendor} />
         <EditVendorDetails formVendor={formVendor} setFormVendor={setFormVendor} />
         <EditVendorPrimaryAddress formVendor={formVendor} setFormVendor={setFormVendor} />
         <EditVendorMailingAddress formVendor={formVendor} setFormVendor={setFormVendor} />
@@ -191,26 +166,33 @@ function EditVendorForm({ vendor, onClose, onUpdate }) {
         <EditVendorCargoInsurance formVendor={formVendor} setFormVendor={setFormVendor} />
         <EditVendorLiabilityInsurance formVendor={formVendor} setFormVendor={setFormVendor} />
 
-        {/* Contacts */}
         <fieldset className="form-section">
           <legend>Contacts</legend>
           <div className="form-row">
-            {Array.isArray(formVendor.contacts) && formVendor.contacts.length > 0 ? (
+            {Array.isArray(formVendor.contacts) &&
               formVendor.contacts.map((contact, index) => (
-                <VendorContact key={index} contact={contact} index={index} onChange={handleContactChange} onRemove={handleRemoveContact} />
-              ))
-            ) : (
-              <p>No contacts available</p>
-            )}
-            <button type="button" onClick={handleAddContact} className="add">
-              Add Contact
+                <VendorContact
+                  key={index}
+                  contact={contact}
+                  index={index}
+                  handleContactChange={handleContactChange}
+                  handleRemoveContact={handleRemoveContact}
+                />
+              ))}
+            <button type="button" onClick={handleAddContact} className="add-button">
+              <PlusOutlined />
             </button>
           </div>
         </fieldset>
 
-        <button type="submit" className="btn-submit">
-          Update Vendor
-        </button>
+        <div className="form-actions">
+          <button type="submit" className="btn-submit">
+            Save
+          </button>
+          <button type="button" className="btn-cancel" onClick={onClose}>
+            Cancel
+          </button>
+        </div>
       </form>
     </div>
   );

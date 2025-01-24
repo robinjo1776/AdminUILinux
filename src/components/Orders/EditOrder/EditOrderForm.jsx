@@ -10,6 +10,7 @@ import EditOrderRevenue from './EditOrderRevenue';
 import EditOrderCharges from './EditOrderCharges';
 import EditOrderDiscounts from './EditOrderDiscounts';
 import EditOrderTax from './EditOrderTax';
+import { PlusOutlined } from '@ant-design/icons';
 
 const EditOrderForm = ({ order, onClose, onUpdate }) => {
   const [formOrder, setFormOrder] = useState({
@@ -297,9 +298,9 @@ const EditOrderForm = ({ order, onClose, onUpdate }) => {
                   ],
                 }))
               }
-              className="add"
+              className="add-button"
             >
-              Add Origin
+              <PlusOutlined />
             </button>
           </div>
         </fieldset>
@@ -342,9 +343,9 @@ const EditOrderForm = ({ order, onClose, onUpdate }) => {
                   ],
                 }))
               }
-              className="add"
+              className="add-button"
             >
-              Add Destination
+              <PlusOutlined />
             </button>
           </div>
         </fieldset>
@@ -373,9 +374,9 @@ const EditOrderForm = ({ order, onClose, onUpdate }) => {
                   charges: [...prevOrder.charges, { type: '', charge: '', percent: '' }],
                 }))
               }
-              className="add"
+              className="add-button"
             >
-              Add Charge
+              <PlusOutlined />
             </button>
           </div>
         </fieldset>
@@ -401,16 +402,21 @@ const EditOrderForm = ({ order, onClose, onUpdate }) => {
                   discounts: [...prevOrder.discounts, { type: '', charge: '', percent: '' }],
                 }))
               }
-              className="add"
+              className="add-button"
             >
-              Add Discount
+              <PlusOutlined />
             </button>
           </div>
         </fieldset>
         <EditOrderTax formOrder={formOrder} setFormOrder={setFormOrder} />
-        <button type="submit" className="btn-submit">
-          Update Order
-        </button>
+        <div className="form-actions">
+          <button type="submit" className="btn-submit">
+            Save
+          </button>
+          <button type="button" className="btn-cancel" onClick={onClose}>
+            Cancel
+          </button>
+        </div>
       </form>
     </div>
   );

@@ -26,7 +26,7 @@ function ShipmentDetails({ shipment, setShipment }) {
                   ship_pickup_location: e.target.value,
                 })
               }
-              id="shipPickupLocation"
+              id="shipPickupLocation" 
             />
           </div>
           <div className="form-group">

@@ -60,8 +60,8 @@ function EditVendorBanking({ formVendor, setFormVendor }) {
   return (
     <fieldset className="form-section">
       <legend>Bank Details</legend>
-      <div className="form-row">
-        <div className="form-group">
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="legalName">Name</label>
           <input
             type="text"
@@ -70,7 +70,7 @@ function EditVendorBanking({ formVendor, setFormVendor }) {
             id="legalName"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="remitName">Phone</label>
           <input
             type="text"
@@ -79,7 +79,7 @@ function EditVendorBanking({ formVendor, setFormVendor }) {
             id="remitName"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="accNo">Email</label>
           <input
             type="text"
@@ -88,7 +88,9 @@ function EditVendorBanking({ formVendor, setFormVendor }) {
             id="accNo"
           />
         </div>
-        <div className="form-group">
+      </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="accNo">US Account No</label>
           <input
             type="text"
@@ -97,7 +99,7 @@ function EditVendorBanking({ formVendor, setFormVendor }) {
             id="accNo"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="accNo">Canadian Account No</label>
           <input
             type="text"
@@ -106,7 +108,7 @@ function EditVendorBanking({ formVendor, setFormVendor }) {
             id="accNo"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="mailingAddressStreet">Address</label>
           <input
             type="text"

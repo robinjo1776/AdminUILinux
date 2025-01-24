@@ -8,7 +8,7 @@ import LeadFollowupPage from './pages/CRM/LeadFollowupPage';
 import LeadQuotesPage from './pages/Sales/LeadQuotesPage';
 import CustomersPage from './pages/Customers/CustomersPage';
 import EditCustomerForm from './components/Customers/EditCustomerForm';
-import OrderPage from './pages/Orders/OrderPage';
+import Orderpage from './pages/Orders/Orderpage';
 import EditOrderForm from './components/Orders/EditOrder/EditOrderForm';
 import AddOrderForm from './components/Orders/AddOrder/AddOrderForm';
 import CarrierPage from './pages/Carriers&Co/CarrierPage';
@@ -26,6 +26,7 @@ import EditQuoteForm from './components/Sales/EditQuote/EditQuoteForm';
 import BrokerPage from './pages/Carriers&Co/BrokerPage';
 import AddBrokerForm from './components/Carriers&Co/AddBroker/AddBrokerForm';
 import EditBrokerForm from './components/Carriers&Co/EditBroker/EditBrokerForm';
+import KibanaDashboard from './pages/KibanaDashboard';
 
 const AppRoutes = () => (
   <UserProvider>
@@ -106,7 +107,7 @@ const AppRoutes = () => (
         path="/order"
         element={
           <PrivateRoute>
-            <OrderPage />
+            <Orderpage />
           </PrivateRoute>
         }
       />
@@ -232,6 +233,15 @@ const AppRoutes = () => (
         element={
           <PrivateRoute>
             <EditQuoteForm />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/dashboard"
+        element={
+          <PrivateRoute>
+            <KibanaDashboard />
           </PrivateRoute>
         }
       />

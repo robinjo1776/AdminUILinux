@@ -44,7 +44,7 @@ const EditUserForm = ({ onClose, onUpdate, selectedUser }) => {
         return;
       }
 
-      const response = await axios.put(`${API_URL}/api/users/${formUser.id}`, formUser, {
+      const response = await axios.put(`${API_URL}/users/${formUser.id}`, formUser, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -81,56 +81,65 @@ const EditUserForm = ({ onClose, onUpdate, selectedUser }) => {
         className="form-main"
       >
         <fieldset className="form-section">
-          <div className="form-group">
-            <label htmlFor="leadNo">Name*</label>
-            <input value={formUser.name} onChange={(e) => setFormUser({ ...formUser, name: e.target.value })} type="text" required />
+          <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label htmlFor="leadNo">Name*</label>
+              <input value={formUser.name} onChange={(e) => setFormUser({ ...formUser, name: e.target.value })} type="text" required />
+            </div>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label htmlFor="leadDate">Username*</label>
+              <input value={formUser.username} onChange={(e) => setFormUser({ ...formUser, username: e.target.value })} type="text" required />
+            </div>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label htmlFor="email">Email*</label>
+              <input value={formUser.email} onChange={(e) => setFormUser({ ...formUser, email: e.target.value })} id="email" type="email" required />
+            </div>
           </div>
-          <div className="form-group">
-            <label htmlFor="leadDate">Username*</label>
-            <input value={formUser.username} onChange={(e) => setFormUser({ ...formUser, username: e.target.value })} type="text" required />
-          </div>
-          <div className="form-group">
-            <label htmlFor="email">Email*</label>
-            <input value={formUser.email} onChange={(e) => setFormUser({ ...formUser, email: e.target.value })} id="email" type="email" required />
-          </div>
-          <div className="form-group">
-            <label htmlFor="password">Password*</label>
-            <input value={formUser.password} onChange={(e) => setFormUser({ ...formUser, password: e.target.value })} type="password" required />
-          </div>
-          <div className="form-group">
-            <label htmlFor="website">Confirm Password*</label>
-            <input
-              value={formUser.website}
-              onChange={(e) => setFormUser({ ...formUser, website: e.target.value })}
-              id="website"
-              type="text"
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="equipmentType">User Role*</label>
-            <select
-              id="equipmentType"
-              value={formUser.role} // This should match the role from formUser
-              onChange={(e) => setFormUser({ ...formUser, role: e.target.value })}
-            >
-              <option value="">Select User Role</option>
-              {roleOptions.map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="form-group">
-            <label htmlFor="website">Employee Code*</label>
-            <input value={formUser.emp_code} onChange={(e) => setFormUser({ ...formUser, emp_code: e.target.value })} type="text" required />
+          <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label htmlFor="password">Password*</label>
+              <input value={formUser.password} onChange={(e) => setFormUser({ ...formUser, password: e.target.value })} type="password" required />
+            </div>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label htmlFor="website">Confirm Password*</label>
+              <input
+                value={formUser.website}
+                onChange={(e) => setFormUser({ ...formUser, website: e.target.value })}
+                id="website"
+                type="text"
+                required
+              />
+            </div>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label htmlFor="equipmentType">User Role*</label>
+              <select
+                id="equipmentType"
+                value={formUser.role} // This should match the role from formUser
+                onChange={(e) => setFormUser({ ...formUser, role: e.target.value })}
+              >
+                <option value="">Select User Role</option>
+                {roleOptions.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label htmlFor="website">Employee Code*</label>
+              <input value={formUser.emp_code} onChange={(e) => setFormUser({ ...formUser, emp_code: e.target.value })} type="text" required />
+            </div>
           </div>
         </fieldset>
 
-        <button type="submit" className="btn-submit">
-          Update User
-        </button>
+        <div className="form-actions">
+          <button type="submit" className="btn-submit">
+            Save
+          </button>
+          <button type="button" className="btn-cancel" onClick={onClose}>
+            Cancel
+          </button>
+        </div>
       </form>
     </div>
   );

@@ -11,6 +11,7 @@ import OrderRevenue from './OrderRevenue';
 import OrderCharges from './OrderCharges';
 import OrderDiscounts from './OrderDiscounts';
 import OrderTax from './OrderTax';
+import { PlusOutlined } from '@ant-design/icons';
 
 const AddOrderForm = ({ onClose, onAddOrder }) => {
   const [order, setOrder] = useState({
@@ -215,9 +216,9 @@ const AddOrderForm = ({ onClose, onAddOrder }) => {
                   ],
                 }))
               }
-              className="add"
+              className="add-button"
             >
-              Add Origin
+              <PlusOutlined />
             </button>
           </div>
         </fieldset>
@@ -260,9 +261,9 @@ const AddOrderForm = ({ onClose, onAddOrder }) => {
                   ],
                 }))
               }
-              className="add"
+              className="add-button"
             >
-              Add Destination
+              <PlusOutlined />
             </button>
           </div>
         </fieldset>
@@ -291,9 +292,9 @@ const AddOrderForm = ({ onClose, onAddOrder }) => {
                   charges: [...prevOrder.charges, { type: '', charge: '', percent: '' }],
                 }))
               }
-              className="add"
+              className="add-button"
             >
-              Add Charge
+              <PlusOutlined />
             </button>
           </div>
         </fieldset>
@@ -319,17 +320,20 @@ const AddOrderForm = ({ onClose, onAddOrder }) => {
                   discounts: [...prevOrder.discounts, { type: '', charge: '', percent: '' }],
                 }))
               }
-              className="add"
+              className="add-button"
             >
-              Add Discount
+              <PlusOutlined />
             </button>
           </div>
         </fieldset>
         <OrderTax order={order} setOrder={setOrder} />
 
-        <div className="submit-button-container">
+        <div className="form-actions">
           <button type="submit" className="btn-submit">
-            Submit
+            Generate Order
+          </button>
+          <button type="button" className="btn-cancel" onClick={onClose}>
+            Cancel
           </button>
         </div>
       </form>

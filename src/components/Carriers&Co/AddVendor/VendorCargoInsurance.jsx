@@ -2,13 +2,19 @@ function VendorCargoInsurance({ vendor, setVendor }) {
   return (
     <fieldset className="form-section">
       <legend>Cargo Insurance Details</legend>
-      <div className="form-row">
-        <div className="form-group">
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="ciProvider">Cargo Insurance Provider</label>
-          <input type="text" value={vendor.cargo_company} onChange={(e) => setVendor({ ...vendor, cargo_company: e.target.value })} id="ciProvider" />
+          <input
+            type="text"
+            value={vendor.cargo_company}
+            onChange={(e) => setVendor({ ...vendor, cargo_company: e.target.value })}
+            id="ciProvider"
+            placeholder="Cargo Insurance Provider"
+          />
         </div>
 
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="ciStartDate">Start Date</label>
           <input
             type="date"
@@ -17,7 +23,7 @@ function VendorCargoInsurance({ vendor, setVendor }) {
             id="ciStartDate"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="ciEndDate">End Date</label>
           <input
             type="date"
@@ -26,13 +32,14 @@ function VendorCargoInsurance({ vendor, setVendor }) {
             id="ciEndDate"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="ciCoverage">Coverage Amount</label>
           <input
             type="number"
             value={vendor.cargo_ins_amt}
             onChange={(e) => setVendor({ ...vendor, cargo_ins_amt: e.target.value })}
             id="ciCoverage"
+            placeholder="Coverage Amount"
           />
         </div>
       </div>

@@ -12,6 +12,8 @@ import VendorAR from './VendorAR';
 import VendorAP from './VendorAP';
 import VendorBanking from './VendorBanking';
 import VendorContact from '../VendorContact';
+import { PlusOutlined } from '@ant-design/icons';
+import VendorType from './VendorType';
 
 const AddVendorForm = ({ onClose, onAddVendor }) => {
   const [vendor, setVendor] = useState({
@@ -74,15 +76,26 @@ const AddVendorForm = ({ onClose, onAddVendor }) => {
   const API_URL = import.meta.env.VITE_API_BASE_URL;
 
   // Handle changes in contacts, equipment, or lanes
-  const handleContactChange = (index, updatedContact) => {
-    const updatedContacts = [...vendor.contacts];
-    updatedContacts[index] = updatedContact;
-    setVendor({ ...vendor, contacts: updatedContacts });
+  const handleAddContact = () => {
+    setVendor((prevVendor) => ({
+      ...prevVendor,
+      contacts: [...(prevVendor.contacts || []), { name: '', phone: '', email: '', fax: '', designation: '' }],
+    }));
   };
 
   const handleRemoveContact = (index) => {
-    const updatedContacts = vendor.contacts.filter((_, i) => i !== index);
-    setVendor({ ...vendor, contacts: updatedContacts });
+    setVendor((prevVendor) => ({
+      ...prevVendor,
+      contacts: (prevVendor.contacts || []).filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleContactChange = (index, updatedContact) => {
+    const updatedContacts = (vendor.contacts || []).map((contact, i) => (i === index ? updatedContact : contact));
+    setVendor((prevVendor) => ({
+      ...prevVendor,
+      contacts: updatedContacts,
+    }));
   };
 
   const validateVendor = () => {
@@ -107,10 +120,10 @@ const AddVendorForm = ({ onClose, onAddVendor }) => {
         };
 
         if (vendor.id) {
-          response = await axios.put(`${API_URL}/api/vendor/${vendor.id}`, vendor, { headers });
+          response = await axios.put(`${API_URL}/vendor/${vendor.id}`, vendor, { headers });
           Swal.fire('Updated!', 'Vendor data has been updated successfully.', 'success');
         } else {
-          response = await axios.post(`${API_URL}/api/vendor`, vendor, {
+          response = await axios.post(`${API_URL}/vendor`, vendor, {
             headers,
           });
           Swal.fire('Saved!', 'Vendor data has been saved successfully.', 'success');
@@ -127,8 +140,6 @@ const AddVendorForm = ({ onClose, onAddVendor }) => {
       Swal.fire('Validation Error', 'Please fill in all required fields.', 'error');
     }
   };
-
-  const vendorTypeOptions = ['Vendor', 'Factoring Company'];
 
   const clearVendorForm = () => {
     setVendor({
@@ -193,32 +204,7 @@ const AddVendorForm = ({ onClose, onAddVendor }) => {
   return (
     <div className="form-container">
       <form onSubmit={handleSubmit} className="form-main">
-        <fieldset className="form-section">
-          <legend>Vendor Type</legend>
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="carrType">Vendor Type*</label>
-              <select
-                name="carrType"
-                value={vendor.type}
-                onChange={(e) =>
-                  setVendor({
-                    ...vendor,
-                    type: e.target.value,
-                  })
-                }
-                required
-              >
-                <option value="">Select..</option>
-                {vendorTypeOptions.map((status) => (
-                  <option key={status} value={status}>
-                    {status}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </fieldset>
+        <VendorType vendor={vendor} setVendor={setVendor} />
         <VendorDetails vendor={vendor} setVendor={setVendor} />
         <VendorPrimaryAddress vendor={vendor} setVendor={setVendor} />
         <VendorMailingAddress vendor={vendor} setVendor={setVendor} />
@@ -232,37 +218,28 @@ const AddVendorForm = ({ onClose, onAddVendor }) => {
         <fieldset className="form-section">
           <legend>Contacts</legend>
           <div className="form-row">
-            {vendor.contacts.map((contact, index) => (
-              <VendorContact key={index} contact={contact} index={index} onChange={handleContactChange} onRemove={handleRemoveContact} />
-            ))}
-            <button
-              type="button"
-              onClick={() =>
-                setVendor((prevVendor) => ({
-                  ...prevVendor,
-                  contacts: [
-                    ...prevVendor.contacts,
-                    {
-                      name: '',
-                      phone: '',
-                      email: '',
-                      ext: '',
-                      fax: '',
-                      designation: '',
-                    },
-                  ],
-                }))
-              }
-              className="add"
-            >
-              Add Contact
+            {Array.isArray(vendor.contacts) &&
+              vendor.contacts.map((contact, index) => (
+                <VendorContact
+                  key={index}
+                  contact={contact}
+                  index={index}
+                  handleContactChange={handleContactChange}
+                  handleRemoveContact={handleRemoveContact}
+                />
+              ))}
+            <button type="button" onClick={handleAddContact} className="add-button">
+              <PlusOutlined />
             </button>
           </div>
         </fieldset>
 
-        <div className="submit-button-container">
+        <div className="form-actions">
           <button type="submit" className="btn-submit">
-            Submit Vendor
+          Add Vendor
+          </button>
+          <button type="button" className="btn-cancel" onClick={onClose}>
+            Cancel
           </button>
         </div>
       </form>

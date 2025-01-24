@@ -1,3 +1,5 @@
+import { DeleteOutlined } from '@ant-design/icons';
+
 function OrderDiscounts({ setOrder, order, discount = {}, index, onRemove }) {
   const rateOptions = ['Flat', 'Percentage'];
 
@@ -33,7 +35,7 @@ function OrderDiscounts({ setOrder, order, discount = {}, index, onRemove }) {
       </div>
 
       <button type="button" onClick={() => onRemove(index)} className="remove">
-        Remove
+        <DeleteOutlined />
       </button>
     </div>
   );

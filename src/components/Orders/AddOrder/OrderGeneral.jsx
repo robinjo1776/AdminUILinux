@@ -49,48 +49,100 @@ const OrderGeneral = ({ order, setOrder }) => {
   return (
     <fieldset className="form-section">
       <legend>General</legend>
-      <div className="form-row">
-        <div className="form-group">
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="customer">Customer</label>
-          <Select
-            id="customer"
-            options={customers}
-            value={customers.find((c) => c.value === order.customer) || null}
-            onChange={(selected) => setOrder({ ...order, customer: selected ? selected.value : '' })}
-            placeholder="Select a customer"
-            isClearable
-          />
+          <select
+            id="quote_customer"
+            value={order.customer || ''}
+            onChange={(e) => {
+              console.log('Selected customer:', e.target.value); // Debugging selected customer
+              setOrder({ ...order, customer: e.target.value });
+            }}
+            required
+          >
+            <option value="" disabled>
+              Select a customer
+            </option>
+            {customers.map((customer) => (
+              <option key={customer.value} value={customer.value}>
+                {customer.label}
+              </option>
+            ))}
+          </select>
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="customerRefNo">Customer Ref. No</label>
-          <Select
-            id="customerRefNo"
-            options={customerRefNos}
-            value={customerRefNos.find((c) => c.value === order.customer_ref_no) || null}
-            onChange={(selected) => setOrder({ ...order, customer_ref_no: selected ? selected.value : '' })}
-            placeholder="Select a reference number"
-            isClearable
+          <select
+            id="quote_customer"
+            value={order.customer_ref_no || ''}
+            onChange={(e) => {
+              console.log('Select a reference number:', e.target.value);
+              setOrder({ ...order, customer_ref_no: e.target.value });
+            }}
+            required
+          >
+            <option value="" disabled>
+              Select a reference number
+            </option>
+            {customerRefNos.map((customer_ref_no) => (
+              <option key={customer_ref_no.value} value={customer_ref_no.value}>
+                {customer_ref_no.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="remitName">Branch</label>
+          <input
+            type="text"
+            value={order.branch}
+            onChange={(e) => setOrder({ ...order, branch: e.target.value })}
+            id="remitName"
+            placeholder="Branch"
           />
         </div>
-        <div className="form-group">
-          <label htmlFor="remitName">Branch</label>
-          <input type="text" value={order.branch} onChange={(e) => setOrder({ ...order, branch: e.target.value })} id="remitName" />
-        </div>
-        <div className="form-group">
+      </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="accNo">Booked By</label>
-          <input type="text" value={order.booked_by} onChange={(e) => setOrder({ ...order, booked_by: e.target.value })} id="accNo" />
+          <input
+            type="text"
+            value={order.booked_by}
+            onChange={(e) => setOrder({ ...order, booked_by: e.target.value })}
+            id="accNo"
+            placeholder="Booked By"
+          />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="branch">Account Rep</label>
-          <input type="text" value={order.account_rep} onChange={(e) => setOrder({ ...order, account_rep: e.target.value })} id="branch" />
+          <input
+            type="text"
+            value={order.account_rep}
+            onChange={(e) => setOrder({ ...order, account_rep: e.target.value })}
+            id="branch"
+            placeholder="Account Rep"
+          />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="website">Sales Rep</label>
-          <input type="text" value={order.sales_rep} onChange={(e) => setOrder({ ...order, sales_rep: e.target.value })} id="website" />
+          <input
+            type="text"
+            value={order.sales_rep}
+            onChange={(e) => setOrder({ ...order, sales_rep: e.target.value })}
+            id="website"
+            placeholder="Sales Rep"
+          />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="fedIdNo">Customer PO Number</label>
-          <input type="text" value={order.customer_po_no} onChange={(e) => setOrder({ ...order, customer_po_no: e.target.value })} id="fedIdNo" />
+          <input
+            type="text"
+            value={order.customer_po_no}
+            onChange={(e) => setOrder({ ...order, customer_po_no: e.target.value })}
+            id="fedIdNo"
+            placeholder="Customer PO Number"
+          />
         </div>
       </div>
     </fieldset>

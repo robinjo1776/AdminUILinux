@@ -10,6 +10,7 @@ import CustomBroker from './CustomBroker';
 import CustomerCredit from './CustomerCredit';
 import CustomerContact from './CustomerContact';
 import CustomerEquipment from './CustomerEquipment';
+import { PlusOutlined } from '@ant-design/icons';
 
 function EditCustomerForm({ customer, onClose, onUpdate }) {
   const users = useContext(UserContext);
@@ -68,12 +69,15 @@ function EditCustomerForm({ customer, onClose, onUpdate }) {
 
   useEffect(() => {
     if (customer) {
+      console.log('Customer data:', customer);
       const parsedContacts = Array.isArray(customer.cust_contact) ? customer.cust_contact : JSON.parse(customer.cust_contact || '[]');
       const parsedEquipment = Array.isArray(customer.cust_equipment) ? customer.cust_equipment : JSON.parse(customer.cust_equipment || '[]');
+      console.log('Parsed Contacts:', parsedContacts);
+
       setformCustomer({
         ...customer,
-        contacts: parsedContacts.length > 0 ? parsedContacts : [],
-        cust_equipment: parsedEquipment.length > 0 ? parsedEquipment : [],
+        cust_contact: Array.isArray(parsedContacts) ? parsedContacts : [],
+        cust_equipment: Array.isArray(parsedEquipment) ? parsedEquipment : [],
       });
     }
   }, [customer]);
@@ -143,19 +147,19 @@ function EditCustomerForm({ customer, onClose, onUpdate }) {
   const handleAddEquipment = () => {
     setformCustomer((prevCustomer) => ({
       ...prevCustomer,
-      cust_equipment: [...prevCustomer.cust_equipment, { equipment: '' }],
+      cust_equipment: [...(prevCustomer.cust_equipment || []), { equipment: '' }],
     }));
   };
 
   const handleRemoveEquipment = (index) => {
     setformCustomer((prevCustomer) => ({
       ...prevCustomer,
-      cust_equipment: prevCustomer.cust_equipment.filter((_, i) => i !== index),
+      cust_equipment: (prevCustomer.cust_equipment || []).filter((_, i) => i !== index),
     }));
   };
 
   const handleEquipmentChange = (index, updatedEquipment) => {
-    const updatedEquipments = formCustomer.cust_equipment.map((equipment, i) => (i === index ? updatedEquipment : equipment));
+    const updatedEquipments = (formCustomer.cust_equipment || []).map((equipment, i) => (i === index ? updatedEquipment : equipment));
     setformCustomer((prevCustomer) => ({
       ...prevCustomer,
       cust_equipment: updatedEquipments,
@@ -177,46 +181,51 @@ function EditCustomerForm({ customer, onClose, onUpdate }) {
         <AccountsPayable formCustomer={formCustomer} setformCustomer={setformCustomer} />
         <CustomBroker formCustomer={formCustomer} setformCustomer={setformCustomer} />
         <CustomerCredit formCustomer={formCustomer} setformCustomer={setformCustomer} />
-        {/* Contacts */}
         <fieldset className="form-section">
           <legend>Contacts</legend>
           <div className="form-row">
-            {Array.isArray(formCustomer.cust_contact) && formCustomer.cust_contact.length > 0 ? (
+            {Array.isArray(formCustomer.cust_contact) &&
               formCustomer.cust_contact.map((contact, index) => (
-                <CustomerContact key={index} contact={contact} index={index} onChange={handleContactChange} onRemove={handleRemoveContact} />
-              ))
-            ) : (
-              <p>No contacts available</p>
-            )}
-            <button type="button" onClick={handleAddContact} className="add">
-              Add Contact
+                <CustomerContact
+                  key={index}
+                  contact={contact}
+                  index={index}
+                  handleContactChange={handleContactChange}
+                  handleRemoveContact={handleRemoveContact}
+                />
+              ))}
+
+            <button type="button" onClick={handleAddContact} className="add-button">
+              <PlusOutlined />
             </button>
           </div>
         </fieldset>
         <fieldset className="form-section">
           <legend>Equipments</legend>
           <div className="form-row">
-            {Array.isArray(formCustomer.cust_equipment) && formCustomer.cust_equipment.length > 0 ? (
+            {Array.isArray(formCustomer.cust_equipment) &&
               formCustomer.cust_equipment.map((equipment, index) => (
                 <CustomerEquipment
                   key={index}
                   equipment={equipment}
                   index={index}
-                  onChange={handleEquipmentChange}
-                  onRemove={handleRemoveEquipment}
+                  handleEquipmentChange={handleEquipmentChange}
+                  handleRemoveEquipment={handleRemoveEquipment}
                 />
-              ))
-            ) : (
-              <p>No equipment available</p>
-            )}
-            <button type="button" onClick={handleAddEquipment} className="add">
-              Add Equipment
+              ))}
+            <button type="button" onClick={handleAddEquipment} className="add-button">
+              <PlusOutlined />
             </button>
           </div>
         </fieldset>
-        <button type="submit" className="btn-submit">
-          Update Customer
-        </button>
+        <div className="form-actions">
+          <button type="submit" className="btn-submit">
+            Save
+          </button>
+          <button type="button" className="btn-cancel" onClick={onClose}>
+            Cancel
+          </button>
+        </div>
       </form>
     </div>
   );

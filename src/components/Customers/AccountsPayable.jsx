@@ -65,171 +65,175 @@ function AccountsPayable({ formCustomer, setformCustomer }) {
     <fieldset>
       <legend>Accounts Payable</legend>
 
-      <div className="form-group">
-        <label htmlFor="accountsPayableName">Name</label>
-        <input
-          type="text"
-          id="accountsPayableName"
-          value={formCustomer.cust_ap_name}
-          onChange={(e) =>
-            setformCustomer({
-              ...formCustomer,
-              cust_ap_name: e.target.value,
-            })
-          }
-        />
-      </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="accountsPayableName">Name</label>
+          <input
+            type="text"
+            id="accountsPayableName"
+            value={formCustomer.cust_ap_name}
+            onChange={(e) =>
+              setformCustomer({
+                ...formCustomer,
+                cust_ap_name: e.target.value,
+              })
+            }
+          />
+        </div>
 
-      <div className="form-group">
-        <label htmlFor="street">Street</label>
-        <input
-          type="text"
-          id="street"
-          ref={addressRef}
-          value={formCustomer.cust_ap_address}
-          onChange={(e) =>
-            setformCustomer({
-              ...formCustomer,
-              cust_ap_address: e.target.value,
-            })
-          }
-          placeholder="Enter your address"
-        />
-      </div>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="street">Street</label>
+          <input
+            type="text"
+            id="street"
+            ref={addressRef}
+            value={formCustomer.cust_ap_address}
+            onChange={(e) =>
+              setformCustomer({
+                ...formCustomer,
+                cust_ap_address: e.target.value,
+              })
+            }
+            placeholder="Enter your address"
+          />
+        </div>
 
-      <div className="form-group">
-        <label htmlFor="city">City</label>
-        <input
-          type="text"
-          id="city"
-          value={formCustomer.cust_ap_city}
-          onChange={(e) =>
-            setformCustomer({
-              ...formCustomer,
-              cust_ap_city: e.target.value,
-            })
-          }
-        />
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="city">City</label>
+          <input
+            type="text"
+            id="city"
+            value={formCustomer.cust_ap_city}
+            onChange={(e) =>
+              setformCustomer({
+                ...formCustomer,
+                cust_ap_city: e.target.value,
+              })
+            }
+          />
+        </div>
       </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="state">State</label>
+          <input
+            type="text"
+            id="state"
+            value={formCustomer.cust_ap_state}
+            onChange={(e) =>
+              setformCustomer({
+                ...formCustomer,
+                cust_ap_state: e.target.value,
+              })
+            }
+          />
+        </div>
 
-      <div className="form-group">
-        <label htmlFor="state">State</label>
-        <input
-          type="text"
-          id="state"
-          value={formCustomer.cust_ap_state}
-          onChange={(e) =>
-            setformCustomer({
-              ...formCustomer,
-              cust_ap_state: e.target.value,
-            })
-          }
-        />
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="country">Country</label>
+          <input
+            type="text"
+            id="country"
+            value={formCustomer.cust_ap_country}
+            onChange={(e) =>
+              setformCustomer({
+                ...formCustomer,
+                cust_ap_country: e.target.value,
+              })
+            }
+          />
+        </div>
+
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="postalCode">Postal Code</label>
+          <input
+            type="text"
+            id="postalCode"
+            value={formCustomer.cust_ap_postal}
+            onChange={(e) =>
+              setformCustomer({
+                ...formCustomer,
+                cust_ap_postal: e.target.value,
+              })
+            }
+          />
+        </div>
+
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="unitNo">Unit No</label>
+          <input
+            type="text"
+            id="unitNo"
+            value={formCustomer.cust_ap_unit_no}
+            onChange={(e) =>
+              setformCustomer({
+                ...formCustomer,
+                cust_ap_unit_no: e.target.value,
+              })
+            }
+          />
+        </div>
       </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            value={formCustomer.cust_ap_email}
+            onChange={(e) =>
+              setformCustomer({
+                ...formCustomer,
+                cust_ap_email: e.target.value,
+              })
+            }
+          />
+        </div>
 
-      <div className="form-group">
-        <label htmlFor="country">Country</label>
-        <input
-          type="text"
-          id="country"
-          value={formCustomer.cust_ap_country}
-          onChange={(e) =>
-            setformCustomer({
-              ...formCustomer,
-              cust_ap_country: e.target.value,
-            })
-          }
-        />
-      </div>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="phone">Phone</label>
+          <input
+            type="tel"
+            id="phone"
+            value={formCustomer.cust_ap_phone}
+            onChange={(e) =>
+              setformCustomer({
+                ...formCustomer,
+                cust_ap_phone: e.target.value,
+              })
+            }
+          />
+        </div>
 
-      <div className="form-group">
-        <label htmlFor="postalCode">Postal Code</label>
-        <input
-          type="text"
-          id="postalCode"
-          value={formCustomer.cust_ap_postal}
-          onChange={(e) =>
-            setformCustomer({
-              ...formCustomer,
-              cust_ap_postal: e.target.value,
-            })
-          }
-        />
-      </div>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="phoneExt">Phone Ext</label>
+          <input
+            type="text"
+            id="phoneExt"
+            value={formCustomer.cust_ap_phone_ext}
+            onChange={(e) =>
+              setformCustomer({
+                ...formCustomer,
+                cust_ap_phone_ext: e.target.value,
+              })
+            }
+          />
+        </div>
 
-      <div className="form-group">
-        <label htmlFor="unitNo">Unit No</label>
-        <input
-          type="text"
-          id="unitNo"
-          value={formCustomer.cust_ap_unit_no}
-          onChange={(e) =>
-            setformCustomer({
-              ...formCustomer,
-              cust_ap_unit_no: e.target.value,
-            })
-          }
-        />
-      </div>
-
-      <div className="form-group">
-        <label htmlFor="email">Email</label>
-        <input
-          type="email"
-          id="email"
-          value={formCustomer.cust_ap_email}
-          onChange={(e) =>
-            setformCustomer({
-              ...formCustomer,
-              cust_ap_email: e.target.value,
-            })
-          }
-        />
-      </div>
-
-      <div className="form-group">
-        <label htmlFor="phone">Phone</label>
-        <input
-          type="tel"
-          id="phone"
-          value={formCustomer.cust_ap_phone}
-          onChange={(e) =>
-            setformCustomer({
-              ...formCustomer,
-              cust_ap_phone: e.target.value,
-            })
-          }
-        />
-      </div>
-
-      <div className="form-group">
-        <label htmlFor="phoneExt">Phone Ext</label>
-        <input
-          type="text"
-          id="phoneExt"
-          value={formCustomer.cust_ap_phone_ext}
-          onChange={(e) =>
-            setformCustomer({
-              ...formCustomer,
-              cust_ap_phone_ext: e.target.value,
-            })
-          }
-        />
-      </div>
-
-      <div className="form-group">
-        <label htmlFor="fax">Fax</label>
-        <input
-          type="text"
-          id="fax"
-          value={formCustomer.cust_ap_fax}
-          onChange={(e) =>
-            setformCustomer({
-              ...formCustomer,
-              cust_ap_fax: e.target.value,
-            })
-          }
-        />
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="fax">Fax</label>
+          <input
+            type="text"
+            id="fax"
+            value={formCustomer.cust_ap_fax}
+            onChange={(e) =>
+              setformCustomer({
+                ...formCustomer,
+                cust_ap_fax: e.target.value,
+              })
+            }
+          />
+        </div>
       </div>
     </fieldset>
   );

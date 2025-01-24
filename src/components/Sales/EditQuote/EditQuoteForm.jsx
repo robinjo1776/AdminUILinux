@@ -5,6 +5,7 @@ import { UserContext } from '../../../UserProvider';
 import EditQuoteGeneral from './EditQuoteGeneral';
 import EditQuotePickup from './EditQuotePickup';
 import EditQuoteDelivery from './EditQuoteDelivery';
+import { PlusOutlined } from '@ant-design/icons';
 
 const EditQuoteForm = ({ quote, onClose, onUpdate }) => {
   const users = useContext(UserContext);
@@ -136,7 +137,7 @@ const EditQuoteForm = ({ quote, onClose, onUpdate }) => {
         }}
         className="form-main"
       >
-        <EditQuoteGeneral formQuote={formQuote} setFormQuote={setFormQuote} /> 
+        <EditQuoteGeneral formQuote={formQuote} setFormQuote={setFormQuote} />
         <fieldset className="form-section">
           <legend>Pickup</legend>
           <div className="form-row">
@@ -151,8 +152,8 @@ const EditQuoteForm = ({ quote, onClose, onUpdate }) => {
                 onRemove={handleRemovePickup}
               />
             ))}
-            <button type="button" onClick={handleAddPickup} className="add">
-              Add Pickup
+            <button type="button" onClick={handleAddPickup} className="add-button">
+              <PlusOutlined />
             </button>
           </div>
         </fieldset>
@@ -170,14 +171,19 @@ const EditQuoteForm = ({ quote, onClose, onUpdate }) => {
                 onRemove={handleRemoveDelivery}
               />
             ))}
-            <button type="button" onClick={handleAddDelivery} className="add">
-              Add Delivery
+            <button type="button" onClick={handleAddDelivery} className="add-button">
+              <PlusOutlined />
             </button>
           </div>
         </fieldset>
-        <button type="submit" className="btn-submit">
-          Update Quote
-        </button>
+        <div className="form-actions">
+          <button type="submit" className="btn-submit">
+            Save
+          </button>
+          <button type="button" className="btn-cancel" onClick={onClose}>
+            Cancel
+          </button>
+        </div>
       </form>
     </div>
   );

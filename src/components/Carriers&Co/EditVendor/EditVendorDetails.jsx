@@ -2,18 +2,17 @@ function EditVendorDetails({ formVendor, setFormVendor }) {
   return (
     <fieldset className="form-section">
       <legend>Vendor Details</legend>
-      <div className="form-row">
-        <div className="form-group">
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="legalName">Legal Name</label>
           <input
             type="text"
             value={formVendor.legal_name}
             onChange={(e) => setFormVendor({ ...formVendor, legal_name: e.target.value })}
             id="legalName"
-            
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="remitName">Remit Name</label>
           <input
             type="text"
@@ -22,7 +21,7 @@ function EditVendorDetails({ formVendor, setFormVendor }) {
             id="remitName"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="accNo">Vendor Type</label>
           <input
             type="text"
@@ -31,18 +30,18 @@ function EditVendorDetails({ formVendor, setFormVendor }) {
             id="accNo"
           />
         </div>
-
-        <div className="form-group">
+      </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="wcbNo">Service</label>
           <input type="text" value={formVendor.service} onChange={(e) => setFormVendor({ ...formVendor, service: e.target.value })} id="wcbNo" />
         </div>
-      </div>
-      <div className="form-row">
-        <div className="form-group">
+
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="legalName">SCAC</label>
           <input type="text" value={formVendor.scac} onChange={(e) => setFormVendor({ ...formVendor, scac: e.target.value })} id="legalName" />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="remitName">Docket#</label>
           <input
             type="text"
@@ -51,7 +50,9 @@ function EditVendorDetails({ formVendor, setFormVendor }) {
             id="remitName"
           />
         </div>
-        <div className="form-group">
+      </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="accNo">Vendor Code</label>
           <input
             type="text"
@@ -60,9 +61,8 @@ function EditVendorDetails({ formVendor, setFormVendor }) {
             id="accNo"
           />
         </div>
-      </div>
-      <div className="form-row">
-        <div className="form-group">
+
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="legalName">GST/HST#</label>
           <input
             type="text"
@@ -71,7 +71,7 @@ function EditVendorDetails({ formVendor, setFormVendor }) {
             id="legalName"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="remitName">QST#</label>
           <input
             type="text"
@@ -80,7 +80,9 @@ function EditVendorDetails({ formVendor, setFormVendor }) {
             id="remitName"
           />
         </div>
-        <div className="form-group">
+      </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="accNo">CA bond#</label>
           <input
             type="text"
@@ -90,9 +92,13 @@ function EditVendorDetails({ formVendor, setFormVendor }) {
           />
         </div>
 
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="wcbNo">Website</label>
           <input type="text" value={formVendor.website} onChange={(e) => setFormVendor({ ...formVendor, website: e.target.value })} id="wcbNo" />
+        </div>
+
+        <div className="form-group" style={{ flex: 1 }}>
+          <input type="hidden" />
         </div>
       </div>
     </fieldset>

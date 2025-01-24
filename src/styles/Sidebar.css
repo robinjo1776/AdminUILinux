@@ -1,0 +1,93 @@
+.sidebar {
+  color: #fff;
+  width: 250px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  padding: 10px;
+}
+
+.logo-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  border-radius: 50%;
+  background: rgba(28, 17, 41, 0.88);
+}
+
+.menu-bar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  margin-top: 16px;
+  background: #1c1c1c;
+}
+.ant-menu {
+  margin-top: 4rem;
+}
+
+.menu-bar .ant-menu-item-home {
+  margin-top: 16px;
+}
+
+.ant-menu-item-selected {
+  background-color: #1890ff !important;
+  color: #fff;
+}
+.menu-item-home {
+  margin-top: 20px;
+}
+.ant-menu-item {
+  font-size: 12px;
+}
+
+.ant-layout-content {
+  padding: 0 24px;
+  min-height: calc(100vh - 64px);
+  margin: 0;
+}
+
+.toggle-theme-button {
+  position: absolute;
+  bottom: 30px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+.gynPIr {
+  align-items: start !important;
+  min-height: fit-content !important;
+}
+.toggle {
+  margin-left: 15px;
+  color: #fff;
+}
+.toggle :hover {
+  color: #fff;
+}
+.toggle-theme-btn {
+  display: none;
+}
+
+.ant-layout-sider {
+  overflow-y: hidden;
+}
+.ant-layout-sider-children {
+  background-color: #1c1c1c;
+}
+.ant-layout {
+  height: 100vh;
+}

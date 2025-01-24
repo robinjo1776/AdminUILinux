@@ -2,8 +2,8 @@ function EditOrderSpecs({ formOrder, setFormOrder }) {
   return (
     <fieldset className="form-section">
       <legend>Load Specifications</legend>
-      <div className="form-row">
-        <div className="form-group">
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
           <label
             htmlFor="hot"
             style={{
@@ -16,7 +16,7 @@ function EditOrderSpecs({ formOrder, setFormOrder }) {
             <input type="checkbox" checked={formOrder.hot} onChange={(e) => setFormOrder({ ...formOrder, hot: e.target.checked })} id="hot" />
           </label>
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label
             htmlFor="team"
             style={{
@@ -29,7 +29,7 @@ function EditOrderSpecs({ formOrder, setFormOrder }) {
             <input type="checkbox" checked={formOrder.team} onChange={(e) => setFormOrder({ ...formOrder, team: e.target.checked })} id="team" />
           </label>
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label
             htmlFor="air_ride"
             style={{
@@ -39,10 +39,15 @@ function EditOrderSpecs({ formOrder, setFormOrder }) {
             }}
           >
             Air Ride
-            <input type="checkbox" checked={formOrder.air_ride} onChange={(e) => setFormOrder({ ...formOrder, air_ride: e.target.checked })} id="air_ride" />
+            <input
+              type="checkbox"
+              checked={formOrder.air_ride}
+              onChange={(e) => setFormOrder({ ...formOrder, air_ride: e.target.checked })}
+              id="air_ride"
+            />
           </label>
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label
             htmlFor="tarp"
             style={{
@@ -55,7 +60,7 @@ function EditOrderSpecs({ formOrder, setFormOrder }) {
             <input type="checkbox" checked={formOrder.tarp} onChange={(e) => setFormOrder({ ...formOrder, tarp: e.target.checked })} id="tarp" />
           </label>
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: 1 }}>
           <label
             htmlFor="hazmat"
             style={{
@@ -65,7 +70,12 @@ function EditOrderSpecs({ formOrder, setFormOrder }) {
             }}
           >
             Hazmat
-            <input type="checkbox" checked={formOrder.hazmat} onChange={(e) => setFormOrder({ ...formOrder, hazmat: e.target.checked })} id="hazmat" />
+            <input
+              type="checkbox"
+              checked={formOrder.hazmat}
+              onChange={(e) => setFormOrder({ ...formOrder, hazmat: e.target.checked })}
+              id="hazmat"
+            />
           </label>
         </div>
       </div>
