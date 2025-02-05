@@ -5,7 +5,9 @@ import Table from '../common/Table';
 import Modal from '../common/Modal';
 import EditLeadForm from './EditLead/EditLeadForm';
 import AddLeadForm from './AddLead/AddLeadForm';
-import { EditOutlined, DeleteOutlined, EnvironmentOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, EyeOutlined, PlusOutlined, SearchOutlined, CalendarOutlined } from '@ant-design/icons';
+import dayjs from 'dayjs';
+import ViewLeadForm from './ViewLead/ViewLeadForm';
 
 const LeadTable = () => {
   const [leads, setLeads] = useState([]);
@@ -17,8 +19,9 @@ const LeadTable = () => {
   const [selectedLead, setSelectedLead] = useState(null);
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [isAddModalOpen, setAddModalOpen] = useState(false);
+  const [isViewModalOpen, setViewModalOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
-  const [rowsPerPage, setRowsPerPage] = useState(8);
+  const [rowsPerPage, setRowsPerPage] = useState(100);
   const API_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
@@ -149,6 +152,15 @@ const LeadTable = () => {
     setSelectedLead(null);
   };
 
+  const openViewModal = (lead) => {
+    setSelectedLead(lead);
+    setViewModalOpen(true);
+  };
+  const closeViewModal = () => {
+    setViewModalOpen(false);
+    setSelectedLead(null);
+  };
+
   const openAddModal = () => {
     setAddModalOpen(true);
   };
@@ -184,6 +196,30 @@ const LeadTable = () => {
 
   const totalPages = Math.ceil(filteredLeads.length / rowsPerPage);
 
+  const renderSortableHeader = (header) => {
+    // Define columns that should not have a sort icon
+    const nonSortableColumns = ['checkbox', 'actions'];
+
+    // Only render sort icons for sortable columns
+    if (nonSortableColumns.includes(header.key)) {
+      return <div className="sortable-header">{header.label}</div>;
+    }
+
+    const isSortedColumn = sortBy === header.key; // Check if this column is sorted
+    const sortDirection = isSortedColumn
+      ? sortDesc
+        ? '▼'
+        : '▲' // If sorted, show descending (▼) or ascending (▲)
+      : '▲'; // Default to ascending (▲) if not sorted
+
+    return (
+      <div className="sortable-header" onClick={() => handleSort(header.key)}>
+        {header.label}
+        <span className="sort-icon">{sortDirection}</span> {/* Always show an arrow for sortable columns */}
+      </div>
+    );
+  };
+
   const headers = [
     {
       key: 'checkbox',
@@ -194,22 +230,23 @@ const LeadTable = () => {
       ),
       render: (lead) => <input type="checkbox" checked={selectedIds.includes(lead.id)} onChange={() => toggleSelect(lead.id)} />,
     },
+
     { key: 'lead_no', label: 'Lead#' },
-    { key: 'lead_date', label: 'Date' },
-    { key: 'follow_up_date', label: 'Follow Up' },
     { key: 'customer_name', label: 'Name' },
-    { key: 'equipment_type', label: 'Equipment Type' },
     {
-      key: 'state',
-      label: 'Province/State',
+      key: 'lead_date',
+      label: 'Date',
       render: (item) => (
-        <span>
-          <EnvironmentOutlined style={{ marginRight: 5 }} />
-          {item.state}
-        </span>
+        <div className="date-picker-container-normal">
+          <CalendarOutlined style={{ marginRight: 5 }} />
+          {item.lead_date ? dayjs(item.lead_date).format('DD MMM, YYYY') : '-'}
+        </div>
       ),
     },
-
+    {
+      key: 'city',
+      label: 'City',
+    },
     { key: 'lead_type', label: 'Type' },
     {
       key: 'assigned_to',
@@ -222,10 +259,23 @@ const LeadTable = () => {
       render: (item) => <span className={`badge ${getStatusClass(item.lead_status)}`}>{item.lead_status}</span>,
     },
     {
-      key: 'edit',
-      label: 'Edit',
+      key: 'follow_up_date',
+      label: 'Follow Up',
+      render: (item) => (
+        <div className="date-picker-container">
+          <CalendarOutlined style={{ marginRight: 5 }} />
+          {item.follow_up_date ? dayjs(item.follow_up_date).format('DD MMM, YYYY') : '-'}
+        </div>
+      ),
+    },
+    {
+      key: 'actions',
+      label: 'Actions',
       render: (item) => (
         <>
+          <button onClick={() => openViewModal(item)} className="btn-view">
+            <EyeOutlined />
+          </button>
           <button onClick={() => openEditModal(item)} className="btn-edit">
             <EditOutlined />
           </button>
@@ -268,44 +318,24 @@ const LeadTable = () => {
   return (
     <div>
       <div className="header-container">
-        <div className="header-actions">
-          <h1 className="page-heading">Leads</h1>
+        <div className="header-container-left">
+          <div className="header-actions">
+            <h1 className="page-heading">Leads</h1>
+          </div>
         </div>
+
         <div className="search-container">
           <div className="search-input-wrapper">
             <SearchOutlined className="search-icon" />
-            <input className="search-bar" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search..." />
+            <input className="search-bar" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
           </div>
           <button onClick={openAddModal} className="add-button">
             <PlusOutlined />
           </button>
+          <button onClick={deleteSelected} className="delete-button">
+            <DeleteOutlined />
+          </button>
         </div>
-      </div>
-      <div className="controls-container">
-        <div className="pagination-controls">
-          <div className="rows-per-page-container">
-            <label htmlFor="rowsPerPage">Rows per page: </label>
-            <select
-              id="rowsPerPage"
-              value={rowsPerPage}
-              onChange={(e) => {
-                setRowsPerPage(Number(e.target.value));
-                setCurrentPage(1);
-              }}
-            >
-              <option value={8}>8</option>
-              <option value={20}>20</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
-              <option value={200}>200</option>
-              <option value={500}>500</option>
-            </select>
-          </div>
-        </div>
-        <button onClick={deleteSelected} className="delete-button">
-          Delete&nbsp;
-          <DeleteOutlined />
-        </button>
       </div>
       {loading ? (
         <div>Loading...</div>
@@ -316,16 +346,7 @@ const LeadTable = () => {
           data={paginatedData}
           headers={headers.map((header) => ({
             ...header,
-            label: (
-              <div className="sortable-header" onClick={() => handleSort(header.key)}>
-                {header.label}
-                {sortBy === header.key && (
-                  <span className="sort-icon">
-                    {sortDesc ? '▲' : '▼'} {/* Render Asc/Desc icon based on the sort order */}
-                  </span>
-                )}
-              </div>
-            ),
+            label: renderSortableHeader(header), // Render sortable header logic
           }))}
           handleSort={handleSort}
           sortBy={sortBy}
@@ -351,6 +372,10 @@ const LeadTable = () => {
             closeAddModal();
           }}
         />
+      </Modal>
+
+      <Modal isOpen={isViewModalOpen} onClose={closeViewModal} title="Lead Details">
+        {selectedLead && <ViewLeadForm lead={selectedLead} onClose={closeViewModal} />}
       </Modal>
     </div>
   );

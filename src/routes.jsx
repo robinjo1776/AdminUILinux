@@ -7,7 +7,7 @@ import EditLeadForm from './components/CRM/EditLead/EditLeadForm';
 import LeadFollowupPage from './pages/CRM/LeadFollowupPage';
 import LeadQuotesPage from './pages/Sales/LeadQuotesPage';
 import CustomersPage from './pages/Customers/CustomersPage';
-import EditCustomerForm from './components/Customers/EditCustomerForm';
+import EditCustomerForm from './components/Customers/EditCustomer/EditCustomerForm';
 import Orderpage from './pages/Orders/Orderpage';
 import EditOrderForm from './components/Orders/EditOrder/EditOrderForm';
 import AddOrderForm from './components/Orders/AddOrder/AddOrderForm';
@@ -26,22 +26,23 @@ import EditQuoteForm from './components/Sales/EditQuote/EditQuoteForm';
 import BrokerPage from './pages/Carriers&Co/BrokerPage';
 import AddBrokerForm from './components/Carriers&Co/AddBroker/AddBrokerForm';
 import EditBrokerForm from './components/Carriers&Co/EditBroker/EditBrokerForm';
-import KibanaDashboard from './pages/KibanaDashboard';
+import Dashboard from './pages/Dashboard';
+import Logout from './pages/Auth/Logout';
 
 const AppRoutes = () => (
   <UserProvider>
     <Routes>
+      <Route path="/register" element={<RegisterPage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/logout" element={<Logout />} />
       <Route
         path="/"
         element={
           <PrivateRoute>
-            <LeadsPage />
+            <Dashboard />
           </PrivateRoute>
         }
       />
-
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/login" element={<LoginPage />} />
 
       <Route
         path="/lead"
@@ -233,15 +234,6 @@ const AppRoutes = () => (
         element={
           <PrivateRoute>
             <EditQuoteForm />
-          </PrivateRoute>
-        }
-      />
-
-      <Route
-        path="/dashboard"
-        element={
-          <PrivateRoute>
-            <KibanaDashboard />
           </PrivateRoute>
         }
       />

@@ -4,8 +4,7 @@
   width: 2rem;
   height: 2rem;
   border: none;
-  border-radius: 50%;
-  background-color: #1890ff;
+  background-color: #287a0f;
   color: #fff;
   display: flex;
   align-items: center;
@@ -22,11 +21,11 @@
   width: 1rem;
   height: 1rem;
 }
+
 .view-fu-button {
-  width: 7rem;
+  width: 2rem;
   height: 2rem;
   border: none;
-  border-radius: 5px;
   color: #fff;
   display: flex;
   align-items: center;
@@ -34,25 +33,24 @@
   cursor: pointer;
   background-color: #007bff;
   transition: background-color 0.3s;
-  margin-bottom: 1rem;
 }
+
+.view-fu-button svg {
+  width: 1rem;
+  height: 1rem;
+}
+
 .delete-button {
-  width: 5rem;
+  width: 2rem;
   height: 2rem;
   border: none;
-  border-radius: 5px;
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  background-color: #f45754;
+  background-color: #db1c1c;
   transition: background-color 0.3s;
-  margin-bottom: 1rem;
-}
-
-.delete-button:hover {
-  background-color: #dd2121;
 }
 
 .delete-button svg {
@@ -65,10 +63,9 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  width: 5rem;
+  width: 2rem;
   height: 2rem;
   border: none;
-  border-radius: 5px;
   background-color: #52c41a;
   color: white;
   cursor: pointer;
@@ -98,7 +95,9 @@
 }
 
 .btn-edit,
-.btn-delete {
+.btn-view,
+.btn-delete
+ {
   background: none;
   border: none;
   cursor: pointer;
@@ -106,13 +105,12 @@
   transition: background-color 0.3s;
 }
 
-.btn-edit:hover {
+.btn-edit:hover,
+.btn-view:hover {
   color: #1890ff;
 }
 
-.btn-delete:hover {
-  color: #ff4d4f;
-}
+
 
 .btn-convert {
   background-color: #4caf50;
@@ -150,7 +148,7 @@
   background-color: #28a745;
   color: white;
   font-size: 14px;
-  padding: 0.5rem;
+  padding: 0.2rem;
   border-radius: 4px;
   border: none;
   cursor: pointer;
@@ -164,7 +162,7 @@
 }
 .btn-cancel {
   padding: 0.75rem 1rem;
-  font-size: 16px;
+  font-size: 14px;
   color: #000;
   background-color: #f7f0f3;
   border: none;
@@ -208,7 +206,7 @@
   color: #000;
   cursor: pointer;
   font-size: 1.2rem;
-  float: right; 
+  float: right;
   display: inline-block;
   margin-top: 0rem;
 }

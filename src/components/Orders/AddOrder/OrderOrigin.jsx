@@ -89,7 +89,7 @@ function OrderOrigin({ setOrder, order, origin = {}, index, onRemove }) {
         <div className="form-group" style={{ flex: 1 }}>
           <label>City</label>
           <input type="text" name="city" value={origin.city || ''} onChange={handleOrderChange} placeholder="City" />
-        </div>
+        </div> 
 
         <div className="form-group" style={{ flex: 1 }}>
           <label>State</label>

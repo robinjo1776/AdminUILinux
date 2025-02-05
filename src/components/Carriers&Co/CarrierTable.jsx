@@ -1,15 +1,14 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import Table from '../common/Table';
 import Modal from '../common/Modal';
 import EditCarrierForm from './EditCarrier/EditCarrierForm';
 import AddCarrierForm from './AddCarrier/AddCarrierForm';
-import { EditOutlined, DeleteOutlined, MailOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
-import { UserContext } from '../../UserProvider';
+import { EditOutlined, DeleteOutlined, MailOutlined, PlusOutlined, SearchOutlined, EyeOutlined } from '@ant-design/icons';
+import ViewCarrierForm from './ViewCarrier/ViewCarrierForm';
 
 const CarrierTable = () => {
-  const users = useContext(UserContext);
   const [carriers, setCarriers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -20,8 +19,9 @@ const CarrierTable = () => {
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [isAddModalOpen, setAddModalOpen] = useState(false);
   const [selectedCarriers, setSelectedCarriers] = useState([]);
+  const [isViewModalOpen, setViewModalOpen] = useState(false);
   const [isEmailModalOpen, setEmailModalOpen] = useState(false);
-  const [rowsPerPage, setRowsPerPage] = useState(8);
+  const [rowsPerPage, setRowsPerPage] = useState(100);
   const [emailData, setEmailData] = useState({ subject: '', content: '' });
   const API_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -137,7 +137,31 @@ const CarrierTable = () => {
       setSortDesc(true);
     }
   };
+  const openEditModal = (carrier) => {
+    setSelectedCarrier(carrier);
+    setEditModalOpen(true);
+  };
 
+  const closeEditModal = () => {
+    setEditModalOpen(false);
+    setSelectedCarrier(null);
+  };
+
+  const openAddModal = () => {
+    setAddModalOpen(true);
+  };
+
+  const closeAddModal = () => {
+    setAddModalOpen(false);
+  };
+  const openViewModal = (carrier) => {
+    setSelectedCarrier(carrier);
+    setViewModalOpen(true);
+  };
+  const closeViewModal = () => {
+    setViewModalOpen(false);
+    setSelectedCarrier(null);
+  };
   const normalizedSearchQuery = searchQuery.toLowerCase();
   const filteredCarriers = carriers.filter((carrier) =>
     Object.values(carrier).some((val) => val !== null && val !== undefined && val.toString().toLowerCase().includes(normalizedSearchQuery))
@@ -161,42 +185,85 @@ const CarrierTable = () => {
 
   const totalPages = Math.ceil(filteredCarriers.length / rowsPerPage);
 
+  const renderSortableHeader = (header) => {
+    const nonSortableColumns = ['checkbox', 'actions'];
+
+    if (nonSortableColumns.includes(header.key)) {
+      return <div className="sortable-header">{header.label}</div>;
+    }
+
+    const isSortedColumn = sortBy === header.key;
+    const sortDirection = isSortedColumn ? (sortDesc ? '▼' : '▲') : '▲';
+
+    return (
+      <div className="sortable-header" onClick={() => handleSort(header.key)}>
+        {header.label}
+        <span className="sort-icon">{sortDirection}</span>
+      </div>
+    );
+  };
+
   const headers = [
     {
-      key: 'select',
+      key: 'checkbox',
       label: (
         <input type="checkbox" onChange={toggleSelectAll} checked={selectedCarriers.length === paginatedData.length && paginatedData.length > 0} />
       ),
       render: (item) => <input type="checkbox" checked={selectedCarriers.includes(item.id)} onChange={() => toggleSelect(item.id)} />,
     },
+    {
+      key: 'advertise',
+      label: 'Advertised',
+      render: (item) => (
+        <span
+          style={{
+            backgroundColor: item.advertise ? '#287a0f' : '#db1c1c',
+            color: item.advertise ? '#fff' : '#fff',
+            width: '4rem',
+            textAlign: 'center',
+            padding: '4px 8px',
+            borderRadius: '4px',
+            display: 'inline-block',
+          }}
+        >
+          {item.advertise ? 'Yes' : 'No'}
+        </span>
+      ),
+    },
     { key: 'dba', label: 'DBA' },
     { key: 'legal_name', label: 'Legal Name' },
-    { key: 'acc_no', label: 'Account No.' },
+    { key: 'primary_phone', label: 'Phone' },
+    { key: 'primary_city', label: 'City' },
     { key: 'carr_type', label: 'Carrier Type' },
     { key: 'rating', label: 'Rating' },
-    { key: 'dot_number', label: 'DOT Number' },
     {
       key: 'approved',
       label: 'Approved',
       render: (item) => (
-        <span style={{ color: item.approved ? 'green' : 'red', fontWeight: 'bold' }}>{item.approved ? 'Approved' : 'Not Approved'}</span>
+        <span
+          style={{
+            backgroundColor: item.approved ? '#d4edda' : '#f8d7da', // Green for approved, red for not approved
+            color: item.approved ? '#155724' : '#721c24',
+            fontWeight: 'bold',
+            padding: '4px 8px',
+            borderRadius: '12px',
+            display: 'inline-block',
+          }}
+        >
+          {item.approved ? 'Approved' : 'Not Approved'}
+        </span>
       ),
     },
-    {
-      key: 'advertise',
-      label: 'Advertised',
-      render: (item) => <span style={{ color: item.advertise ? 'green' : 'red', fontWeight: 'bold' }}>{item.advertise ? 'Yes' : 'No'}</span>,
-    },
-    { key: 'primary_city', label: 'City' },
-    { key: 'primary_state', label: 'State' },
-    { key: 'primary_country', label: 'Country' },
-    { key: 'primary_phone', label: 'Phone' },
+
     { key: 'li_coverage', label: 'Liability Coverage' },
     {
-      key: 'edit',
-      label: 'Edit',
+      key: 'actions',
+      label: 'Actions',
       render: (item) => (
         <>
+          <button onClick={() => openViewModal(item)} className="btn-view">
+            <EyeOutlined />
+          </button>
           <button onClick={() => openEditModal(item)} className="btn-edit">
             <EditOutlined />
           </button>
@@ -204,24 +271,6 @@ const CarrierTable = () => {
       ),
     },
   ];
-
-  const openEditModal = (carrier) => {
-    setSelectedCarrier(carrier);
-    setEditModalOpen(true);
-  };
-
-  const closeEditModal = () => {
-    setEditModalOpen(false);
-    setSelectedCarrier(null);
-  };
-
-  const openAddModal = () => {
-    setAddModalOpen(true);
-  };
-
-  const closeAddModal = () => {
-    setAddModalOpen(false);
-  };
 
   const sendEmails = async (subject, content) => {
     if (selectedCarriers.length === 0) {
@@ -265,46 +314,24 @@ const CarrierTable = () => {
   return (
     <div>
       <div className="header-container">
-        <div className="header-actions">
-          <h1 className="page-heading">Carriers</h1>
+        <div className="header-container-left">
+          <div className="header-actions">
+            <h1 className="page-heading">Carriers</h1>
+          </div>
         </div>
         <div className="search-container">
           <div className="search-input-wrapper">
             <SearchOutlined className="search-icon" />
-            <input className="search-bar" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search..." />
+            <input className="search-bar" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
           </div>
           <button onClick={openAddModal} className="add-button">
             <PlusOutlined />
           </button>
-        </div>
-      </div>
-      <div className="controls-container">
-        <div className="pagination-controls">
-          <div className="rows-per-page-container">
-            <label htmlFor="rowsPerPage">Rows per page: </label>
-            <select
-              id="rowsPerPage"
-              value={rowsPerPage}
-              onChange={(e) => {
-                setRowsPerPage(Number(e.target.value));
-                setCurrentPage(1);
-              }}
-            >
-              <option value={8}>8</option>
-              <option value={20}>20</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
-              <option value={200}>200</option>
-              <option value={500}>500</option>
-            </select>
-          </div>
-        </div>
-        <div className="button-group">
           <button onClick={() => setEmailModalOpen(true)} className="send-email-button" disabled={selectedCarriers.length === 0}>
-            Email&nbsp; <MailOutlined />
+            <MailOutlined />
           </button>
           <button onClick={deleteSelected} className="delete-button">
-            Delete&nbsp; <DeleteOutlined />
+            <DeleteOutlined />
           </button>
         </div>
       </div>
@@ -315,31 +342,10 @@ const CarrierTable = () => {
       ) : (
         <Table
           data={paginatedData}
-          headers={headers.map((header) => {
-            // Prevent sorting logic for the checkbox column
-            if (header.key === 'select') {
-              return {
-                ...header,
-                label: (
-                  <input
-                    type="checkbox"
-                    onChange={toggleSelectAll}
-                    checked={selectedCarriers.length === paginatedData.length && paginatedData.length > 0}
-                  />
-                ),
-              };
-            }
-
-            return {
-              ...header,
-              label: (
-                <div className="sortable-header" onClick={() => handleSort(header.key)}>
-                  {header.label}
-                  {sortBy === header.key && <span className="sort-icon">{sortDesc ? '▲' : '▼'}</span>}
-                </div>
-              ),
-            };
-          })}
+          headers={headers.map((header) => ({
+            ...header,
+            label: renderSortableHeader(header),
+          }))}
           handleSort={handleSort}
           sortBy={sortBy}
           sortDesc={sortDesc}
@@ -349,12 +355,10 @@ const CarrierTable = () => {
         />
       )}
 
-      {/* Edit Carrier Modal */}
       <Modal isOpen={isEditModalOpen} onClose={closeEditModal} title="Edit Carrier">
         {selectedCarrier && <EditCarrierForm carrier={selectedCarrier} onClose={closeEditModal} onUpdate={updateCarrier} />}
       </Modal>
 
-      {/* Add Carrier Modal */}
       <Modal isOpen={isAddModalOpen} onClose={closeAddModal} title="Add Carrier">
         <AddCarrierForm
           onClose={closeAddModal}
@@ -365,7 +369,6 @@ const CarrierTable = () => {
         />
       </Modal>
 
-      {/* Email Modal */}
       <Modal isOpen={isEmailModalOpen} onClose={() => setEmailModalOpen(false)} title="Send Email">
         <div className="email-modal">
           <div>
@@ -380,6 +383,9 @@ const CarrierTable = () => {
             Send
           </button>
         </div>
+      </Modal>
+      <Modal isOpen={isViewModalOpen} onClose={closeViewModal} title="Carrier Details">
+        {selectedCarrier && <ViewCarrierForm carrier={selectedCarrier} onClose={closeViewModal} />}
       </Modal>
     </div>
   );

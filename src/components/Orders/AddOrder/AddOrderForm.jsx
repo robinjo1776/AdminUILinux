@@ -1,6 +1,3 @@
-import { useState } from 'react';
-import axios from 'axios';
-import Swal from 'sweetalert2';
 import '../../../styles/Form.css';
 import OrderGeneral from './OrderGeneral';
 import OrderShipment from './OrderShipment';
@@ -12,165 +9,22 @@ import OrderCharges from './OrderCharges';
 import OrderDiscounts from './OrderDiscounts';
 import OrderTax from './OrderTax';
 import { PlusOutlined } from '@ant-design/icons';
+import addOrderHandler from './addOrderHandler';
+import addFieldMultiple from './addFieldMultiple';
 
 const AddOrderForm = ({ onClose, onAddOrder }) => {
-  const [order, setOrder] = useState({
-    id: '',
-    customer: '',
-    customer_ref_no: '',
-    branch: '',
-    booked_by: '',
-    account_rep: '',
-    sales_rep: '',
-    customer_po_no: '',
-    commodity: '',
-    equipment: '',
-    load_type: '',
-    temperature: '',
-    origin_location: [],
-    destination_location: [],
-    hot: false,
-    team: false,
-    air_ride: false,
-    tarp: false,
-    hazmat: false,
-    currency: '',
-    base_price: '',
-    charges: [],
-    discounts: [],
-    gst: '',
-    pst: '',
-    hst: '',
-    qst: '',
-    final_price: '',
-    notes: '',
-  });
-  const API_URL = import.meta.env.VITE_API_BASE_URL;
+  const { order, setOrder, handleSubmit } = addOrderHandler({ onClose, onAddOrder });
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    if (validateOrder()) {
-      try {
-        let response;
-        const token = localStorage.getItem('token');
-
-        if (!token) {
-          Swal.fire('Error', 'No token found', 'error');
-          return;
-        }
-
-        const headers = {
-          Authorization: `Bearer ${token}`,
-        };
-
-        if (order.id) {
-          response = await axios.put(`${API_URL}/order/${order.id}`, order, { headers });
-          Swal.fire('Updated!', 'Order data has been updated successfully.', 'success');
-        } else {
-          response = await axios.post(`${API_URL}/order`, order, {
-            headers,
-          });
-          Swal.fire('Saved!', 'Order data has been saved successfully.', 'success');
-        }
-
-        onAddOrder(response.data);
-        clearOrderForm();
-        onClose();
-      } catch (error) {
-        console.error('Error saving/updating order:', error.response ? error.response.data : error.message);
-        Swal.fire('Error', 'An error occurred while saving/updating the order.', 'error');
-      }
-    } else {
-      Swal.fire('Validation Error', 'Please fill in all required fields.', 'error');
-    }
-  };
-
-  const validateOrder = () => {
-    return order.customer;
-  };
-
-  const clearOrderForm = () => {
-    setOrder({
-      id: '',
-      customer: '',
-      customer_ref_no: '',
-      branch: '',
-      booked_by: '',
-      account_rep: '',
-      sales_rep: '',
-      customer_po_no: '',
-      commodity: '',
-      equipment: '',
-      load_type: '',
-      temperature: '',
-      origin_location: [],
-      destination_location: [],
-      hot: false,
-      team: false,
-      air_ride: false,
-      tarp: false,
-      hazmat: false,
-      currency: '',
-      base_price: '',
-      charges: [],
-      discounts: [],
-      gst: '',
-      pst: '',
-      hst: '',
-      qst: '',
-      final_price: '',
-      notes: '',
-    });
-  };
-
-  const handleOriginChange = (index, updatedOrigin) => {
-    // When a contact changes, update the specific contact in the contacts array
-    const updatedOrigins = [...order.origin_location];
-    updatedOrigin[index] = updatedOrigin;
-    setOrder({ ...order, origin_location: updatedOrigins }); // Set the updated contacts back into the state
-  };
-
-  const handleRemoveOrigin = (index) => {
-    const updatedOrigins = order.origin_location.filter((_, i) => i !== index);
-    setOrder({ ...order, origin_location: updatedOrigins });
-  };
-
-  const handleDestinationChange = (index, updatedDestination) => {
-    // When a contact changes, update the specific contact in the contacts array
-    const updatedDestinations = [...order.destination_location];
-    updatedDestination[index] = updatedDestination;
-    setOrder({ ...order, destination_location: updatedDestinations }); // Set the updated contacts back into the state
-  };
-
-  const handleRemoveDestination = (index) => {
-    const updatedDestinations = order.destination_location.filter((_, i) => i !== index);
-    setOrder({ ...order, destination_location: updatedDestinations });
-  };
-
-  const handleChargeChange = (index, updatedCharge) => {
-    // When a contact changes, update the specific contact in the contacts array
-    const updatedCharges = [...order.charges];
-    updatedCharge[index] = updatedCharge;
-    setOrder({ ...order, charges: updatedCharges }); // Set the updated contacts back into the state
-  };
-
-  const handleRemoveCharge = (index) => {
-    const updatedCharges = order.charges.filter((_, i) => i !== index);
-    setOrder({ ...order, charges: updatedCharges });
-  };
-
-  const handleDiscountChange = (index, updatedDiscount) => {
-    // When a contact changes, update the specific contact in the contacts array
-    const updatedDiscounts = [...order.discounts];
-    updatedDiscounts[index] = updatedDiscount;
-    setOrder({ ...order, discounts: updatedDiscounts }); // Set the updated contacts back into the state
-  };
-
-  const handleRemoveDiscount = (index) => {
-    const updatedDiscounts = order.discounts.filter((_, i) => i !== index);
-    setOrder({ ...order, discounts: updatedDiscounts });
-  };
+  const {
+    handleOriginChange,
+    handleDestinationChange,
+    handleChargeChange,
+    handleDiscountChange,
+    handleRemoveOrigin,
+    handleRemoveDestination,
+    handleRemoveCharge,
+    handleRemoveDiscount,
+  } = addFieldMultiple();
 
   return (
     <div className="form-container">

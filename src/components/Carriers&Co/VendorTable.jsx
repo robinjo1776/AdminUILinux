@@ -3,9 +3,10 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import Table from '../common/Table';
 import Modal from '../common/Modal';
-import { EditOutlined, DeleteOutlined, MailOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, MailOutlined, PlusOutlined, SearchOutlined, EyeOutlined } from '@ant-design/icons';
 import AddVendorForm from './AddVendor/AddVendorForm';
 import EditVendorForm from './EditVendor/EditVendorForm';
+import ViewVendorForm from './ViewVendor/ViewVendorForm';
 
 const VendorTable = () => {
   const [vendors, setVendors] = useState([]);
@@ -18,8 +19,9 @@ const VendorTable = () => {
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [isAddModalOpen, setAddModalOpen] = useState(false);
   const [selectedVendors, setSelectedVendors] = useState([]);
+  const [isViewModalOpen, setViewModalOpen] = useState(false);
   const [isEmailModalOpen, setEmailModalOpen] = useState(false);
-  const [rowsPerPage, setRowsPerPage] = useState(8);
+  const [rowsPerPage, setRowsPerPage] = useState(100);
   const [emailData, setEmailData] = useState({ subject: '', content: '' });
   const API_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -137,6 +139,31 @@ const VendorTable = () => {
     }
   };
 
+  const openEditModal = (vendor) => {
+    setSelectedVendor(vendor);
+    setEditModalOpen(true);
+  };
+
+  const closeEditModal = () => {
+    setEditModalOpen(false);
+    setSelectedVendor(null);
+  };
+
+  const openAddModal = () => {
+    setAddModalOpen(true);
+  };
+
+  const closeAddModal = () => {
+    setAddModalOpen(false);
+  };
+  const openViewModal = (vendor) => {
+    setSelectedVendor(vendor);
+    setViewModalOpen(true);
+  };
+  const closeViewModal = () => {
+    setViewModalOpen(false);
+    setSelectedVendor(null);
+  };
   const normalizedSearchQuery = searchQuery.toLowerCase();
   const filteredVendors = vendors.filter((carrier) =>
     Object.values(carrier).some((val) => val !== null && val !== undefined && val.toString().toLowerCase().includes(normalizedSearchQuery))
@@ -160,9 +187,28 @@ const VendorTable = () => {
 
   const totalPages = Math.ceil(filteredVendors.length / rowsPerPage);
 
+  const renderSortableHeader = (header) => {
+    const nonSortableColumns = ['checkbox', 'actions'];
+
+    // Only render sort icons for sortable columns
+    if (nonSortableColumns.includes(header.key)) {
+      return <div className="sortable-header">{header.label}</div>;
+    }
+
+    const isSortedColumn = sortBy === header.key;
+    const sortDirection = isSortedColumn ? (sortDesc ? '▼' : '▲') : '▲';
+
+    return (
+      <div className="sortable-header" onClick={() => handleSort(header.key)}>
+        {header.label}
+        <span className="sort-icon">{sortDirection}</span>
+      </div>
+    );
+  };
+
   const headers = [
     {
-      key: 'select',
+      key: 'checkbox',
       label: (
         <input type="checkbox" onChange={toggleSelectAll} checked={selectedVendors.length === paginatedData.length && paginatedData.length > 0} />
       ),
@@ -170,20 +216,20 @@ const VendorTable = () => {
     },
     { key: 'legal_name', label: 'Legal Name' },
     { key: 'vendor_code', label: 'Code' },
-    { key: 'vendor_type', label: 'Type' },
-    { key: 'service', label: 'Service' },
     { key: 'primary_address', label: 'Address' },
     { key: 'primary_phone', label: 'Phone' },
     { key: 'primary_email', label: 'Email' },
-    { key: 'scac', label: 'SCAC' },
-    { key: 'ap_name', label: 'AP' },
-    { key: 'ap_name', label: 'AR' },
+    { key: 'vendor_type', label: 'Type' },
+    { key: 'service', label: 'Service' },
 
     {
-      key: 'edit',
-      label: 'Edit',
+      key: 'actions',
+      label: 'Actions',
       render: (item) => (
         <>
+          <button onClick={() => openViewModal(item)} className="btn-view">
+            <EyeOutlined />
+          </button>
           <button onClick={() => openEditModal(item)} className="btn-edit">
             <EditOutlined />
           </button>
@@ -191,24 +237,6 @@ const VendorTable = () => {
       ),
     },
   ];
-
-  const openEditModal = (vendor) => {
-    setSelectedVendor(vendor);
-    setEditModalOpen(true);
-  };
-
-  const closeEditModal = () => {
-    setEditModalOpen(false);
-    setSelectedVendor(null);
-  };
-
-  const openAddModal = () => {
-    setAddModalOpen(true);
-  };
-
-  const closeAddModal = () => {
-    setAddModalOpen(false);
-  };
 
   const sendEmails = async (subject, content) => {
     if (selectedVendors.length === 0) {
@@ -252,46 +280,25 @@ const VendorTable = () => {
   return (
     <div>
       <div className="header-container">
-        <div className="header-actions">
-          <h1 className="page-heading">Vendors</h1>
+        <div className="header-container-left">
+          <div className="header-actions">
+            <h1 className="page-heading">Vendors</h1>
+          </div>
         </div>
+
         <div className="search-container">
           <div className="search-input-wrapper">
             <SearchOutlined className="search-icon" />
-            <input className="search-bar" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search..." />
+            <input className="search-bar" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
           </div>
           <button onClick={openAddModal} className="add-button">
             <PlusOutlined />
           </button>
-        </div>
-      </div>
-      <div className="controls-container">
-        <div className="pagination-controls">
-          <div className="rows-per-page-container">
-            <label htmlFor="rowsPerPage">Rows per page: </label>
-            <select
-              id="rowsPerPage"
-              value={rowsPerPage}
-              onChange={(e) => {
-                setRowsPerPage(Number(e.target.value));
-                setCurrentPage(1);
-              }}
-            >
-              <option value={8}>8</option>
-              <option value={20}>20</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
-              <option value={200}>200</option>
-              <option value={500}>500</option>
-            </select>
-          </div>
-        </div>
-        <div className="button-group">
           <button onClick={() => setEmailModalOpen(true)} className="send-email-button" disabled={selectedVendors.length === 0}>
-            Email&nbsp; <MailOutlined />
+            <MailOutlined />
           </button>
           <button onClick={deleteSelected} className="delete-button">
-            Delete&nbsp; <DeleteOutlined />
+            <DeleteOutlined />
           </button>
         </div>
       </div>
@@ -302,31 +309,10 @@ const VendorTable = () => {
       ) : (
         <Table
           data={paginatedData}
-          headers={headers.map((header) => {
-            // Prevent sorting logic for the checkbox column
-            if (header.key === 'select') {
-              return {
-                ...header,
-                label: (
-                  <input
-                    type="checkbox"
-                    onChange={toggleSelectAll}
-                    checked={selectedVendors.length === paginatedData.length && paginatedData.length > 0}
-                  />
-                ),
-              };
-            }
-
-            return {
-              ...header,
-              label: (
-                <div className="sortable-header" onClick={() => handleSort(header.key)}>
-                  {header.label}
-                  {sortBy === header.key && <span className="sort-icon">{sortDesc ? '▲' : '▼'}</span>}
-                </div>
-              ),
-            };
-          })}
+          headers={headers.map((header) => ({
+            ...header,
+            label: renderSortableHeader(header),
+          }))}
           handleSort={handleSort}
           sortBy={sortBy}
           sortDesc={sortDesc}
@@ -336,12 +322,10 @@ const VendorTable = () => {
         />
       )}
 
-      {/* Edit Vendor Modal */}
       <Modal isOpen={isEditModalOpen} onClose={closeEditModal} title="Edit Vendor">
         {selectedVendor && <EditVendorForm vendor={selectedVendor} onClose={closeEditModal} onUpdate={updateVendor} />}
       </Modal>
 
-      {/* Add Vendor Modal */}
       <Modal isOpen={isAddModalOpen} onClose={closeAddModal} title="Add Vendor">
         <AddVendorForm
           onClose={closeAddModal}
@@ -352,7 +336,6 @@ const VendorTable = () => {
         />
       </Modal>
 
-      {/* Email Modal */}
       <Modal isOpen={isEmailModalOpen} onClose={() => setEmailModalOpen(false)} title="Send Email">
         <div className="email-modal">
           <div>
@@ -367,6 +350,10 @@ const VendorTable = () => {
             Send
           </button>
         </div>
+      </Modal>
+
+      <Modal isOpen={isViewModalOpen} onClose={closeViewModal} title="Vendor Details">
+        {selectedVendor && <ViewVendorForm vendor={selectedVendor} onClose={closeViewModal} />}
       </Modal>
     </div>
   );

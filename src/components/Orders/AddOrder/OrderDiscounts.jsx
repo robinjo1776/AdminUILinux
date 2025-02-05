@@ -20,7 +20,7 @@ function OrderDiscounts({ setOrder, order, discount = {}, index, onRemove }) {
       </div>
       <div className="form-group">
         <label>Charge</label>
-        <input type="tel" name="charge" value={discount.charge || ''} onChange={handleOrderChange} />
+        <input type="number" name="charge" value={discount.charge || ''} onChange={handleOrderChange} />
       </div>
       <div className="form-group">
         <label htmlFor="percent">Percent/Flat Rate</label>

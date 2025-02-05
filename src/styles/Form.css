@@ -13,15 +13,19 @@
   background-color: white !important;
   color: black !important;
 }
-
+legend{
+  font-size: 12px !important;
+}
 .form-section {
   margin-bottom: 0.3rem;
   color: black !important;
+  font-size: 12px;
 }
 
 .form-group {
   margin-bottom: 1.5rem;
   color: black !important;
+  font-size: 12px;
 }
 .form-actions {
   display: flex;
@@ -35,6 +39,7 @@
   margin-bottom: 0.5rem;
   font-weight: bold;
   color: black !important;
+  font-size: 12px;
 }
 #creditApplication,
 #mailingAddressSame,
@@ -43,6 +48,7 @@
 #approved {
   width: 1rem;
   margin-left: 0.5rem;
+  font-size: 12px;
 }
 .form-group input,
 .form-group select,
@@ -57,6 +63,7 @@
 }
 .form-group textarea {
   height: 6rem !important;
+  font-size: 12px;
 }
 
 .form-group input:focus,
@@ -74,6 +81,7 @@
 #hazmat {
   width: 1rem;
   margin-left: 0.5rem;
+  font-size: 12px;
 }
 
 /*Contact form */
@@ -101,5 +109,5 @@
   padding: 0.5rem;
   border: 1px solid #ccc;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 12px;
 }

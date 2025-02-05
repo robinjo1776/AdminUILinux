@@ -3,9 +3,10 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import Table from '../common/Table';
 import Modal from '../common/Modal';
-import { EditOutlined, DeleteOutlined, MailOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, MailOutlined, PlusOutlined, SearchOutlined, EyeOutlined } from '@ant-design/icons';
 import AddBrokerForm from './AddBroker/AddBrokerForm';
 import EditBrokerForm from './EditBroker/EditBrokerForm';
+import ViewBrokerForm from './ViewBroker/ViewBrokerForm';
 
 const BrokerTable = () => {
   const [brokers, setBrokers] = useState([]);
@@ -18,8 +19,9 @@ const BrokerTable = () => {
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [isAddModalOpen, setAddModalOpen] = useState(false);
   const [selectedBrokers, setSelectedBrokers] = useState([]);
+  const [isViewModalOpen, setViewModalOpen] = useState(false);
   const [isEmailModalOpen, setEmailModalOpen] = useState(false);
-  const [rowsPerPage, setRowsPerPage] = useState(8);
+  const [rowsPerPage, setRowsPerPage] = useState(100);
   const [emailData, setEmailData] = useState({ subject: '', content: '' });
   const API_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -160,9 +162,28 @@ const BrokerTable = () => {
 
   const totalPages = Math.ceil(filteredBrokers.length / rowsPerPage);
 
+  const renderSortableHeader = (header) => {
+    const nonSortableColumns = ['checkbox', 'actions'];
+
+    // Only render sort icons for sortable columns
+    if (nonSortableColumns.includes(header.key)) {
+      return <div className="sortable-header">{header.label}</div>;
+    }
+
+    const isSortedColumn = sortBy === header.key;
+    const sortDirection = isSortedColumn ? (sortDesc ? '▼' : '▲') : '▲';
+
+    return (
+      <div className="sortable-header" onClick={() => handleSort(header.key)}>
+        {header.label}
+        <span className="sort-icon">{sortDirection}</span>
+      </div>
+    );
+  };
+
   const headers = [
     {
-      key: 'select',
+      key: 'checkbox',
       label: (
         <input type="checkbox" onChange={toggleSelectAll} checked={selectedBrokers.length === paginatedData.length && paginatedData.length > 0} />
       ),
@@ -178,10 +199,13 @@ const BrokerTable = () => {
     { key: 'broker_fax', label: 'Fax' },
     { key: 'broker_ext', label: ' Phone Ext' },
     {
-      key: 'edit',
-      label: 'Edit',
+      key: 'actions',
+      label: 'Actions',
       render: (item) => (
         <>
+          <button onClick={() => openViewModal(item)} className="btn-view">
+            <EyeOutlined />
+          </button>
           <button onClick={() => openEditModal(item)} className="btn-edit">
             <EditOutlined />
           </button>
@@ -206,6 +230,14 @@ const BrokerTable = () => {
 
   const closeAddModal = () => {
     setAddModalOpen(false);
+  };
+  const openViewModal = (broker) => {
+    setSelectedBroker(broker);
+    setViewModalOpen(true);
+  };
+  const closeViewModal = () => {
+    setViewModalOpen(false);
+    setSelectedBroker(null);
   };
   const sendEmails = async (subject, content) => {
     if (selectedBrokers.length === 0) {
@@ -249,46 +281,25 @@ const BrokerTable = () => {
   return (
     <div>
       <div className="header-container">
-        <div className="header-actions">
-          <h1 className="page-heading">Brokers</h1>
+        <div className="header-container-left">
+          <div className="header-actions">
+            <h1 className="page-heading">Vendors</h1>
+          </div>
         </div>
+
         <div className="search-container">
           <div className="search-input-wrapper">
             <SearchOutlined className="search-icon" />
-            <input className="search-bar" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search..." />
+            <input className="search-bar" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
           </div>
           <button onClick={openAddModal} className="add-button">
             <PlusOutlined />
           </button>
-        </div>
-      </div>
-      <div className="controls-container">
-        <div className="pagination-controls">
-          <div className="rows-per-page-container">
-            <label htmlFor="rowsPerPage">Rows per page: </label>
-            <select
-              id="rowsPerPage"
-              value={rowsPerPage}
-              onChange={(e) => {
-                setRowsPerPage(Number(e.target.value));
-                setCurrentPage(1);
-              }}
-            >
-              <option value={8}>8</option>
-              <option value={20}>20</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
-              <option value={200}>200</option>
-              <option value={500}>500</option>
-            </select>
-          </div>
-        </div>
-        <div className="button-group">
           <button onClick={() => setEmailModalOpen(true)} className="send-email-button" disabled={selectedBrokers.length === 0}>
-            Email&nbsp; <MailOutlined />
+            <MailOutlined />
           </button>
           <button onClick={deleteSelected} className="delete-button">
-            Delete&nbsp; <DeleteOutlined />
+            <DeleteOutlined />
           </button>
         </div>
       </div>
@@ -299,31 +310,10 @@ const BrokerTable = () => {
       ) : (
         <Table
           data={paginatedData}
-          headers={headers.map((header) => {
-            // Prevent sorting logic for the checkbox column
-            if (header.key === 'select') {
-              return {
-                ...header,
-                label: (
-                  <input
-                    type="checkbox"
-                    onChange={toggleSelectAll}
-                    checked={selectedBrokers.length === paginatedData.length && paginatedData.length > 0}
-                  />
-                ),
-              };
-            }
-
-            return {
-              ...header,
-              label: (
-                <div className="sortable-header" onClick={() => handleSort(header.key)}>
-                  {header.label}
-                  {sortBy === header.key && <span className="sort-icon">{sortDesc ? '▲' : '▼'}</span>}
-                </div>
-              ),
-            };
-          })}
+          headers={headers.map((header) => ({
+            ...header,
+            label: renderSortableHeader(header),
+          }))}
           handleSort={handleSort}
           sortBy={sortBy}
           sortDesc={sortDesc}
@@ -364,6 +354,10 @@ const BrokerTable = () => {
             Send
           </button>
         </div>
+      </Modal>
+
+      <Modal isOpen={isViewModalOpen} onClose={closeViewModal} title="Broker Details">
+        {selectedBroker && <ViewBrokerForm broker={selectedBroker} onClose={closeViewModal} />}
       </Modal>
     </div>
   );

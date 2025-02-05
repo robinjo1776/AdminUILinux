@@ -3,8 +3,9 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import Table from '../common/Table';
 import Modal from '../common/Modal';
-import { EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, SearchOutlined, EyeOutlined } from '@ant-design/icons';
 import EditQuoteForm from './EditQuote/EditQuoteForm';
+import ViewQuoteForm from './ViewQuote/ViewQuoteForm';
 
 const QuoteTable = () => {
   const [quotes, setQuotes] = useState([]);
@@ -17,8 +18,9 @@ const QuoteTable = () => {
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [selectedQuotes, setSelectedQuotes] = useState([]);
   const [isEmailModalOpen, setEmailModalOpen] = useState(false);
+  const [isViewModalOpen, setViewModalOpen] = useState(false);
   const [emailData, setEmailData] = useState({ subject: '', content: '' });
-  const [rowsPerPage, setRowsPerPage] = useState(8);
+  const [rowsPerPage, setRowsPerPage] = useState(100);
   const API_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
@@ -147,6 +149,15 @@ const QuoteTable = () => {
     setSelectedQuote(null);
   };
 
+  const openViewModal = (quote) => {
+    setSelectedQuote(quote);
+    setViewModalOpen(true);
+  };
+  const closeViewModal = () => {
+    setViewModalOpen(false);
+    setSelectedQuote(null);
+  };
+
   const normalizedSearchQuery = searchQuery.toLowerCase();
   const filteredQuotes = quotes.filter((quote) =>
     Object.values(quote).some((val) => val !== null && val !== undefined && val.toString().toLowerCase().includes(normalizedSearchQuery))
@@ -171,7 +182,7 @@ const QuoteTable = () => {
 
   const headers = [
     {
-      key: 'select',
+      key: 'checkbox',
       label: (
         <input type="checkbox" onChange={toggleSelectAll} checked={selectedQuotes.length === paginatedData.length && paginatedData.length > 0} />
       ),
@@ -182,10 +193,13 @@ const QuoteTable = () => {
     { key: 'quote_type', label: 'Type' },
     { key: 'quote_booked_by', label: 'Booked by' },
     {
-      key: 'edit',
-      label: 'Edit',
+      key: 'actions',
+      label: 'Actions',
       render: (item) => (
         <>
+          <button onClick={() => openViewModal(item)} className="btn-view">
+            <EyeOutlined />
+          </button>
           <button onClick={() => openEditModal(item)} className="btn-edit">
             <EditOutlined />
           </button>
@@ -233,45 +247,45 @@ const QuoteTable = () => {
     }
   };
 
+  const renderSortableHeader = (header) => {
+    // Define columns that should not have a sort icon
+    const nonSortableColumns = ['checkbox', 'actions'];
+
+    // Only render sort icons for sortable columns
+    if (nonSortableColumns.includes(header.key)) {
+      return <div className="sortable-header">{header.label}</div>;
+    }
+
+    const isSortedColumn = sortBy === header.key; // Check if this column is sorted
+    const sortDirection = isSortedColumn ? (sortDesc ? '▼' : '▲') : '▲';
+
+    return (
+      <div className="sortable-header" onClick={() => handleSort(header.key)}>
+        {header.label}
+        <span className="sort-icon">{sortDirection}</span> {/* Always show an arrow for sortable columns */}
+      </div>
+    );
+  };
+
   return (
     <div>
       <div className="header-container">
-        <div className="header-actions">
-          <h1 className="page-heading">Quotes</h1>
+        <div className="header-container-left">
+          <div className="header-actions">
+            <h1 className="page-heading">Quotes</h1>
+          </div>
         </div>
+
         <div className="search-container">
           <div className="search-input-wrapper">
             <SearchOutlined className="search-icon" />
-            <input className="search-bar" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search..." />
+            <input className="search-bar" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
           </div>
+          <button onClick={deleteSelected} className="delete-button">
+            <DeleteOutlined />
+          </button>
         </div>
       </div>
-      <div className="controls-container">
-        <div className="pagination-controls">
-          <div className="rows-per-page-container">
-            <label htmlFor="rowsPerPage">Rows per page: </label>
-            <select
-              id="rowsPerPage"
-              value={rowsPerPage}
-              onChange={(e) => {
-                setRowsPerPage(Number(e.target.value));
-                setCurrentPage(1);
-              }}
-            >
-              <option value={8}>8</option>
-              <option value={20}>20</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
-              <option value={200}>200</option>
-              <option value={500}>500</option>
-            </select>
-          </div>
-        </div>
-        <button onClick={deleteSelected} className="delete-button">
-          Delete&nbsp;<DeleteOutlined />
-        </button>
-      </div>
-
       {loading ? (
         <div>Loading...</div>
       ) : quotes.length === 0 ? (
@@ -279,31 +293,10 @@ const QuoteTable = () => {
       ) : (
         <Table
           data={paginatedData}
-          headers={headers.map((header) => {
-            // Prevent sorting logic for the checkbox column
-            if (header.key === 'select') {
-              return {
-                ...header,
-                label: (
-                  <input
-                    type="checkbox"
-                    onChange={toggleSelectAll}
-                    checked={selectedQuotes.length === paginatedData.length && paginatedData.length > 0}
-                  />
-                ),
-              };
-            }
-
-            return {
-              ...header,
-              label: (
-                <div className="sortable-header" onClick={() => handleSort(header.key)}>
-                  {header.label}
-                  {sortBy === header.key && <span className="sort-icon">{sortDesc ? '▲' : '▼'}</span>}
-                </div>
-              ),
-            };
-          })}
+          headers={headers.map((header) => ({
+            ...header,
+            label: renderSortableHeader(header), // Render sortable header logic
+          }))}
           handleSort={handleSort}
           sortBy={sortBy}
           sortDesc={sortDesc}
@@ -335,6 +328,10 @@ const QuoteTable = () => {
             Send
           </button>
         </div>
+      </Modal>
+
+      <Modal isOpen={isViewModalOpen} onClose={closeViewModal} title="Quote Details">
+        {selectedQuote && <ViewQuoteForm quote={selectedQuote} onClose={closeViewModal} />}
       </Modal>
     </div>
   );

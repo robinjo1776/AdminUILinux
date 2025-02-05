@@ -59,7 +59,7 @@ function OrderShipment({ order, setOrder }) {
         <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="accNo">Temperature</label>
           <input
-            type="text"
+            type="number"
             value={order.temperature}
             onChange={(e) => setOrder({ ...order, temperature: e.target.value })}
             id="accNo"

@@ -9,27 +9,40 @@ const Register = () => {
   const [form] = Form.useForm(); // Create a form instance
   const [role, setRole] = useState('');
   const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);  
+  const [success, setSuccess] = useState(null);
   const API_URL = import.meta.env.VITE_API_BASE_URL;
 
   const handleRoleChange = (value) => {
     setRole(value);
   };
 
+  // Sanitize inputs by removing potentially harmful characters
+  const sanitizeInput = (input) => input.replace(/[<>"/=]/g, ''); // Example sanitization
+
   const handleSubmit = async (values) => {
     setError(null);
     setSuccess(null);
 
     try {
+      // Sanitize the input values before sending them to the server
+      const sanitizedName = sanitizeInput(values.name);
+      const sanitizedUsername = sanitizeInput(values.username);
+      const sanitizedEmail = sanitizeInput(values.email);
+      const sanitizedPassword = sanitizeInput(values.password);
+      const sanitizedPasswordConfirmation = sanitizeInput(values.password_confirmation);
+      const sanitizedRole = sanitizeInput(values.role);
+      const sanitizedEmpCode = values.emp_code ? sanitizeInput(values.emp_code) : null;
+
       await axios.post(`${API_URL}/register`, {
-        name: values.name,
-        username: values.username,
-        email: values.email,
-        password: values.password,
-        password_confirmation: values.password_confirmation,
-        role: values.role,
-        emp_code: values.emp_code || null,
+        name: sanitizedName,
+        username: sanitizedUsername,
+        email: sanitizedEmail,
+        password: sanitizedPassword,
+        password_confirmation: sanitizedPasswordConfirmation,
+        role: sanitizedRole,
+        emp_code: sanitizedEmpCode,
       });
+
       setSuccess('User registered successfully!');
       form.resetFields(); // Reset the form fields
       message.success('User registered successfully!');

@@ -102,8 +102,6 @@ const OrderGeneral = ({ order, setOrder }) => {
             placeholder="Branch"
           />
         </div>
-      </div>
-      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
         <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="accNo">Booked By</label>
           <input
@@ -114,6 +112,8 @@ const OrderGeneral = ({ order, setOrder }) => {
             placeholder="Booked By"
           />
         </div>
+      </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
         <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="branch">Account Rep</label>
           <input

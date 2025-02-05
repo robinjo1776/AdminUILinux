@@ -64,7 +64,7 @@ function LeadDetails({ lead, setLead }) {
         <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="website">Website</label>
           <input
-            type="text"
+            type="website"
             value={lead.website}
             onChange={(e) => setLead({ ...lead, website: e.target.value })}
             id="website"

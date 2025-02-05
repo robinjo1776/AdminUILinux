@@ -20,7 +20,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold">{title}</h2>
+          <h4 className="text-xl font-bold">{title}</h4>
           <button className="close-button" onClick={onClose}>
             &times;
           </button>

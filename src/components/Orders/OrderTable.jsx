@@ -3,9 +3,11 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import Table from '../common/Table';
 import Modal from '../common/Modal';
-import { EditOutlined, DeleteOutlined, SearchOutlined, PlusOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, SearchOutlined, PlusOutlined, EyeOutlined, CalendarOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import EditOrderForm from './EditOrder/EditOrderForm';
 import AddOrderForm from './AddOrder/AddOrderForm';
+import moment from 'moment';
+import ViewOrderForm from './ViewOrder/ViewOrderForm';
 
 const OrderTable = () => {
   const [orders, setOrders] = useState([]);
@@ -17,8 +19,9 @@ const OrderTable = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [isAddModalOpen, setAddModalOpen] = useState(false);
+  const [isViewModalOpen, setViewModalOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
-  const [rowsPerPage, setRowsPerPage] = useState(8);
+  const [rowsPerPage, setRowsPerPage] = useState(100);
   const API_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
@@ -64,7 +67,7 @@ const OrderTable = () => {
         if (order.id === updatedOrder.id) {
           return {
             ...order,
-            origin_location: updatedOrder.origin_location, // Avoid double stringifying
+            origin_location: updatedOrder.origin_location,
             destination_location: updatedOrder.destination_location,
             ...updatedOrder,
           };
@@ -141,16 +144,6 @@ const OrderTable = () => {
     }
   };
 
-  const handleSort = (column) => {
-    if (column === 'checkbox') return;
-    if (sortBy === column) {
-      setSortDesc(!sortDesc);
-    } else {
-      setSortBy(column);
-      setSortDesc(true);
-    }
-  };
-
   const openEditModal = (order) => {
     setSelectedOrder(order);
     setEditModalOpen(true);
@@ -160,7 +153,14 @@ const OrderTable = () => {
     setEditModalOpen(false);
     setSelectedOrder(null);
   };
-
+  const openViewModal = (order) => {
+    setSelectedOrder(order);
+    setViewModalOpen(true);
+  };
+  const closeViewModal = () => {
+    setViewModalOpen(false);
+    setSelectedOrder(null);
+  };
   const openAddModal = () => {
     setAddModalOpen(true);
   };
@@ -169,14 +169,42 @@ const OrderTable = () => {
     setAddModalOpen(false);
   };
 
-  const normalizedSearchQuery = searchQuery.toLowerCase();
+  const handleSort = (column) => {
+    if (sortBy === column) {
+      setSortDesc(!sortDesc);
+    } else {
+      setSortBy(column);
+      setSortDesc(true);
+    }
+  };
+
   const filteredOrders = orders.filter((order) =>
-    Object.values(order).some((val) => val !== null && val !== undefined && val.toString().toLowerCase().includes(normalizedSearchQuery))
+    Object.values(order).some((val) => val !== null && val !== undefined && val.toString().toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   const sortedOrders = filteredOrders.sort((a, b) => {
     let valA = a[sortBy];
     let valB = b[sortBy];
+
+    if (sortBy === 'delivery_date') {
+      const destinationA = typeof a.destination_location === 'string' ? JSON.parse(a.destination_location) : a.destination_location || [];
+      const destinationB = typeof b.destination_location === 'string' ? JSON.parse(b.destination_location) : b.destination_location || [];
+
+      const dateA = moment(`${destinationA[0]?.date || ''} ${destinationA[0]?.time || ''}`, 'YYYY-MM-DD HH:mm');
+      const dateB = moment(`${destinationB[0]?.date || ''} ${destinationB[0]?.time || ''}`, 'YYYY-MM-DD HH:mm');
+
+      return sortDesc ? dateB.diff(dateA) : dateA.diff(dateB);
+    }
+
+    if (sortBy === 'pickup_date') {
+      const originA = typeof a.origin_location === 'string' ? JSON.parse(a.origin_location) : a.origin_location || [];
+      const originB = typeof b.origin_location === 'string' ? JSON.parse(b.origin_location) : b.origin_location || [];
+
+      const dateA = moment(`${originA[0]?.date || ''} ${originA[0]?.time || ''}`, 'YYYY-MM-DD HH:mm');
+      const dateB = moment(`${originB[0]?.date || ''} ${originB[0]?.time || ''}`, 'YYYY-MM-DD HH:mm');
+
+      return sortDesc ? dateB.diff(dateA) : dateA.diff(dateB);
+    }
 
     if (valA == null) valA = '';
     if (valB == null) valB = '';
@@ -191,129 +219,88 @@ const OrderTable = () => {
   const paginatedData = sortedOrders.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
   const totalPages = Math.ceil(filteredOrders.length / rowsPerPage);
 
+  const renderSortableHeader = (header) => {
+    const nonSortableColumns = ['checkbox', 'actions'];
+
+    // Only render sort icons for sortable columns
+    if (nonSortableColumns.includes(header.key)) {
+      return <div className="sortable-header">{header.label}</div>;
+    }
+
+    const isSortedColumn = sortBy === header.key;
+    const sortDirection = isSortedColumn ? (sortDesc ? '▼' : '▲') : '▲';
+
+    return (
+      <div className="sortable-header" onClick={() => handleSort(header.key)}>
+        {header.label}
+        <span className="sort-icon">{sortDirection}</span>
+      </div>
+    );
+  };
+
   const headers = [
     {
       key: 'checkbox',
       label: <input type="checkbox" checked={selectedIds.length === paginatedData.length && paginatedData.length > 0} onChange={toggleSelectAll} />,
       render: (order) => <input type="checkbox" checked={selectedIds.includes(order.id)} onChange={() => toggleSelect(order.id)} />,
     },
-    { key: 'customer', label: 'Customer' },
-    { key: 'customer_ref_no', label: 'Ref no' },
-    { key: 'customer_po_no', label: 'PO No' },
-    { key: 'equipment', label: 'Equipment' },
+    { key: 'customer', label: 'Customer', render: (order) => order.customer || <span>-</span> },
+    { key: 'customer_ref_no', label: 'Ref No', render: (order) => order.customer_ref_no || <span>-</span> },
+    { key: 'customer_po_no', label: 'PO No', render: (order) => order.customer_po_no || <span>-</span> },
+    { key: 'equipment', label: 'Equipment', render: (order) => order.equipment || <span>-</span> },
     {
-      key: 'origin',
-      label: 'Origin',
+      key: 'pickup_date',
+      label: 'Pickup Date/Time',
       render: (order) => {
         try {
           const originLocations = typeof order.origin_location === 'string' ? JSON.parse(order.origin_location) : order.origin_location;
-          return originLocations[0]?.city || '';
+          const pickupDate = originLocations?.[0]?.date || null;
+          const pickupTime = originLocations?.[0]?.time || null;
+
+          return pickupDate && pickupTime ? (
+            <div className="pickup-date-time">
+              <CalendarOutlined /> {pickupDate} <ClockCircleOutlined /> {pickupTime}
+            </div>
+          ) : (
+            <span>-</span>
+          );
         } catch (error) {
-          console.error('Error parsing origin_location:', error);
-          return '';
+          console.error('Error parsing pickup location data:', error);
+          return <span>-</span>;
         }
       },
     },
     {
-      key: 'destination',
-      label: 'Destination',
+      key: 'delivery_date',
+      label: 'Delivery Date/Time',
       render: (order) => {
         try {
           const destinationLocations =
             typeof order.destination_location === 'string' ? JSON.parse(order.destination_location) : order.destination_location;
-          return destinationLocations[0]?.city || '';
+          const deliveryDate = destinationLocations?.[0]?.date || null;
+          const deliveryTime = destinationLocations?.[0]?.time || null;
+
+          return deliveryDate && deliveryTime ? (
+            <div className="delivery-date-time">
+              <CalendarOutlined /> {deliveryDate} <ClockCircleOutlined /> {deliveryTime}
+            </div>
+          ) : (
+            <span>-</span>
+          );
         } catch (error) {
-          console.error('Error parsing destination_location:', error);
-          return '';
+          console.error('Error parsing delivery location data:', error);
+          return <span>-</span>;
         }
       },
     },
     {
-      key: 'pickup date',
-      label: 'Pickup Date',
-      render: (order) => {
-        try {
-          const originLocations = typeof order.origin_location === 'string' ? JSON.parse(order.origin_location) : order.origin_location;
-          return originLocations[0]?.date || '';
-        } catch (error) {
-          console.error('Error parsing origin_location:', error);
-          return '';
-        }
-      },
-    },
-    {
-      key: 'pickup time',
-      label: 'Pickup Time',
-      render: (order) => {
-        try {
-          const originLocations = typeof order.origin_location === 'string' ? JSON.parse(order.origin_location) : order.origin_location;
-          return originLocations[0]?.time || '';
-        } catch (error) {
-          console.error('Error parsing origin_location:', error);
-          return '';
-        }
-      },
-    },
-    {
-      key: 'pickup phone',
-      label: 'Pickup Phone',
-      render: (order) => {
-        try {
-          const originLocations = typeof order.origin_location === 'string' ? JSON.parse(order.origin_location) : order.origin_location;
-          return originLocations[0]?.phone || '';
-        } catch (error) {
-          console.error('Error parsing origin_location:', error);
-          return '';
-        }
-      },
-    },
-    {
-      key: 'destination date',
-      label: 'Delivery Date',
-      render: (order) => {
-        try {
-          const destinationLocations =
-            typeof order.destination_location === 'string' ? JSON.parse(order.destination_location) : order.destination_location;
-          return destinationLocations[0]?.date || '';
-        } catch (error) {
-          console.error('Error parsing destination_location:', error);
-          return '';
-        }
-      },
-    },
-    {
-      key: 'destination time',
-      label: 'Delivery Time',
-      render: (order) => {
-        try {
-          const destinationLocations =
-            typeof order.destination_location === 'string' ? JSON.parse(order.destination_location) : order.destination_location;
-          return destinationLocations[0]?.time || '';
-        } catch (error) {
-          console.error('Error parsing destination_location:', error);
-          return '';
-        }
-      },
-    },
-    {
-      key: 'destination phone',
-      label: 'Delivery Phone',
-      render: (order) => {
-        try {
-          const destinationLocations =
-            typeof order.destination_location === 'string' ? JSON.parse(order.destination_location) : order.destination_location;
-          return destinationLocations[0]?.phone || '';
-        } catch (error) {
-          console.error('Error parsing destination_location:', error);
-          return '';
-        }
-      },
-    },
-    {
-      key: 'edit',
-      label: 'Edit',
+      key: 'actions',
+      label: 'Actions',
       render: (item) => (
         <>
+          <button onClick={() => openViewModal(item)} className="btn-view">
+            <EyeOutlined />
+          </button>
           <button onClick={() => openEditModal(item)} className="btn-edit">
             <EditOutlined />
           </button>
@@ -321,48 +308,27 @@ const OrderTable = () => {
       ),
     },
   ];
-
   return (
     <div>
       <div className="header-container">
-        <div className="header-actions">
-          <h1 className="page-heading">Orders</h1>
+        <div className="header-container-left">
+          <div className="header-actions">
+            <h1 className="page-heading">Orders</h1>
+          </div>
         </div>
+
         <div className="search-container">
           <div className="search-input-wrapper">
             <SearchOutlined className="search-icon" />
-            <input className="search-bar" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search..." />
+            <input className="search-bar" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
           </div>
           <button onClick={openAddModal} className="add-button">
             <PlusOutlined />
           </button>
+          <button onClick={deleteSelected} className="delete-button">
+            <DeleteOutlined />
+          </button>
         </div>
-      </div>
-
-      <div className="controls-container">
-        <div className="pagination-controls">
-          <div className="rows-per-page-container">
-            <label htmlFor="rowsPerPage">Rows per page: </label>
-            <select
-              id="rowsPerPage"
-              value={rowsPerPage}
-              onChange={(e) => {
-                setRowsPerPage(Number(e.target.value));
-                setCurrentPage(1); // Reset to the first page
-              }}
-            >
-              <option value={8}>8</option>
-              <option value={20}>20</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
-              <option value={200}>200</option>
-              <option value={500}>500</option>
-            </select>
-          </div>
-        </div>
-        <button onClick={deleteSelected} className="delete-button">
-          Delete&nbsp; <DeleteOutlined />
-        </button>
       </div>
 
       {loading ? (
@@ -371,15 +337,10 @@ const OrderTable = () => {
         <div>No records found</div>
       ) : (
         <Table
-          data={paginatedData}
+          data={paginatedData} // This should now contain sorted data
           headers={headers.map((header) => ({
             ...header,
-            label: (
-              <div className="sortable-header" onClick={() => handleSort(header.key)}>
-                {header.label}
-                {sortBy === header.key && <span className="sort-icon">{sortDesc ? '▲' : '▼'}</span>}
-              </div>
-            ),
+            label: renderSortableHeader(header), // Render sortable header logic
           }))}
           handleSort={handleSort}
           sortBy={sortBy}
@@ -389,7 +350,6 @@ const OrderTable = () => {
           setCurrentPage={setCurrentPage}
         />
       )}
-
       {/* Modals */}
       <Modal isOpen={isEditModalOpen} onClose={closeEditModal} title="Edit Order">
         {selectedOrder && <EditOrderForm order={selectedOrder} onClose={closeEditModal} onUpdate={updateOrder} />}
@@ -402,6 +362,9 @@ const OrderTable = () => {
             closeAddModal();
           }}
         />
+      </Modal>
+      <Modal isOpen={isViewModalOpen} onClose={closeViewModal} title="Order Details">
+        {selectedOrder && <ViewOrderForm order={selectedOrder} onClose={closeViewModal} />}
       </Modal>
     </div>
   );

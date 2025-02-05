@@ -41,7 +41,7 @@ function EditFuInfo({ followupEdit, setFolloupEdit }) {
         <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="leadNo">Lead No*</label>
           <input
-            type="text"
+            type="number"
             value={followupEdit.lead_no}
             onChange={(e) => setFolloupEdit({ ...followupEdit, lead_no: e.target.value })}
             id="leadNo"

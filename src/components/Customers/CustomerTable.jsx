@@ -3,22 +3,24 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import Table from '../common/Table';
 import Modal from '../common/Modal';
-import EditCustomerForm from './EditCustomerForm';
-import { EditOutlined, DeleteOutlined, MailOutlined, SearchOutlined } from '@ant-design/icons';
+import EditCustomerForm from './EditCustomer/EditCustomerForm';
+import { EditOutlined, DeleteOutlined, MailOutlined, SearchOutlined, EyeOutlined} from '@ant-design/icons';
+import ViewCustomerForm from './ViewCustomer/ViewCustomerForm';
 
 const CustomerTable = () => {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState('created_at');
+  const [sortBy, setSortBy] = useState('updated_at');
   const [sortDesc, setSortDesc] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [selectedCustomers, setSelectedCustomers] = useState([]);
   const [isEmailModalOpen, setEmailModalOpen] = useState(false);
+  const [isViewModalOpen, setViewModalOpen] = useState(false);
   const [emailData, setEmailData] = useState({ subject: '', content: '' });
-  const [rowsPerPage, setRowsPerPage] = useState(8);
+  const [rowsPerPage, setRowsPerPage] = useState(100);
   const API_URL = import.meta.env.VITE_API_BASE_URL;
 
   // Fetch customer data on component mount
@@ -170,10 +172,33 @@ const CustomerTable = () => {
   const paginatedData = sortedCustomers.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
   const totalPages = Math.ceil(filteredCustomers.length / rowsPerPage);
 
+  const renderSortableHeader = (header) => {
+    // Define columns that should not have a sort icon
+    const nonSortableColumns = ['checkbox', 'actions'];
+
+    // Only render sort icons for sortable columns
+    if (nonSortableColumns.includes(header.key)) {
+      return <div className="sortable-header">{header.label}</div>;
+    }
+
+    const isSortedColumn = sortBy === header.key; // Check if this column is sorted
+    const sortDirection = isSortedColumn
+      ? sortDesc
+        ? '▼'
+        : '▲' // If sorted, show descending (▼) or ascending (▲)
+      : '▲'; // Default to ascending (▲) if not sorted
+
+    return (
+      <div className="sortable-header" onClick={() => handleSort(header.key)}>
+        {header.label}
+        <span className="sort-icon">{sortDirection}</span> {/* Always show an arrow for sortable columns */}
+      </div>
+    );
+  };
   // Table headers
   const headers = [
     {
-      key: 'select',
+      key: 'checkbox',
       label: (
         <input type="checkbox" onChange={toggleSelectAll} checked={selectedCustomers.length === paginatedData.length && paginatedData.length > 0} />
       ),
@@ -193,10 +218,13 @@ const CustomerTable = () => {
       render: (item) => <span className={`badge ${getStatusClass(item.cust_credit_status)}`}>{item.cust_credit_status}</span>,
     },
     {
-      key: 'edit',
-      label: 'Edit',
+      key: 'actions',
+      label: 'Actions',
       render: (item) => (
         <>
+          <button onClick={() => openViewModal(item)} className="btn-view">
+            <EyeOutlined />
+          </button>
           <button onClick={() => openEditModal(item)} className="btn-edit">
             <EditOutlined />
           </button>
@@ -225,7 +253,14 @@ const CustomerTable = () => {
     setEditModalOpen(false);
     setSelectedCustomer(null);
   };
-
+  const openViewModal = (customer) => {
+    setSelectedCustomer(customer);
+    setViewModalOpen(true);
+  };
+  const closeViewModal = () => {
+    setViewModalOpen(false);
+    setSelectedCustomer(null);
+  };
   const sendEmails = async (subject, content) => {
     if (selectedCustomers.length === 0) {
       Swal.fire({
@@ -268,43 +303,22 @@ const CustomerTable = () => {
   return (
     <div>
       <div className="header-container">
-        <div className="header-actions">
-          <h1 className="page-heading">Customers</h1>
+        <div className="header-container-left">
+          <div className="header-actions">
+            <h1 className="page-heading">Customers</h1>
+          </div>
         </div>
+
         <div className="search-container">
           <div className="search-input-wrapper">
             <SearchOutlined className="search-icon" />
-            <input className="search-bar" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search..." />
+            <input className="search-bar" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
           </div>
-        </div>
-      </div>
-      <div className="controls-container">
-        <div className="pagination-controls">
-          <div className="rows-per-page-container">
-            <label htmlFor="rowsPerPage">Rows per page: </label>
-            <select
-              id="rowsPerPage"
-              value={rowsPerPage}
-              onChange={(e) => {
-                setRowsPerPage(Number(e.target.value));
-                setCurrentPage(1);
-              }}
-            >
-              <option value={8}>8</option>
-              <option value={20}>20</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
-              <option value={200}>200</option>
-              <option value={500}>500</option>
-            </select>
-          </div>
-        </div>
-        <div className="button-group">
           <button onClick={() => setEmailModalOpen(true)} className="send-email-button" disabled={selectedCustomers.length === 0}>
-            Email &nbsp;<MailOutlined />
+            <MailOutlined />
           </button>
           <button onClick={deleteSelected} className="delete-button">
-            Delete &nbsp;<DeleteOutlined />
+            <DeleteOutlined />
           </button>
         </div>
       </div>
@@ -316,31 +330,10 @@ const CustomerTable = () => {
       ) : (
         <Table
           data={paginatedData}
-          headers={headers.map((header) => {
-            // Prevent sorting logic for the checkbox column
-            if (header.key === 'select') {
-              return {
-                ...header,
-                label: (
-                  <input
-                    type="checkbox"
-                    onChange={toggleSelectAll}
-                    checked={selectedCustomers.length === paginatedData.length && paginatedData.length > 0}
-                  />
-                ),
-              };
-            }
-
-            return {
-              ...header,
-              label: (
-                <div className="sortable-header" onClick={() => handleSort(header.key)}>
-                  {header.label}
-                  {sortBy === header.key && <span className="sort-icon">{sortDesc ? '▲' : '▼'}</span>}
-                </div>
-              ),
-            };
-          })}
+          headers={headers.map((header) => ({
+            ...header,
+            label: renderSortableHeader(header), // Render sortable header logic
+          }))}
           handleSort={handleSort}
           sortBy={sortBy}
           sortDesc={sortDesc}
@@ -353,7 +346,9 @@ const CustomerTable = () => {
       <Modal isOpen={isEditModalOpen} onClose={closeEditModal} title="Edit Customer">
         {selectedCustomer && <EditCustomerForm customer={selectedCustomer} onClose={closeEditModal} onUpdate={updateCustomer} />}
       </Modal>
-
+      <Modal isOpen={isViewModalOpen} onClose={closeViewModal} title="Customer Details">
+        {selectedCustomer && <ViewCustomerForm customer={selectedCustomer} onClose={closeViewModal} />}
+      </Modal>
       <Modal isOpen={isEmailModalOpen} onClose={() => setEmailModalOpen(false)} title="Send Email">
         <div className="email-modal">
           <div>

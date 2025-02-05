@@ -4,8 +4,9 @@ import Swal from 'sweetalert2';
 import Table from '../common/Table';
 import Modal from '../common/Modal';
 import EditUserForm from './EditUserForm';
-import { EditOutlined, DeleteOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, PlusOutlined, SearchOutlined, EyeOutlined } from '@ant-design/icons';
 import AddUserForm from './AddUserForm';
+import ViewUserForm from './ViewUserForm';
 
 const UserTable = () => {
   const [users, setUsers] = useState([]);
@@ -17,8 +18,9 @@ const UserTable = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [isAddModalOpen, setAddModalOpen] = useState(false);
+  const [isViewModalOpen, setViewModalOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
-  const [rowsPerPage, setRowsPerPage] = useState(8);
+  const [rowsPerPage, setRowsPerPage] = useState(100);
   const API_URL = import.meta.env.VITE_API_BASE_URL;
 
   const fetchUsers = async () => {
@@ -161,7 +163,14 @@ const UserTable = () => {
   const closeAddModal = () => {
     setAddModalOpen(false);
   };
-
+  const openViewModal = (user) => {
+    setSelectedUser(user);
+    setViewModalOpen(true);
+  };
+  const closeViewModal = () => {
+    setViewModalOpen(false);
+    setSelectedUser(null);
+  };
   const normalizedSearchQuery = searchQuery.toLowerCase();
   const filteredUsers = users.filter((user) =>
     Object.values(user).some((val) => val !== null && val !== undefined && val.toString().toLowerCase().includes(normalizedSearchQuery))
@@ -195,6 +204,25 @@ const UserTable = () => {
 
   const totalPages = Math.ceil(filteredUsers.length / rowsPerPage);
 
+  const renderSortableHeader = (header) => {
+    const nonSortableColumns = ['checkbox', 'actions'];
+
+    // Only render sort icons for sortable columns
+    if (nonSortableColumns.includes(header.key)) {
+      return <div className="sortable-header">{header.label}</div>;
+    }
+
+    const isSortedColumn = sortBy === header.key;
+    const sortDirection = isSortedColumn ? (sortDesc ? '▼' : '▲') : '▲';
+
+    return (
+      <div className="sortable-header" onClick={() => handleSort(header.key)}>
+        {header.label}
+        <span className="sort-icon">{sortDirection}</span>
+      </div>
+    );
+  };
+
   const headers = [
     {
       key: 'checkbox',
@@ -212,10 +240,13 @@ const UserTable = () => {
     { key: 'created_at', label: 'Created At' },
     { key: 'updated_at', label: 'Updated At' },
     {
-      key: 'edit',
-      label: 'Edit',
+      key: 'actions',
+      label: 'Actions',
       render: (item) => (
         <>
+          <button onClick={() => openViewModal(item)} className="btn-view">
+            <EyeOutlined />
+          </button>
           <button onClick={() => openEditModal(item)} className="btn-edit">
             <EditOutlined />
           </button>
@@ -227,44 +258,24 @@ const UserTable = () => {
   return (
     <div>
       <div className="header-container">
-        <div className="header-actions">
-          <h1 className="page-heading">Users</h1>
+        <div className="header-container-left">
+          <div className="header-actions">
+            <h1 className="page-heading">Users</h1>
+          </div>
         </div>
+
         <div className="search-container">
           <div className="search-input-wrapper">
             <SearchOutlined className="search-icon" />
-            <input className="search-bar" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search..." />
+            <input className="search-bar" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
           </div>
           <button onClick={openAddModal} className="add-button">
             <PlusOutlined />
           </button>
+          <button onClick={deleteSelected} className="delete-button">
+            <DeleteOutlined />
+          </button>
         </div>
-      </div>
-      <div className="controls-container">
-        <div className="pagination-controls">
-          <div className="rows-per-page-container">
-            <label htmlFor="rowsPerPage">Rows per page: </label>
-            <select
-              id="rowsPerPage"
-              value={rowsPerPage}
-              onChange={(e) => {
-                setRowsPerPage(Number(e.target.value));
-                setCurrentPage(1);
-              }}
-            >
-              <option value={8}>8</option>
-              <option value={20}>20</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
-              <option value={200}>200</option>
-              <option value={500}>500</option>
-            </select>
-          </div>
-        </div>
-        <button onClick={deleteSelected} className="delete-button">
-          Delete &nbsp;
-          <DeleteOutlined />
-        </button>
       </div>
       {loading ? (
         <div>Loading...</div>
@@ -275,16 +286,7 @@ const UserTable = () => {
           data={paginatedData}
           headers={headers.map((header) => ({
             ...header,
-            label: (
-              <div className="sortable-header" onClick={() => handleSort(header.key)}>
-                {header.label}
-                {sortBy === header.key && (
-                  <span className="sort-icon">
-                    {sortDesc ? '▲' : '▼'} {/* Render Asc/Desc icon based on the sort order */}
-                  </span>
-                )}
-              </div>
-            ),
+            label: renderSortableHeader(header),
           }))}
           handleSort={handleSort}
           sortBy={sortBy}
@@ -301,6 +303,10 @@ const UserTable = () => {
 
       <Modal isOpen={isAddModalOpen} onClose={closeAddModal} title="Add User">
         <AddUserForm onClose={closeAddModal} onAddUser={handleAddUser} />
+      </Modal>
+
+      <Modal isOpen={isViewModalOpen} onClose={closeViewModal} title="User Details">
+        {selectedUser && <ViewUserForm user={selectedUser} onClose={closeViewModal} />}
       </Modal>
     </div>
   );

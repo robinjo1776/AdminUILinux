@@ -167,7 +167,6 @@ function EditOrderOrigin({ setFormOrder, order, origin = {}, index, onRemove }) 
         type="button"
         onClick={() => onRemove(index)}
         className="trash-bottom"
-
         style={{ float: 'right', marginTop: '10px', display: 'inline-block' }}
       >
         <DeleteOutlined />
