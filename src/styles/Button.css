@@ -96,8 +96,7 @@
 
 .btn-edit,
 .btn-view,
-.btn-delete
- {
+.btn-delete {
   background: none;
   border: none;
   cursor: pointer;
@@ -109,8 +108,6 @@
 .btn-view:hover {
   color: #1890ff;
 }
-
-
 
 .btn-convert {
   background-color: #4caf50;
@@ -145,7 +142,7 @@
 /* Form buttons */
 
 .btn-submit {
-  background-color: #28a745;
+  background-color: #3399cc !important;
   color: white;
   font-size: 14px;
   padding: 0.2rem;
@@ -158,11 +155,13 @@
 }
 
 .btn-submit:hover {
-  background-color: #0056b3;
+  background-color: #297aa3;
+  transform: scale(1);
 }
 .btn-cancel {
-  padding: 0.75rem 1rem;
-  font-size: 14px;
+  padding: 0px 12px;
+  font-size: 15px;  font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, sans-serif;
+
   color: #000;
   background-color: #f7f0f3;
   border: none;
