@@ -1,11 +1,5 @@
 import React from 'react';
-
-interface Order {
-  commodity: string;
-  equipment: string;
-  load_type: string;
-  temperature: number | string;
-}
+import { Order } from '../../../types/OrderTypes';
 
 interface OrderShipmentProps {
   order: Order;
@@ -32,11 +26,7 @@ const OrderShipment: React.FC<OrderShipmentProps> = ({ order, setOrder }) => {
         </div>
         <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="equipment">Equipment</label>
-          <select
-            id="equipment"
-            value={order.equipment}
-            onChange={(e) => setOrder((prevOrder) => ({ ...prevOrder, equipment: e.target.value }))}
-          >
+          <select id="equipment" value={order.equipment} onChange={(e) => setOrder((prevOrder) => ({ ...prevOrder, equipment: e.target.value }))}>
             <option value="">Select...</option>
             {equipmentOptions.map((option) => (
               <option key={option} value={option}>
@@ -47,11 +37,7 @@ const OrderShipment: React.FC<OrderShipmentProps> = ({ order, setOrder }) => {
         </div>
         <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="loadType">Load Type</label>
-          <select
-            id="loadType"
-            value={order.load_type}
-            onChange={(e) => setOrder((prevOrder) => ({ ...prevOrder, load_type: e.target.value }))}
-          >
+          <select id="loadType" value={order.load_type} onChange={(e) => setOrder((prevOrder) => ({ ...prevOrder, load_type: e.target.value }))}>
             <option value="">Select...</option>
             {loadTypeOptions.map((option) => (
               <option key={option} value={option}>
@@ -67,7 +53,10 @@ const OrderShipment: React.FC<OrderShipmentProps> = ({ order, setOrder }) => {
             id="temperature"
             value={order.temperature}
             onChange={(e) =>
-              setOrder((prevOrder) => ({ ...prevOrder, temperature: e.target.value }))
+              setOrder((prevOrder) => ({
+                ...prevOrder,
+                temperature: Number(e.target.value), // Convert to number
+              }))
             }
             placeholder="Temperature"
           />

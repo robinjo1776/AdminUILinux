@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { Carrier } from '../../../types/CarrierTypes';
 
-// Define component props
 interface MailingAddressProps {
   carrier: Carrier;
   setCarrier: React.Dispatch<React.SetStateAction<Carrier>>;
@@ -9,7 +8,6 @@ interface MailingAddressProps {
 
 const MailingAddress: React.FC<MailingAddressProps> = ({ carrier, setCarrier }) => {
   const addressRef = useRef<HTMLInputElement | null>(null);
-  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const loadGoogleMapsApi = () => {
@@ -86,30 +84,15 @@ const MailingAddress: React.FC<MailingAddressProps> = ({ carrier, setCarrier }) 
     }));
   };
 
-  // Validation and sanitization function
-  const validateAndSetField = (field: keyof Carrier, value: string) => {
-    const sanitizedValue = value.trim();
-    let error = '';
+  const sanitizeInput = (input: string): string => {
+    return input.replace(/[^a-zA-Z0-9 ,.-]/g, '').trim();
+  };
 
-    if (!sanitizedValue) {
-      error = `${field.replace('_', ' ')} is required.`;
-    } else if (field === 'mailing_postal' && !/^\d{5,6}$/.test(sanitizedValue)) {
-      error = 'Invalid postal code. It should be 5-6 digits.';
-    } else if (field === 'mailing_phone' && !/^\d{10,15}$/.test(sanitizedValue)) {
-      error = 'Invalid phone number. It should be 10-15 digits.';
-    }
-
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      [field]: error,
-    }));
-
-    if (!error) {
-      setCarrier((prevCarrier) => ({
-        ...prevCarrier,
-        [field]: sanitizedValue,
-      }));
-    }
+  const handleInputChange = (field: keyof Carrier, value: string) => {
+    setCarrier({
+      ...carrier,
+      [field]: sanitizeInput(value),
+    });
   };
 
   return (
@@ -132,10 +115,9 @@ const MailingAddress: React.FC<MailingAddressProps> = ({ carrier, setCarrier }) 
                 type="text"
                 ref={addressRef}
                 value={carrier.mailing_address}
-                onChange={(e) => validateAndSetField('mailing_address', e.target.value)}
+                onChange={(e) => handleInputChange('mailing_address', e.target.value)}
                 placeholder="Street"
               />
-              {errors.mailing_address && <span className="error-text">{errors.mailing_address}</span>}
             </div>
 
             <div className="form-group" style={{ flex: 1 }}>
@@ -143,10 +125,10 @@ const MailingAddress: React.FC<MailingAddressProps> = ({ carrier, setCarrier }) 
               <input
                 type="text"
                 value={carrier.mailing_city}
-                onChange={(e) => validateAndSetField('mailing_city', e.target.value)}
+                onChange={(e) => handleInputChange('mailing_city', e.target.value)}
                 placeholder="City"
+                id="mailingAddressCity"
               />
-              {errors.mailing_city && <span className="error-text">{errors.mailing_city}</span>}
             </div>
 
             <div className="form-group" style={{ flex: 1 }}>
@@ -154,10 +136,10 @@ const MailingAddress: React.FC<MailingAddressProps> = ({ carrier, setCarrier }) 
               <input
                 type="text"
                 value={carrier.mailing_state}
-                onChange={(e) => validateAndSetField('mailing_state', e.target.value)}
+                onChange={(e) => handleInputChange('mailing_state', e.target.value)}
                 placeholder="State"
+                id="mailingAddressState"
               />
-              {errors.mailing_state && <span className="error-text">{errors.mailing_state}</span>}
             </div>
           </div>
           <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
@@ -166,10 +148,10 @@ const MailingAddress: React.FC<MailingAddressProps> = ({ carrier, setCarrier }) 
               <input
                 type="text"
                 value={carrier.mailing_country}
-                onChange={(e) => validateAndSetField('mailing_country', e.target.value)}
+                onChange={(e) => handleInputChange('mailing_country', e.target.value)}
                 placeholder="Country"
+                id="mailingAddressCountry"
               />
-              {errors.mailing_country && <span className="error-text">{errors.mailing_country}</span>}
             </div>
 
             <div className="form-group" style={{ flex: 1 }}>
@@ -177,10 +159,10 @@ const MailingAddress: React.FC<MailingAddressProps> = ({ carrier, setCarrier }) 
               <input
                 type="text"
                 value={carrier.mailing_postal}
-                onChange={(e) => validateAndSetField('mailing_postal', e.target.value)}
+                onChange={(e) => handleInputChange('mailing_postal', e.target.value)}
                 placeholder="Postal Code"
+                id="mailingAddressPostalCode"
               />
-              {errors.mailing_postal && <span className="error-text">{errors.mailing_postal}</span>}
             </div>
 
             <div className="form-group" style={{ flex: 1 }}>
@@ -188,10 +170,10 @@ const MailingAddress: React.FC<MailingAddressProps> = ({ carrier, setCarrier }) 
               <input
                 type="text"
                 value={carrier.mailing_phone}
-                onChange={(e) => validateAndSetField('mailing_phone', e.target.value)}
+                onChange={(e) => handleInputChange('mailing_phone', e.target.value)}
                 placeholder="Phone"
+                id="mailingAddressPhone"
               />
-              {errors.mailing_phone && <span className="error-text">{errors.mailing_phone}</span>}
             </div>
           </div>
         </>

@@ -7,25 +7,8 @@ import CustomerCredit from './CustomerCredit';
 import CustomerContact from './CustomerContact';
 import CustomerEquipment from './CustomerEquipment';
 import { PlusOutlined } from '@ant-design/icons';
-import useCustomerHandler from './useCustomerHandler';
-
-interface Contact {
-  name: string;
-  phone: string;
-  ext: string;
-  email: string;
-  fax?: string;
-  designation: string;
-}
-
-interface Equipment {
-  equipment: string;
-}
-
-interface Customer {
-  cust_contact: Contact[];
-  cust_equipment: Equipment[];
-}
+import useEditCustomer from '../../../hooks/edit/useEditCustomer';
+import { Customer, Contact, Equipment } from '../../../types/CustomerTypes';
 
 interface EditCustomerFormProps {
   customer: Customer;
@@ -34,29 +17,12 @@ interface EditCustomerFormProps {
 }
 
 function EditCustomerForm({ customer, onClose, onUpdate }: EditCustomerFormProps) {
-  const { formCustomer, setformCustomer, updateCustomer } = useCustomerHandler({ customer, onClose, onUpdate });
+  const { formCustomer, setFormCustomer, updateCustomer, handleContactChange, handleEquipmentChange, handleRemoveContact, handleRemoveEquipment } =
+    useEditCustomer({ customer, onUpdate, onClose });
 
-  const handleContactChange = (index: number, updatedContact: Contact) => {
-    const updatedContacts = [...formCustomer.cust_contact];
-    updatedContacts[index] = updatedContact;
-    setformCustomer({ ...formCustomer, cust_contact: updatedContacts });
-  };
-
-  const handleEquipmentChange = (index: number, updatedEquipment: Equipment) => {
-    const updatedEquipments = [...formCustomer.cust_equipment];
-    updatedEquipments[index] = updatedEquipment;
-    setformCustomer({ ...formCustomer, cust_equipment: updatedEquipments });
-  };
-
-  const handleRemoveContact = (index: number) => {
-    const updatedContacts = formCustomer.cust_contact.filter((_, i) => i !== index);
-    setformCustomer({ ...formCustomer, cust_contact: updatedContacts });
-  };
-
-  const handleRemoveEquipment = (index: number) => {
-    const updatedEquipments = formCustomer.cust_equipment.filter((_, i) => i !== index);
-    setformCustomer({ ...formCustomer, cust_equipment: updatedEquipments });
-  };
+  // Initialize `contacts` and `equipment` to empty arrays if undefined
+  const contacts = formCustomer?.contact || [];
+  const equipment = Array.isArray(formCustomer?.cust_equipment) ? formCustomer.cust_equipment : [];
 
   return (
     <div className="form-container">
@@ -67,24 +33,25 @@ function EditCustomerForm({ customer, onClose, onUpdate }: EditCustomerFormProps
         }}
         className="form-main"
       >
-        <CustomerInfo formCustomer={formCustomer} setformCustomer={setformCustomer} />
-        <PrimaryAddress formCustomer={formCustomer} setformCustomer={setformCustomer} />
-        <MailingAddress formCustomer={formCustomer} setformCustomer={setformCustomer} />
-        <AccountsPayable formCustomer={formCustomer} setformCustomer={setformCustomer} />
-        <CustomBroker formCustomer={formCustomer} setformCustomer={setformCustomer} />
-        <CustomerCredit formCustomer={formCustomer} setformCustomer={setformCustomer} />
+        <CustomerInfo formCustomer={formCustomer} setFormCustomer={setFormCustomer} />
+        <PrimaryAddress formCustomer={formCustomer} setFormCustomer={setFormCustomer} />
+        <MailingAddress formCustomer={formCustomer} setFormCustomer={setFormCustomer} />
+        <AccountsPayable formCustomer={formCustomer} setFormCustomer={setFormCustomer} />
+        <CustomBroker formCustomer={formCustomer} setFormCustomer={setFormCustomer} />
+        <CustomerCredit formCustomer={formCustomer} setFormCustomer={setFormCustomer} />
+
         <fieldset className="form-section">
           <legend>Contacts</legend>
           <div className="form-row">
-            {formCustomer.cust_contact.map((contact, index) => (
+            {contacts.map((contact: Contact, index: number) => (
               <CustomerContact key={index} contact={contact} index={index} onChange={handleContactChange} onRemove={handleRemoveContact} />
             ))}
             <button
               type="button"
               onClick={() =>
-                setformCustomer((prevCustomer) => ({
+                setFormCustomer((prevCustomer) => ({
                   ...prevCustomer,
-                  cust_contact: [...prevCustomer.cust_contact, { name: '', phone: '', ext: '', email: '', fax: '', designation: '' }],
+                  contact: [...prevCustomer.contact, { name: '', phone: '', ext: '', email: '', fax: '', designation: '' }],
                 }))
               }
               className="add-button"
@@ -93,14 +60,14 @@ function EditCustomerForm({ customer, onClose, onUpdate }: EditCustomerFormProps
             </button>
           </div>
         </fieldset>
+
         <fieldset className="form-section">
           <legend>Equipments</legend>
           <div className="form-row">
-            {formCustomer.cust_equipment.map((equipment, index) => (
+            {equipment.map((equipmentItem: Equipment, index: number) => (
               <CustomerEquipment
                 key={index}
-                setformCustomer={setformCustomer}
-                equipment={equipment}
+                equipment={equipmentItem}
                 index={index}
                 onChange={handleEquipmentChange}
                 onRemove={handleRemoveEquipment}
@@ -109,7 +76,7 @@ function EditCustomerForm({ customer, onClose, onUpdate }: EditCustomerFormProps
             <button
               type="button"
               onClick={() =>
-                setformCustomer((prevCustomer) => ({
+                setFormCustomer((prevCustomer) => ({
                   ...prevCustomer,
                   cust_equipment: [...prevCustomer.cust_equipment, { equipment: '' }],
                 }))
@@ -120,6 +87,7 @@ function EditCustomerForm({ customer, onClose, onUpdate }: EditCustomerFormProps
             </button>
           </div>
         </fieldset>
+
         <div className="form-actions">
           <button type="submit" className="btn-submit">
             Save

@@ -23,13 +23,17 @@ const AddOrderForm: React.FC<AddOrderFormProps> = ({ onClose, onAddOrder }) => {
     setOrder,
     handleSubmit,
     clearOrderForm,
+    handleAddOrigin,
     handleOriginChange,
-    handleDestinationChange,
-    handleChargeChange,
-    handleDiscountChange,
     handleRemoveOrigin,
+    handleAddDestination,
+    handleDestinationChange,
     handleRemoveDestination,
+    handleAddCharge,
+    handleChargeChange,
     handleRemoveCharge,
+    handleAddDiscount,
+    handleDiscountChange,
     handleRemoveDiscount,
   } = useAddOrder(onClose, onAddOrder);
 
@@ -45,6 +49,8 @@ const AddOrderForm: React.FC<AddOrderFormProps> = ({ onClose, onAddOrder }) => {
             {order.origin_location.map((origin, index) => (
               <OrderOrigin
                 key={index}
+                order={order}
+                setOrder={setOrder}
                 origin={origin}
                 index={index}
                 handleOriginChange={handleOriginChange}
@@ -63,6 +69,8 @@ const AddOrderForm: React.FC<AddOrderFormProps> = ({ onClose, onAddOrder }) => {
             {order.destination_location.map((destination, index) => (
               <OrderDestination
                 key={index}
+                order={order}
+                setOrder={setOrder}
                 destination={destination}
                 index={index}
                 handleDestinationChange={handleDestinationChange}
@@ -84,6 +92,8 @@ const AddOrderForm: React.FC<AddOrderFormProps> = ({ onClose, onAddOrder }) => {
             {order.charges.map((charge, index) => (
               <OrderCharges
                 key={index}
+                order={order}
+                setOrder={setOrder}
                 charge={charge}
                 index={index}
                 handleChargeChange={handleChargeChange}
@@ -102,6 +112,8 @@ const AddOrderForm: React.FC<AddOrderFormProps> = ({ onClose, onAddOrder }) => {
             {order.discounts.map((discount, index) => (
               <OrderDiscounts
                 key={index}
+                order={order}
+                setOrder={setOrder}
                 discount={discount}
                 index={index}
                 handleDiscountChange={handleDiscountChange}

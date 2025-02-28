@@ -1,17 +1,12 @@
 import React from 'react';
-
-type Customer = {
-  cust_broker_name: string;
-  cust_bkp_notes: string;
-  cust_bkspl_notes: string;
-};
+import { Customer } from '../../../types/CustomerTypes';
 
 type CustomBrokerProps = {
   formCustomer: Customer;
-  setformCustomer: React.Dispatch<React.SetStateAction<Customer>>;
+  setFormCustomer: React.Dispatch<React.SetStateAction<Customer>>;
 };
 
-const CustomBroker: React.FC<CustomBrokerProps> = ({ formCustomer, setformCustomer }) => {
+const CustomBroker: React.FC<CustomBrokerProps> = ({ formCustomer, setFormCustomer }) => {
   const brokerOptions = ['Broker 1', 'Broker 2', 'Broker 3'];
 
   return (
@@ -25,7 +20,7 @@ const CustomBroker: React.FC<CustomBrokerProps> = ({ formCustomer, setformCustom
             id="broker"
             value={formCustomer.cust_broker_name}
             onChange={(e) =>
-              setformCustomer((prev) => ({
+              setFormCustomer((prev) => ({
                 ...prev,
                 cust_broker_name: e.target.value,
               }))
@@ -46,7 +41,7 @@ const CustomBroker: React.FC<CustomBrokerProps> = ({ formCustomer, setformCustom
             id="paymentNotes"
             value={formCustomer.cust_bkp_notes}
             onChange={(e) =>
-              setformCustomer((prev) => ({
+              setFormCustomer((prev) => ({
                 ...prev,
                 cust_bkp_notes: e.target.value,
               }))
@@ -60,7 +55,7 @@ const CustomBroker: React.FC<CustomBrokerProps> = ({ formCustomer, setformCustom
             id="specialNotes"
             value={formCustomer.cust_bkspl_notes}
             onChange={(e) =>
-              setformCustomer((prev) => ({
+              setFormCustomer((prev) => ({
                 ...prev,
                 cust_bkspl_notes: e.target.value,
               }))

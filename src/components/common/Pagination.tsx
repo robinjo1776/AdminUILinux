@@ -24,6 +24,11 @@ const Pagination: React.FC<PaginationProps> = ({ totalPages, currentPage, onPage
 
   return (
     <div className="pagination">
+      <button disabled={currentPage === 1} onClick={() => onPageChange(1)}>
+        <svg viewBox="0 0 24 24" className="svg-icon">
+          <path d="M19 6L5 12l14 6V6z"></path> {/* First page icon */}
+        </svg>
+      </button>
       <button disabled={currentPage === 1} onClick={() => onPageChange(currentPage - 1)}>
         <svg viewBox="0 0 24 24" className="svg-icon">
           <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"></path>
@@ -37,6 +42,11 @@ const Pagination: React.FC<PaginationProps> = ({ totalPages, currentPage, onPage
       <button disabled={currentPage === totalPages} onClick={() => onPageChange(currentPage + 1)}>
         <svg viewBox="0 0 24 24" className="svg-icon" style={{ transform: 'rotate(180deg)' }}>
           <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"></path>
+        </svg>
+      </button>
+      <button disabled={currentPage === totalPages} onClick={() => onPageChange(totalPages)}>
+        <svg viewBox="0 0 24 24" className="svg-icon" style={{ transform: 'rotate(180deg)' }}>
+          <path d="M19 6L5 12l14 6V6z"></path> {/* Last page icon */}
         </svg>
       </button>
     </div>

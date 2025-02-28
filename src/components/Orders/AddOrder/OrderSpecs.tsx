@@ -1,12 +1,5 @@
 import React from 'react';
-
-interface Order {
-  hot: boolean;
-  team: boolean;
-  air_ride: boolean;
-  tarp: boolean;
-  hazmat: boolean;
-}
+import { Order } from '../../../types/OrderTypes';
 
 interface OrderSpecsProps {
   order: Order;
@@ -26,15 +19,12 @@ const OrderSpecs: React.FC<OrderSpecsProps> = ({ order, setOrder }) => {
           { id: 'hazmat', label: 'Hazmat' },
         ].map(({ id, label }) => (
           <div className="form-group" style={{ flex: 1 }} key={id}>
-            <label
-              htmlFor={id}
-              style={{ display: 'inline-flex', alignItems: 'center', width: '100%' }}
-            >
+            <label htmlFor={id} style={{ display: 'inline-flex', alignItems: 'center', width: '100%' }}>
               {label}
               <input
                 type="checkbox"
                 id={id}
-                checked={order[id as keyof Order]}
+                checked={Boolean(order[id as keyof Order])}
                 onChange={(e) => setOrder((prevOrder) => ({ ...prevOrder, [id]: e.target.checked }))}
               />
             </label>

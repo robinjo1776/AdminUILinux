@@ -1,9 +1,5 @@
 import React from 'react';
-
-interface Order {
-  currency: string;
-  base_price: string;
-}
+import { Order } from '../../../types/OrderTypes';
 
 interface OrderRevenueProps {
   order: Order;

@@ -1,25 +1,17 @@
 import { DeleteOutlined } from '@ant-design/icons';
-import React, ChangeEvent from 'react';
-
-interface Discount {
-  type: string;
-  charge: number;
-  percent: string;
-}
-
-interface Order {
-  discounts: Discount[];
-}
+import { ChangeEvent } from 'react';
+import { Order, Charge } from '../../../types/OrderTypes';
 
 interface OrderDiscountsProps {
   setOrder: React.Dispatch<React.SetStateAction<Order>>;
   order: Order;
-  discount: Discount;
+  discount: Charge;
   index: number;
-  onRemove: (index: number) => void;
+  handleDiscountChange: (index: number, updatedDiscount: Charge) => void;
+  handleRemoveDiscount: (index: number) => void;
 }
 
-const OrderDiscounts: React.FC<OrderDiscountsProps> = ({ setOrder, order, discount, index, onRemove }) => {
+const OrderDiscounts: React.FC<OrderDiscountsProps> = ({ setOrder, discount, index, handleRemoveDiscount }) => {
   const rateOptions = ['Flat', 'Percentage'];
 
   const handleOrderChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -53,7 +45,7 @@ const OrderDiscounts: React.FC<OrderDiscountsProps> = ({ setOrder, order, discou
         </select>
       </div>
 
-      <button type="button" onClick={() => onRemove(index)} className="remove">
+      <button type="button" onClick={() => handleRemoveDiscount(index)} className="remove">
         <DeleteOutlined />
       </button>
     </div>

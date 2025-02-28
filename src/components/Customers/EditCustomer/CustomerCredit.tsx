@@ -1,30 +1,12 @@
 import { useState } from 'react';
-
-interface FileData {
-  url: string;
-  name: string;
-}
-
-interface Customer {
-  cust_credit_status: string;
-  cust_credit_mop: string;
-  cust_credit_currency: string;
-  cust_credit_appd: string;
-  cust_credit_expd: string;
-  cust_credit_terms: number;
-  cust_credit_limit: number;
-  cust_credit_application: boolean;
-  cust_credit_agreement?: FileData | string;
-  cust_sbk_agreement?: FileData | string;
-  cust_credit_notes: string;
-}
+import { Customer, FileData } from '../../../types/CustomerTypes';
 
 interface CustomerCreditProps {
   formCustomer: Customer;
-  setformCustomer: (customer: Customer) => void;
+  setFormCustomer: (customer: Customer) => void;
 }
 
-const CustomerCredit: React.FC<CustomerCreditProps> = ({ formCustomer, setformCustomer }) => {
+const CustomerCredit: React.FC<CustomerCreditProps> = ({ formCustomer, setFormCustomer }) => {
   const creditStatusOptions = ['Approved', 'Not Approved'];
   const modeOfPaymentOptions = ['Direct Deposit', 'Wire Transfer', 'Visa'];
   const currencyOptions = ['USD', 'CAD'];
@@ -47,7 +29,7 @@ const CustomerCredit: React.FC<CustomerCreditProps> = ({ formCustomer, setformCu
       });
       const data = await response.json();
 
-      setformCustomer({
+      setFormCustomer({
         ...formCustomer,
         [fieldName]: { url: data.fileUrl, name: file.name },
       });
@@ -81,7 +63,7 @@ const CustomerCredit: React.FC<CustomerCreditProps> = ({ formCustomer, setformCu
           <select
             name="creditStatus"
             value={formCustomer.cust_credit_status}
-            onChange={(e) => setformCustomer({ ...formCustomer, cust_credit_status: e.target.value })}
+            onChange={(e) => setFormCustomer({ ...formCustomer, cust_credit_status: e.target.value })}
           >
             <option value="">Select..</option>
             {creditStatusOptions.map((status) => (

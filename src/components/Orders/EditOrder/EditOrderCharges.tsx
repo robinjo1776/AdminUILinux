@@ -1,49 +1,41 @@
 import React from 'react';
-
-interface Charge {
-  type?: string;
-  charge?: string;
-  percent?: string;
-}
-
-interface Order {
-  charges: Charge[];
-}
+import { Order, Charge } from '../../../types/OrderTypes';
 
 interface EditOrderChargesProps {
   setFormOrder: React.Dispatch<React.SetStateAction<Order>>;
   order: Order;
   charge: Charge;
   index: number;
+  onChange: (index: number, updatedCharge: Charge) => void;
   onRemove: (index: number) => void;
 }
 
-const EditOrderCharges: React.FC<EditOrderChargesProps> = ({ setFormOrder, order, charge = {}, index, onRemove }) => {
+const EditOrderCharges: React.FC<EditOrderChargesProps> = ({ charge, index, onChange, onRemove }) => {
   const rateOptions = ['Flat', 'Percentage'];
 
-  const handleOrderChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChargeChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-
-    setFormOrder((prevOrder) => ({
-      ...prevOrder,
-      charges: prevOrder.charges.map((loc, idx) => (idx === index ? { ...loc, [name]: value } : loc)),
-    }));
+    const updatedCharge = {
+      ...charge,
+      [name]: name === 'charge' ? Number(value) : value, // Ensure charge is stored as a number
+    };
+    onChange(index, updatedCharge);
   };
 
   return (
     <div className="contact-form">
       <div className="form-group">
         <label>Type</label>
-        <input type="text" name="type" value={charge.type || ''} onChange={handleOrderChange} />
+        <input type="text" name="type" value={charge?.type || ''} onChange={handleChargeChange} />
       </div>
       <div className="form-group">
         <label>Charge</label>
-        <input type="tel" name="charge" value={charge.charge || ''} onChange={handleOrderChange} />
+        <input type="number" name="charge" value={charge?.charge || ''} onChange={handleChargeChange} />
       </div>
       <div className="form-group">
         <label htmlFor="percent">Percent/Flat Rate</label>
-        <select name="percent" value={charge.percent || ''} onChange={handleOrderChange}>
-          <option value="">Select..</option>
+        <select name="percent" value={charge?.percent || ''} onChange={handleChargeChange}>
+          <option value="">Select...</option>
           {rateOptions.map((option) => (
             <option key={option} value={option}>
               {option}

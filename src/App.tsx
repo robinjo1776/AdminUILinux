@@ -17,7 +17,6 @@ const Layout: React.FC = () => {
 
   return (
     <UserProvider>
-      {' '}
       {/* Wrap Layout with UserProvider */}
       {!hideNavbarRoutes.includes(location.pathname) && <CustomNavbar />}
       <AppRoutes />

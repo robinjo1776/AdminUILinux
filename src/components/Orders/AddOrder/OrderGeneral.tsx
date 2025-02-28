@@ -1,21 +1,12 @@
 import Select from 'react-select';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Order } from '../../../types/OrderTypes';
 
 interface Customer {
   value: string;
   label: string;
   refNo: string;
-}
-
-interface Order {
-  customer?: string;
-  customer_ref_no?: string;
-  branch?: string;
-  booked_by?: string;
-  account_rep?: string;
-  sales_rep?: string;
-  customer_po_no?: string;
 }
 
 interface OrderGeneralProps {

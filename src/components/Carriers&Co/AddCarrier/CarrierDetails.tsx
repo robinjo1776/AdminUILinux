@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Carrier } from "../../../types/CarrierTypes";
+import { Carrier } from '../../../types/CarrierTypes';
 
 interface CarrierDetailsProps {
   carrier: Carrier;
-  setCarrier: (carrier: Carrier) => void;
+  setCarrier: React.Dispatch<React.SetStateAction<Carrier>>;
 }
 
 const CarrierDetails: React.FC<CarrierDetailsProps> = ({ carrier, setCarrier }) => {
@@ -24,63 +24,34 @@ const CarrierDetails: React.FC<CarrierDetailsProps> = ({ carrier, setCarrier }) 
 
   const ratingOptions: string[] = ['Unrated', 'Preferred', 'Excellent', 'Good', 'Poor', 'Not Recommended', 'Do not use', 'Blank', 'Probationary'];
 
-  // Handle file change for uploads
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     setUploading(true);
-
     const formData = new FormData();
     formData.append('file', file);
-
     const token = localStorage.getItem('token');
-
     try {
       const response = await fetch(`${API_URL}/upload`, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
-
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Upload failed:', errorText);
         alert('File upload failed. Please try again.');
         return;
       }
-
       const data = await response.json();
       if (data.fileUrl) {
-        setCarrier({
-          ...carrier,
-          brok_carr_aggmt: data.fileUrl,
-        });
+        setCarrier({ ...carrier, brok_carr_aggmt: data.fileUrl });
       } else {
-        console.error('File URL not returned in the response');
         alert('File upload failed: No file URL returned.');
       }
     } catch (error) {
-      console.error('Error uploading file:', error);
       alert('Error uploading file. Please try again.');
     } finally {
       setUploading(false);
     }
-  };
-
-  const renderDownloadLink = (fileUrl?: string, fileLabel?: string) => {
-    if (fileUrl) {
-      return (
-        <div>
-          <a href={fileUrl} target="_blank" rel="noopener noreferrer">
-            Download {fileLabel}
-          </a>
-        </div>
-      );
-    }
-    return null;
   };
 
   return (
@@ -89,82 +60,140 @@ const CarrierDetails: React.FC<CarrierDetailsProps> = ({ carrier, setCarrier }) 
       <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
         <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="carrType">Carrier Type</label>
-          <select
-            name="carrType"
-            value={carrier.carr_type}
-            onChange={(e) => setCarrier({ ...carrier, carr_type: e.target.value })}
-          >
+          <select id="carrType" value={carrier.carr_type} onChange={(e) => setCarrier({ ...carrier, carr_type: e.target.value })}>
             <option value="">Select..</option>
-            {carrierTypeOptions.map((status) => (
-              <option key={status} value={status}>
-                {status}
+            {carrierTypeOptions.map((type) => (
+              <option key={type} value={type}>
+                {type}
               </option>
             ))}
           </select>
         </div>
-
         <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="rating">Rating</label>
-          <select
-            name="rating"
-            value={carrier.rating}
-            onChange={(e) => setCarrier({ ...carrier, rating: e.target.value })}
-          >
+          <select id="rating" value={carrier.rating} onChange={(e) => setCarrier({ ...carrier, rating: e.target.value })}>
             <option value="">Select..</option>
-            {ratingOptions.map((status) => (
-              <option key={status} value={status}>
-                {status}
+            {ratingOptions.map((rating) => (
+              <option key={rating} value={rating}>
+                {rating}
               </option>
             ))}
           </select>
-        </div>
-
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="brokCarrAggmt">Broker Carrier Agreement</label>
-          <input type="file" name="brokCarrAggmt" onChange={handleFileChange} accept="application/pdf" />
-          {renderDownloadLink(carrier.brok_carr_aggmt, 'Broker Carrier Agreement')}
-          {uploading && <p>Uploading...</p>}
         </div>
       </div>
 
-      {[
-        { id: 'docketNo', label: 'Docket Number', value: carrier.docket_no, field: 'docket_no' },
-        { id: 'dotNumber', label: 'DOT Number', value: carrier.dot_number, field: 'dot_number' },
-        { id: 'wcbNo', label: 'WCB Number', value: carrier.wcb_no, field: 'wcb_no' },
-        { id: 'caBondNo', label: 'California Bond Number', value: carrier.ca_bond_no, field: 'ca_bond_no' },
-        { id: 'usBondNo', label: 'US Bond Number', value: carrier.us_bond_no, field: 'us_bond_no' },
-        { id: 'scac', label: 'SCAC', value: carrier.scac, field: 'scac' },
-        { id: 'smscCode', label: 'SMS Code', value: carrier.smsc_code, field: 'smsc_code' },
-      ].map(({ id, label, value, field }) => (
-        <div className="form-group" key={id} style={{ flex: 1 }}>
-          <label htmlFor={id}>{label}</label>
-          <input
-            type="text"
-            id={id}
-            placeholder={label}
-            value={value}
-            onChange={(e) => setCarrier({ ...carrier, [field]: e.target.value })}
-          />
-        </div>
-      ))}
-
-      {[
-        { id: 'csaApproved', label: 'CSA Approved', value: carrier.csa_approved, field: 'csa_approved' },
-        { id: 'hazmat', label: 'Hazmat', value: carrier.hazmat, field: 'hazmat' },
-        { id: 'approved', label: 'Approved', value: carrier.approved, field: 'approved' },
-      ].map(({ id, label, value, field }) => (
-        <div className="form-group" key={id} style={{ flex: 1 }}>
-          <label style={{ display: 'inline-flex', alignItems: 'center', width: '100%' }}>
-            {label}
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        {[
+          { key: 'docket_no', placeholder: 'Docket Number' },
+          { key: 'dot_number', placeholder: 'DOT Number' },
+          { key: 'wcb_no', placeholder: 'WCB Number' },
+          { key: 'ca_bond_no', placeholder: 'CA Bond Number' },
+          { key: 'us_bond_no', placeholder: 'US Bond Number' },
+        ].map(({ key, placeholder }) => (
+          <div key={key} className="form-group" style={{ flex: 1 }}>
+            <label htmlFor={key}>{key.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())} </label>
             <input
-              type="checkbox"
-              id={id}
-              checked={value}
-              onChange={(e) => setCarrier({ ...carrier, [field]: e.target.checked })}
+              type="text"
+              id={key}
+              value={carrier[key as keyof Carrier] as string}
+              onChange={(e) => setCarrier({ ...carrier, [key]: e.target.value })}
+              placeholder={placeholder}
             />
-          </label>
+          </div>
+        ))}
+      </div>
+
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        {[
+          { key: 'scac', placeholder: 'SCAC' },
+          { key: 'smsc_code', placeholder: 'SMSC Code' },
+          { key: 'mc_number', placeholder: 'MC Number' },
+          { key: 'ifta_account_no', placeholder: 'IFTA Account No' },
+          { key: 'insurance_policy_no', placeholder: 'Insurance Policy No' },
+        ].map(({ key, placeholder }) => (
+          <div key={key} className="form-group" style={{ flex: 1 }}>
+            <label htmlFor={key}>{key.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())} </label>
+            <input
+              type="text"
+              id={key}
+              value={carrier[key as keyof Carrier] as string}
+              onChange={(e) => setCarrier({ ...carrier, [key]: e.target.value })}
+              placeholder={placeholder}
+            />
+          </div>
+        ))}
+      </div>
+
+      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+        <div className="form-group" style={{ display: 'flex', flex: 1, verticalAlign: 'center', gap: '1rem' }}>
+          <input
+            type="checkbox"
+            checked={carrier.csa_approved || false}
+            onChange={(e) =>
+              setCarrier((prevCarrier: Carrier) => ({
+                ...prevCarrier,
+                csa_approved: e.target.checked,
+              }))
+            }
+            id="csaApproved"
+            className="styled-checkbox"
+            style={{ width: '16px', height: '16px' }}
+          />
+          <label htmlFor="csaApproved">CSA Approved</label>
         </div>
-      ))}
+        <div className="form-group" style={{ display: 'flex', flex: 1, verticalAlign: 'center', gap: '1rem' }}>
+          <input
+            type="checkbox"
+            checked={carrier.hazmat || false}
+            onChange={(e) => setCarrier((prevCarrier) => ({ ...prevCarrier, hazmat: e.target.checked }))}
+            id="hazmat"
+            className="styled-checkbox"
+            style={{ width: '16px', height: '16px' }}
+          />
+          <label htmlFor="hazmat">Hazmat</label>
+        </div>
+        <div className="form-group" style={{ display: 'flex', flex: 1, verticalAlign: 'center', gap: '1rem' }}>
+          <input
+            type="checkbox"
+            checked={carrier.approved || false}
+            onChange={(e) => setCarrier((prevCarrier) => ({ ...prevCarrier, approved: e.target.checked }))}
+            id="approved"
+            className="styled-checkbox"
+            style={{ width: '16px', height: '16px' }}
+          />
+          <label htmlFor="approved">Approved</label>
+        </div>
+      </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        {[
+          { key: 'contact_name', placeholder: 'Contact Name' },
+          { key: 'contact_phone', placeholder: 'Contact Phone' },
+          { key: 'contact_email', placeholder: 'Contact Email' },
+          { key: 'fax_number', placeholder: 'Fax Number' },
+        ].map(({ key, placeholder }) => (
+          <div key={key} className="form-group" style={{ flex: 1 }}>
+            <label htmlFor={key}>{key.replace('_', ' ').replace(/\b\w/g, (char) => char.toUpperCase())}</label>
+            <input
+              type="text"
+              id={key}
+              value={carrier[key as keyof Carrier] as string}
+              onChange={(e) => setCarrier({ ...carrier, [key]: e.target.value })}
+              placeholder={placeholder}
+            />
+          </div>
+        ))}
+
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="brokCarrAggmt">Broker Carrier Agreement</label>
+          <input type="file" id="brokCarrAggmt" onChange={handleFileChange} accept="application/pdf" />
+          {carrier.brok_carr_aggmt && (
+            <a href={carrier.brok_carr_aggmt} target="_blank" rel="noopener noreferrer">
+              Download Agreement
+            </a>
+          )}
+          {uploading && <p>Uploading...</p>}
+        </div>
+      </div>
     </fieldset>
   );
 };

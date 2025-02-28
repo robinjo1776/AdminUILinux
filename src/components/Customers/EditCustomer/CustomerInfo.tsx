@@ -1,20 +1,11 @@
-interface Customer {
-  cust_type: string;
-  cust_name: string;
-  cust_ref_no?: string;
-  cust_website?: string;
-  cust_email?: string;
-  cust_contact_no?: string;
-  cust_contact_no_ext?: string;
-  cust_tax_id?: string;
-}
+import { Customer } from '../../../types/CustomerTypes';
 
 interface CustomerInfoProps {
   formCustomer: Customer;
-  setformCustomer: (customer: Customer) => void;
+  setFormCustomer: (customer: Customer) => void;
 }
 
-const CustomerInfo: React.FC<CustomerInfoProps> = ({ formCustomer, setformCustomer }) => {
+const CustomerInfo: React.FC<CustomerInfoProps> = ({ formCustomer, setFormCustomer }) => {
   const customerTypeOptions = ['Manufacturer', 'Trader', 'Distributor', 'Retailer', 'Freight Forwarder'];
 
   return (
@@ -23,7 +14,7 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({ formCustomer, setformCustom
       <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
         <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="customerType">Customer Type</label>
-          <select id="customerType" value={formCustomer.cust_type} onChange={(e) => setformCustomer({ ...formCustomer, cust_type: e.target.value })}>
+          <select id="customerType" value={formCustomer.cust_type} onChange={(e) => setFormCustomer({ ...formCustomer, cust_type: e.target.value })}>
             {customerTypeOptions.map((type) => (
               <option key={type} value={type}>
                 {type}
@@ -38,7 +29,7 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({ formCustomer, setformCustom
             type="text"
             id="customerName"
             value={formCustomer.cust_name}
-            onChange={(e) => setformCustomer({ ...formCustomer, cust_name: e.target.value })}
+            onChange={(e) => setFormCustomer({ ...formCustomer, cust_name: e.target.value })}
             required
           />
         </div>
@@ -49,7 +40,7 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({ formCustomer, setformCustom
             type="text"
             id="customerRefNo"
             value={formCustomer.cust_ref_no || ''}
-            onChange={(e) => setformCustomer({ ...formCustomer, cust_ref_no: e.target.value })}
+            onChange={(e) => setFormCustomer({ ...formCustomer, cust_ref_no: e.target.value })}
           />
         </div>
       </div>
@@ -61,7 +52,7 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({ formCustomer, setformCustom
             type="text"
             id="website"
             value={formCustomer.cust_website || ''}
-            onChange={(e) => setformCustomer({ ...formCustomer, cust_website: e.target.value })}
+            onChange={(e) => setFormCustomer({ ...formCustomer, cust_website: e.target.value })}
           />
         </div>
 
@@ -71,7 +62,7 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({ formCustomer, setformCustom
             type="email"
             id="email"
             value={formCustomer.cust_email || ''}
-            onChange={(e) => setformCustomer({ ...formCustomer, cust_email: e.target.value })}
+            onChange={(e) => setFormCustomer({ ...formCustomer, cust_email: e.target.value })}
           />
         </div>
 
@@ -81,7 +72,7 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({ formCustomer, setformCustom
             type="text"
             id="contactNo"
             value={formCustomer.cust_contact_no || ''}
-            onChange={(e) => setformCustomer({ ...formCustomer, cust_contact_no: e.target.value })}
+            onChange={(e) => setFormCustomer({ ...formCustomer, cust_contact_no: e.target.value })}
           />
         </div>
       </div>
@@ -93,7 +84,7 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({ formCustomer, setformCustom
             type="text"
             id="contactNoExt"
             value={formCustomer.cust_contact_no_ext || ''}
-            onChange={(e) => setformCustomer({ ...formCustomer, cust_contact_no_ext: e.target.value })}
+            onChange={(e) => setFormCustomer({ ...formCustomer, cust_contact_no_ext: e.target.value })}
           />
         </div>
 
@@ -103,7 +94,7 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({ formCustomer, setformCustom
             type="text"
             id="taxId"
             value={formCustomer.cust_tax_id || ''}
-            onChange={(e) => setformCustomer({ ...formCustomer, cust_tax_id: e.target.value })}
+            onChange={(e) => setFormCustomer({ ...formCustomer, cust_tax_id: e.target.value })}
           />
         </div>
 

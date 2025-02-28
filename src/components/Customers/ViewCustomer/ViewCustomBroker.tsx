@@ -1,14 +1,8 @@
 import React from 'react';
-
-interface FormCustomer {
-  cust_broker_name?: string;
-  cust_bkp_notes?: string;
-  cust_bkspl_notes?: string;
-}
+import { Customer } from '../../../types/CustomerTypes';
 
 interface ViewCustomBrokerProps {
-  formCustomer: FormCustomer;
-  setformCustomer: React.Dispatch<React.SetStateAction<FormCustomer>>;
+  formCustomer: Customer;
 }
 
 const ViewCustomBroker: React.FC<ViewCustomBrokerProps> = ({ formCustomer }) => {

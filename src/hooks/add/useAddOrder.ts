@@ -100,6 +100,31 @@ export const useAddOrder = (onClose: () => void, onAddOrder: (order: Order) => v
       updated_at: '',
     });
   };
+  const handleAddOrigin = () => {
+    setOrder((prev) => ({
+      ...prev,
+      origin_location: [
+        ...prev.origin_location,
+        {
+          address: '',
+          city: '',
+          state: '',
+          postal: '',
+          country: '',
+          date: '',
+          time: '',
+          currency: '',
+          equipment: '',
+          pickup_po: '',
+          phone: '',
+          packages: '',
+          weight: '',
+          dimensions: '',
+          notes: '',
+        },
+      ],
+    }));
+  };
 
   const handleOriginChange = (index: number, updatedOrigin: Location) => {
     const updatedOrigins = order.origin_location.map((origin, i) => (i === index ? updatedOrigin : origin));
@@ -108,6 +133,40 @@ export const useAddOrder = (onClose: () => void, onAddOrder: (order: Order) => v
       origin_location: updatedOrigins,
     }));
   };
+
+  const handleRemoveOrigin = (index: number) => {
+    setOrder((prevOrder) => ({
+      ...prevOrder,
+      origin_location: prevOrder.origin_location.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleAddDestination = () => {
+    setOrder((prev) => ({
+      ...prev,
+      destination_location: [
+        ...prev.destination_location,
+        {
+          address: '',
+          city: '',
+          state: '',
+          postal: '',
+          country: '',
+          date: '',
+          time: '',
+          currency: '',
+          equipment: '',
+          pickup_po: '',
+          phone: '',
+          packages: '',
+          weight: '',
+          dimensions: '',
+          notes: '',
+        },
+      ],
+    }));
+  };
+
   const handleDestinationChange = (index: number, updatedDestination: Location) => {
     const updatedDestinations = order.destination_location.map((destination, i) => (i === index ? updatedDestination : destination));
     setOrder((prevOrder) => ({
@@ -115,6 +174,28 @@ export const useAddOrder = (onClose: () => void, onAddOrder: (order: Order) => v
       destination_location: updatedDestinations,
     }));
   };
+
+  const handleRemoveDestination = (index: number) => {
+    setOrder((prevOrder) => ({
+      ...prevOrder,
+      destination_location: prevOrder.destination_location.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleAddCharge = () => {
+    setOrder((prev) => ({
+      ...prev,
+      charges: [
+        ...prev.charges,
+        {
+          type: '',
+          charge: 0,
+          percent: 0,
+        },
+      ],
+    }));
+  };
+
   const handleChargeChange = (index: number, updatedCharge: Charge) => {
     const updatedCharges = order.charges.map((charge, i) => (i === index ? updatedCharge : charge));
     setOrder((prevOrder) => ({
@@ -122,6 +203,28 @@ export const useAddOrder = (onClose: () => void, onAddOrder: (order: Order) => v
       charges: updatedCharges,
     }));
   };
+
+  const handleRemoveCharge = (index: number) => {
+    setOrder((prevOrder) => ({
+      ...prevOrder,
+      charges: prevOrder.charges.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleAddDiscount = () => {
+    setOrder((prev) => ({
+      ...prev,
+      discounts: [
+        ...prev.discounts,
+        {
+          type: '',
+          charge: 0,
+          percent: 0,
+        },
+      ],
+    }));
+  };
+
   const handleDiscountChange = (index: number, updatedDiscount: Charge) => {
     const updatedDiscounts = order.discounts.map((discount, i) => (i === index ? updatedDiscount : discount));
     setOrder((prevOrder) => ({
@@ -129,24 +232,7 @@ export const useAddOrder = (onClose: () => void, onAddOrder: (order: Order) => v
       discounts: updatedDiscounts,
     }));
   };
-  const handleRemoveOrigin = (index: number) => {
-    setOrder((prevOrder) => ({
-      ...prevOrder,
-      origin_location: prevOrder.origin_location.filter((_, i) => i !== index),
-    }));
-  };
-  const handleRemoveDestination = (index: number) => {
-    setOrder((prevOrder) => ({
-      ...prevOrder,
-      destination_location: prevOrder.destination_location.filter((_, i) => i !== index),
-    }));
-  };
-  const handleRemoveCharge = (index: number) => {
-    setOrder((prevOrder) => ({
-      ...prevOrder,
-      charges: prevOrder.charges.filter((_, i) => i !== index),
-    }));
-  };
+
   const handleRemoveDiscount = (index: number) => {
     setOrder((prevOrder) => ({
       ...prevOrder,
@@ -159,13 +245,17 @@ export const useAddOrder = (onClose: () => void, onAddOrder: (order: Order) => v
     setOrder,
     handleSubmit,
     clearOrderForm,
+    handleAddOrigin,
     handleOriginChange,
-    handleDestinationChange,
-    handleChargeChange,
-    handleDiscountChange,
     handleRemoveOrigin,
+    handleAddDestination,
+    handleDestinationChange,
     handleRemoveDestination,
+    handleAddCharge,
+    handleChargeChange,
     handleRemoveCharge,
+    handleAddDiscount,
+    handleDiscountChange,
     handleRemoveDiscount,
   };
 };

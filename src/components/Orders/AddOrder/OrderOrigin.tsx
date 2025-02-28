@@ -1,37 +1,17 @@
 import { useEffect, useRef } from 'react';
 import { DeleteOutlined } from '@ant-design/icons';
-
-interface Origin {
-  address?: string;
-  city?: string;
-  state?: string;
-  postal?: string;
-  country?: string;
-  date?: string;
-  time?: string;
-  currency?: string;
-  equipment?: string;
-  pickup_po?: string;
-  phone?: string;
-  packages?: number;
-  weight?: number;
-  dimensions?: string;
-  notes?: string;
-}
-
-interface Order {
-  origin_location: Origin[];
-}
+import { Order, Location } from '../../../types/OrderTypes';
 
 interface OrderOriginProps {
   setOrder: (orderUpdater: (prevOrder: Order) => Order) => void;
   order: Order;
-  origin: Origin;
+  origin: Location;
   index: number;
-  onRemove: (index: number) => void;
+  handleOriginChange: (index: number, updatedOrigin: Location) => void;
+  handleRemoveOrigin: (index: number) => void;
 }
 
-const OrderOrigin: React.FC<OrderOriginProps> = ({ setOrder, order, origin, index, onRemove }) => {
+const OrderOrigin: React.FC<OrderOriginProps> = ({ setOrder, origin, index, handleRemoveOrigin }) => {
   const addressRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -127,12 +107,7 @@ const OrderOrigin: React.FC<OrderOriginProps> = ({ setOrder, order, origin, inde
           <input type="text" name="state" value={origin.state || ''} onChange={handleOrderChange} placeholder="State" />
         </div>
       </div>
-      <button
-        type="button"
-        onClick={() => onRemove(index)}
-        className="trash-bottom"
-        style={{ float: 'right', marginTop: '10px', display: 'inline-block' }}
-      >
+      <button type="button" onClick={() => handleRemoveOrigin(index)} className="remove">
         <DeleteOutlined />
       </button>
     </fieldset>

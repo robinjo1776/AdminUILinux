@@ -36,7 +36,7 @@ const AddCarrierForm: React.FC<AddCarrierFormProps> = ({ onClose, onAddCarrier }
 
   return (
     <div className="form-container">
-      <form onSubmit={handleSubmit} className="form-main">
+      <form onSubmit={handleSubmit} data-testid="carrier-form">
         <General carrier={carrier} setCarrier={setCarrier} />
         <CarrierDetails carrier={carrier} setCarrier={setCarrier} />
         <LiabilityInsurance carrier={carrier} setCarrier={setCarrier} />
@@ -94,9 +94,10 @@ const AddCarrierForm: React.FC<AddCarrierFormProps> = ({ onClose, onAddCarrier }
         </fieldset>
 
         <div className="form-actions">
-          <button type="submit" className="btn-submit">
-            Add Carrier
-          </button>
+        <button type="submit" className="btn-submit" data-testid="submit-button">
+  Add Carrier
+</button>
+
           <button type="button" className="btn-cancel" onClick={onClose}>
             Cancel
           </button>

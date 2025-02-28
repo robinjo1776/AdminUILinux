@@ -98,12 +98,24 @@ const PrimaryAddress: React.FC<PrimaryAddressProps> = ({ carrier, setCarrier }) 
 
         <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="primaryAddressCity">City</label>
-          <input type="text" value={carrier.primary_city} onChange={(e) => handleInputChange('primary_city', e.target.value)} placeholder="City" />
+          <input
+            type="text"
+            value={carrier.primary_city}
+            onChange={(e) => handleInputChange('primary_city', e.target.value)}
+            placeholder="City"
+            id="primaryAddressCity"
+          />
         </div>
 
         <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="primaryAddressState">State</label>
-          <input type="text" value={carrier.primary_state} onChange={(e) => handleInputChange('primary_state', e.target.value)} placeholder="State" />
+          <input
+            type="text"
+            value={carrier.primary_state}
+            onChange={(e) => handleInputChange('primary_state', e.target.value)}
+            placeholder="State"
+            id="primaryAddressState"
+          />
         </div>
       </div>
 
@@ -115,6 +127,7 @@ const PrimaryAddress: React.FC<PrimaryAddressProps> = ({ carrier, setCarrier }) 
             value={carrier.primary_country}
             onChange={(e) => handleInputChange('primary_country', e.target.value)}
             placeholder="Country"
+            id="primaryAddressCountry"
           />
         </div>
 
@@ -125,12 +138,19 @@ const PrimaryAddress: React.FC<PrimaryAddressProps> = ({ carrier, setCarrier }) 
             value={carrier.primary_postal}
             onChange={(e) => handleInputChange('primary_postal', e.target.value)}
             placeholder="Postal Code"
+            id="primaryAddressPostalCode"
           />
         </div>
 
         <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="primaryAddressUnitNo">Phone</label>
-          <input type="text" value={carrier.primary_phone} onChange={(e) => handleInputChange('primary_phone', e.target.value)} placeholder="Phone" />
+          <input
+            type="text"
+            value={carrier.primary_phone}
+            onChange={(e) => handleInputChange('primary_phone', e.target.value)}
+            placeholder="Phone"
+            id="primaryAddressUnitNo"
+          />
         </div>
       </div>
     </fieldset>

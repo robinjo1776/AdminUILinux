@@ -1,25 +1,12 @@
 import { useEffect, useRef } from 'react';
-
-type Customer = {
-  cust_ap_name: string;
-  cust_ap_address: string;
-  cust_ap_city: string;
-  cust_ap_state: string;
-  cust_ap_country: string;
-  cust_ap_postal: string;
-  cust_ap_unit_no: string;
-  cust_ap_email: string;
-  cust_ap_phone: string;
-  cust_ap_phone_ext: string;
-  cust_ap_fax: string;
-};
+import { Customer } from '../../../types/CustomerTypes';
 
 type AccountsPayableProps = {
   formCustomer: Customer;
-  setformCustomer: React.Dispatch<React.SetStateAction<Customer>>;
+  setFormCustomer: React.Dispatch<React.SetStateAction<Customer>>;
 };
 
-const AccountsPayable: React.FC<AccountsPayableProps> = ({ formCustomer, setformCustomer }) => {
+const AccountsPayable: React.FC<AccountsPayableProps> = ({ formCustomer, setFormCustomer }) => {
   const addressRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -72,7 +59,7 @@ const AccountsPayable: React.FC<AccountsPayableProps> = ({ formCustomer, setform
     const route = getComponent('route', '');
     const mainAddress = `${streetNumber} ${route}`.trim();
 
-    setformCustomer((prevCustomer) => ({
+    setFormCustomer((prevCustomer) => ({
       ...prevCustomer,
       cust_ap_address: mainAddress,
       cust_ap_city: getComponent('locality', ''),
@@ -93,7 +80,7 @@ const AccountsPayable: React.FC<AccountsPayableProps> = ({ formCustomer, setform
             type="text"
             id="accountsPayableName"
             value={formCustomer.cust_ap_name}
-            onChange={(e) => setformCustomer((prev) => ({ ...prev, cust_ap_name: e.target.value }))}
+            onChange={(e) => setFormCustomer((prev) => ({ ...prev, cust_ap_name: e.target.value }))}
           />
         </div>
 
@@ -104,7 +91,7 @@ const AccountsPayable: React.FC<AccountsPayableProps> = ({ formCustomer, setform
             id="street"
             ref={addressRef}
             value={formCustomer.cust_ap_address}
-            onChange={(e) => setformCustomer((prev) => ({ ...prev, cust_ap_address: e.target.value }))}
+            onChange={(e) => setFormCustomer((prev) => ({ ...prev, cust_ap_address: e.target.value }))}
             placeholder="Enter your address"
           />
         </div>
@@ -115,7 +102,7 @@ const AccountsPayable: React.FC<AccountsPayableProps> = ({ formCustomer, setform
             type="text"
             id="city"
             value={formCustomer.cust_ap_city}
-            onChange={(e) => setformCustomer((prev) => ({ ...prev, cust_ap_city: e.target.value }))}
+            onChange={(e) => setFormCustomer((prev) => ({ ...prev, cust_ap_city: e.target.value }))}
           />
         </div>
       </div>
@@ -127,7 +114,7 @@ const AccountsPayable: React.FC<AccountsPayableProps> = ({ formCustomer, setform
             type="text"
             id="state"
             value={formCustomer.cust_ap_state}
-            onChange={(e) => setformCustomer((prev) => ({ ...prev, cust_ap_state: e.target.value }))}
+            onChange={(e) => setFormCustomer((prev) => ({ ...prev, cust_ap_state: e.target.value }))}
           />
         </div>
 
@@ -137,7 +124,7 @@ const AccountsPayable: React.FC<AccountsPayableProps> = ({ formCustomer, setform
             type="text"
             id="country"
             value={formCustomer.cust_ap_country}
-            onChange={(e) => setformCustomer((prev) => ({ ...prev, cust_ap_country: e.target.value }))}
+            onChange={(e) => setFormCustomer((prev) => ({ ...prev, cust_ap_country: e.target.value }))}
           />
         </div>
 
@@ -147,7 +134,7 @@ const AccountsPayable: React.FC<AccountsPayableProps> = ({ formCustomer, setform
             type="text"
             id="postalCode"
             value={formCustomer.cust_ap_postal}
-            onChange={(e) => setformCustomer((prev) => ({ ...prev, cust_ap_postal: e.target.value }))}
+            onChange={(e) => setFormCustomer((prev) => ({ ...prev, cust_ap_postal: e.target.value }))}
           />
         </div>
 
@@ -157,7 +144,7 @@ const AccountsPayable: React.FC<AccountsPayableProps> = ({ formCustomer, setform
             type="text"
             id="unitNo"
             value={formCustomer.cust_ap_unit_no}
-            onChange={(e) => setformCustomer((prev) => ({ ...prev, cust_ap_unit_no: e.target.value }))}
+            onChange={(e) => setFormCustomer((prev) => ({ ...prev, cust_ap_unit_no: e.target.value }))}
           />
         </div>
       </div>
@@ -169,7 +156,7 @@ const AccountsPayable: React.FC<AccountsPayableProps> = ({ formCustomer, setform
             type="email"
             id="email"
             value={formCustomer.cust_ap_email}
-            onChange={(e) => setformCustomer((prev) => ({ ...prev, cust_ap_email: e.target.value }))}
+            onChange={(e) => setFormCustomer((prev) => ({ ...prev, cust_ap_email: e.target.value }))}
           />
         </div>
 
@@ -179,7 +166,7 @@ const AccountsPayable: React.FC<AccountsPayableProps> = ({ formCustomer, setform
             type="tel"
             id="phone"
             value={formCustomer.cust_ap_phone}
-            onChange={(e) => setformCustomer((prev) => ({ ...prev, cust_ap_phone: e.target.value }))}
+            onChange={(e) => setFormCustomer((prev) => ({ ...prev, cust_ap_phone: e.target.value }))}
           />
         </div>
 
@@ -189,7 +176,7 @@ const AccountsPayable: React.FC<AccountsPayableProps> = ({ formCustomer, setform
             type="text"
             id="phoneExt"
             value={formCustomer.cust_ap_phone_ext}
-            onChange={(e) => setformCustomer((prev) => ({ ...prev, cust_ap_phone_ext: e.target.value }))}
+            onChange={(e) => setFormCustomer((prev) => ({ ...prev, cust_ap_phone_ext: e.target.value }))}
           />
         </div>
 
@@ -199,7 +186,7 @@ const AccountsPayable: React.FC<AccountsPayableProps> = ({ formCustomer, setform
             type="text"
             id="fax"
             value={formCustomer.cust_ap_fax}
-            onChange={(e) => setformCustomer((prev) => ({ ...prev, cust_ap_fax: e.target.value }))}
+            onChange={(e) => setFormCustomer((prev) => ({ ...prev, cust_ap_fax: e.target.value }))}
           />
         </div>
       </div>

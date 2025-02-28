@@ -1,21 +1,12 @@
 import { useEffect, useRef } from 'react';
-
-type Customer = {
-  cust_mailing_address: string;
-  cust_mailing_city: string;
-  cust_mailing_state: string;
-  cust_mailing_country: string;
-  cust_mailing_postal: string;
-  cust_mailing_unit_no: string;
-  sameAsPrimary: boolean;
-};
+import { Customer } from '../../../types/CustomerTypes';
 
 type Props = {
   formCustomer: Customer;
-  setformCustomer: React.Dispatch<React.SetStateAction<Customer>>;
+  setFormCustomer: React.Dispatch<React.SetStateAction<Customer>>;
 };
 
-function CustomerMailingAddressForm({ formCustomer, setformCustomer }: Props) {
+function CustomerMailingAddressForm({ formCustomer, setFormCustomer }: Props) {
   const addressRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -62,7 +53,7 @@ function CustomerMailingAddressForm({ formCustomer, setformCustomer }: Props) {
     const route = getComponent('route', '');
     const mainAddress = `${streetNumber} ${route}`.trim();
 
-    setformCustomer((prevCustomer) => ({
+    setFormCustomer((prevCustomer) => ({
       ...prevCustomer,
       cust_mailing_address: mainAddress,
       cust_mailing_city: getComponent('locality', ''),
@@ -74,7 +65,7 @@ function CustomerMailingAddressForm({ formCustomer, setformCustomer }: Props) {
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { checked } = e.target;
-    setformCustomer((prevCustomer) => ({
+    setFormCustomer((prevCustomer) => ({
       ...prevCustomer,
       sameAsPrimary: checked,
       ...(checked && {
@@ -106,7 +97,7 @@ function CustomerMailingAddressForm({ formCustomer, setformCustomer }: Props) {
                 id="mailingAddressStreet"
                 ref={addressRef}
                 value={formCustomer.cust_mailing_address}
-                onChange={(e) => setformCustomer((prev) => ({ ...prev, cust_mailing_address: e.target.value }))}
+                onChange={(e) => setFormCustomer((prev) => ({ ...prev, cust_mailing_address: e.target.value }))}
                 placeholder="Enter your address"
               />
             </div>
@@ -115,7 +106,7 @@ function CustomerMailingAddressForm({ formCustomer, setformCustomer }: Props) {
               <input
                 id="mailingAddressCity"
                 value={formCustomer.cust_mailing_city}
-                onChange={(e) => setformCustomer((prev) => ({ ...prev, cust_mailing_city: e.target.value }))}
+                onChange={(e) => setFormCustomer((prev) => ({ ...prev, cust_mailing_city: e.target.value }))}
                 placeholder="City"
               />
             </div>
@@ -124,7 +115,7 @@ function CustomerMailingAddressForm({ formCustomer, setformCustomer }: Props) {
               <input
                 id="mailingAddressState"
                 value={formCustomer.cust_mailing_state}
-                onChange={(e) => setformCustomer((prev) => ({ ...prev, cust_mailing_state: e.target.value }))}
+                onChange={(e) => setFormCustomer((prev) => ({ ...prev, cust_mailing_state: e.target.value }))}
                 placeholder="State"
               />
             </div>
@@ -135,7 +126,7 @@ function CustomerMailingAddressForm({ formCustomer, setformCustomer }: Props) {
               <input
                 id="mailingAddressCountry"
                 value={formCustomer.cust_mailing_country}
-                onChange={(e) => setformCustomer((prev) => ({ ...prev, cust_mailing_country: e.target.value }))}
+                onChange={(e) => setFormCustomer((prev) => ({ ...prev, cust_mailing_country: e.target.value }))}
                 placeholder="Country"
               />
             </div>
@@ -144,7 +135,7 @@ function CustomerMailingAddressForm({ formCustomer, setformCustomer }: Props) {
               <input
                 id="mailingAddressPostal"
                 value={formCustomer.cust_mailing_postal}
-                onChange={(e) => setformCustomer((prev) => ({ ...prev, cust_mailing_postal: e.target.value }))}
+                onChange={(e) => setFormCustomer((prev) => ({ ...prev, cust_mailing_postal: e.target.value }))}
                 placeholder="Postal Code"
               />
             </div>
@@ -153,7 +144,7 @@ function CustomerMailingAddressForm({ formCustomer, setformCustomer }: Props) {
               <input
                 id="mailingAddressUnitNo"
                 value={formCustomer.cust_mailing_unit_no}
-                onChange={(e) => setformCustomer((prev) => ({ ...prev, cust_mailing_unit_no: e.target.value }))}
+                onChange={(e) => setFormCustomer((prev) => ({ ...prev, cust_mailing_unit_no: e.target.value }))}
                 placeholder="Unit No"
               />
             </div>

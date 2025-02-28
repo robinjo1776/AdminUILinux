@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { Lead, Contact } from '../../types/LeadTypes';
+import { Lead } from '../../types/LeadTypes';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
@@ -28,6 +28,8 @@ const useEditLead = (lead: Lead | null, onClose: () => void, onUpdate: (lead: Le
     notes: '',
     assigned_to: '',
     contacts: [],
+    created_at: '',
+    updated_at: '',
   });
 
   useEffect(() => {

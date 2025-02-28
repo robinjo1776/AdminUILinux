@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import AddBrokerForm from '../../src/components/Carriers&Co/AddBroker/AddBrokerForm';
+import AddBrokerForm from '../../../../src/components/Carriers&Co/AddBroker/AddBrokerForm';
 
 vi.mock('../../../src/hooks/add/useAddBroker', () => ({
   useAddBroker: vi.fn(() => ({

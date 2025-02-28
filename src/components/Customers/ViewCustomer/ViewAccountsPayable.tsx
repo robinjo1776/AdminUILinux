@@ -1,97 +1,10 @@
-import { useEffect, useRef } from 'react';
-
-type AddressComponent = {
-  long_name: string;
-  short_name: string;
-  types: string[];
-};
-
-type PlaceResult = {
-  address_components: AddressComponent[];
-};
-
-type FormCustomer = {
-  cust_ap_name: string;
-  cust_ap_address: string;
-  cust_ap_city: string;
-  cust_ap_state: string;
-  cust_ap_country: string;
-  cust_ap_postal: string;
-  cust_ap_unit_no: string;
-  cust_ap_email: string;
-  cust_ap_phone: string;
-  cust_ap_phone_ext: string;
-  cust_ap_fax: string;
-};
+import { Customer } from '../../../types/CustomerTypes';
 
 type ViewAccountsPayableProps = {
-  formCustomer: FormCustomer;
-  setformCustomer: React.Dispatch<React.SetStateAction<FormCustomer>>;
+  formCustomer: Customer;
 };
 
-function ViewAccountsPayable({ formCustomer, setformCustomer }: ViewAccountsPayableProps) {
-  const addressRef = useRef<HTMLInputElement | null>(null);
-
-  useEffect(() => {
-    const loadGoogleMapsApi = () => {
-      if (window.google && window.google.maps) {
-        initializeAutocomplete();
-        return;
-      }
-      const script = document.createElement('script');
-      script.src = 'https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places';
-      script.async = true;
-      script.defer = true;
-      script.onload = () => {
-        if (window.google && window.google.maps) {
-          initializeAutocomplete();
-        }
-      };
-      document.head.appendChild(script);
-    };
-
-    loadGoogleMapsApi();
-  }, []);
-
-  const initializeAutocomplete = () => {
-    if (!addressRef.current) return;
-
-    const autocomplete = new window.google.maps.places.Autocomplete(addressRef.current, {
-      types: ['address'],
-    });
-
-    autocomplete.addListener('place_changed', () => {
-      const place = autocomplete.getPlace() as PlaceResult;
-      if (!place || !place.address_components) {
-        console.error('No valid address selected');
-        return;
-      }
-      updateAddressFields(place);
-    });
-  };
-
-  const updateAddressFields = (place: PlaceResult) => {
-    const addressComponents = place.address_components;
-
-    const streetNumber = getComponent('street_number', '', addressComponents);
-    const route = getComponent('route', '', addressComponents);
-    const mainAddress = `${streetNumber} ${route}`.trim();
-
-    setformCustomer((prevCustomer) => ({
-      ...prevCustomer,
-      cust_ap_address: mainAddress,
-      cust_ap_city: getComponent('locality', '', addressComponents),
-      cust_ap_state: getComponent('administrative_area_level_1', '', addressComponents),
-      cust_ap_country: getComponent('country', '', addressComponents),
-      cust_ap_postal: getComponent('postal_code', '', addressComponents),
-    }));
-  };
-
-  const getComponent = (type: string, fallback: string, components: AddressComponent[]) => {
-    const component = components.find((c) => c.types.includes(type));
-    return component ? component.long_name : fallback;
-  };
-
+function ViewAccountsPayable({ formCustomer }: ViewAccountsPayableProps) {
   return (
     <fieldset>
       <legend>Accounts Payable</legend>

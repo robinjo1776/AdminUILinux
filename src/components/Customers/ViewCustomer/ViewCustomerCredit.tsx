@@ -1,70 +1,10 @@
-import { useState } from 'react';
-
-interface FileData {
-  url: string;
-  name: string;
-}
-
-interface FormCustomer {
-  cust_credit_status?: string;
-  cust_credit_mop?: string;
-  cust_credit_currency?: string;
-  cust_credit_appd?: string;
-  cust_credit_expd?: string;
-  cust_credit_terms?: number;
-  cust_credit_limit?: number;
-  cust_credit_application?: boolean;
-  cust_credit_agreement?: FileData | string;
-  cust_sbk_agreement?: FileData | string;
-  cust_credit_notes?: string;
-}
+import { Customer, FileData } from '../../../types/CustomerTypes';
 
 interface ViewCustomerCreditProps {
-  formCustomer: FormCustomer;
-  setformCustomer: React.Dispatch<React.SetStateAction<FormCustomer>>;
+  formCustomer: Customer;
 }
 
-const ViewCustomerCredit: React.FC<ViewCustomerCreditProps> = ({ formCustomer, setformCustomer }) => {
-  const [uploading, setUploading] = useState(false);
-  const API_URL = import.meta.env.VITE_API_BASE_URL;
-
-  // Handle file change for uploads
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: keyof FormCustomer) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploading(true);
-
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      const token = localStorage.getItem('token') || '';
-
-      const response = await fetch(`${API_URL}/upload`, {
-        method: 'POST',
-        body: formData,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await response.json();
-
-      // Update the formCustomer state with the file URL and the original file name
-      setformCustomer((prevState) => ({
-        ...prevState,
-        [fieldName]: {
-          url: data.fileUrl, // Store the URL
-          name: file.name, // Store the original file name
-        },
-      }));
-    } catch (error) {
-      console.error('File upload failed', error);
-    } finally {
-      setUploading(false);
-    }
-  };
-
+const ViewCustomerCredit: React.FC<ViewCustomerCreditProps> = ({ formCustomer }) => {
   // Render download link if file URL exists
   const renderDownloadLink = (fileData?: FileData | string, fileLabel?: string) => {
     if (fileData) {

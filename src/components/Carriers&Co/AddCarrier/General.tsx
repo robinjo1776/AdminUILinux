@@ -1,178 +1,154 @@
 import { useState } from 'react';
 import { Carrier } from '../../../types/CarrierTypes';
 
-interface CargoInsuranceProps {
+interface GeneralProps {
   carrier: Carrier;
   setCarrier: React.Dispatch<React.SetStateAction<Carrier>>;
 }
 
-const CargoInsurance: React.FC<CargoInsuranceProps> = ({ carrier, setCarrier }) => {
-  const [uploading, setUploading] = useState<boolean>(false);
-  const API_URL = import.meta.env.VITE_API_BASE_URL?.trim() || 'http://localhost:3000/api';
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Validate file type
-    if (file.type !== 'application/pdf') {
-      alert('Only PDF files are allowed.');
-      return;
-    }
-
-    // Validate file size (5MB limit)
-    const MAX_SIZE_MB = 5;
-    if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-      alert(`File size exceeds ${MAX_SIZE_MB}MB limit.`);
-      return;
-    }
-
-    setUploading(true);
-
-    const formData = new FormData();
-    formData.append('file', file);
-
-    const token = localStorage.getItem('token');
-    if (!token) {
-      alert('Authentication required.');
-      return;
-    }
-
-    try {
-      const response = await fetch(`${API_URL}/api/upload`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Upload failed:', errorText);
-        alert('File upload failed. Please try again.');
-        return;
-      }
-
-      const data = await response.json();
-      if (data.fileUrl) {
-        setCarrier((prevCarrier) => ({
-          ...prevCarrier,
-          coi_cert: data.fileUrl.trim(),
-        }));
-      } else {
-        alert('File upload failed: No file URL returned.');
-      }
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      alert('Error uploading file. Please try again.');
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const renderDownloadLink = (fileUrl: string, fileLabel: string) => {
-    if (fileUrl) {
-      return (
-        <div>
-          <a href={fileUrl.trim()} target="_blank" rel="noopener noreferrer">
-            Download {fileLabel}
-          </a>
-        </div>
-      );
-    }
-    return null;
-  };
+const General: React.FC<GeneralProps> = ({ carrier, setCarrier }) => {
+  const [uploading, setUploading] = useState(false);
+  const API_URL = import.meta.env.VITE_API_BASE_URL?.trim() || 'http://127.0.0.1:8000/api';
 
   return (
     <fieldset className="form-section">
-      <legend>Cargo Insurance Details</legend>
+      <legend>General</legend>
+
       <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
         <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="ciProvider">Cargo Insurance Provider</label>
+          <label htmlFor="dba">DBA</label>
           <input
             type="text"
-            value={carrier.ci_provider || ''}
-            onChange={(e) =>
-              setCarrier((prevCarrier) => ({
-                ...prevCarrier,
-                ci_provider: e.target.value.trim(),
-              }))
-            }
-            id="ciProvider"
-            placeholder="Cargo Insurance Provider"
+            value={carrier.dba || ''}
+            onChange={(e) => setCarrier((prevCarrier) => ({ ...prevCarrier, dba: e.target.value.trim() }))}
+            id="dba"
+            placeholder="DBA"
           />
         </div>
         <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="ciPolicyNo">Policy Number</label>
+          <label htmlFor="legalName">Legal Name</label>
           <input
             type="text"
-            value={carrier.ci_policy_no || ''}
-            onChange={(e) =>
-              setCarrier((prevCarrier) => ({
-                ...prevCarrier,
-                ci_policy_no: e.target.value.trim(),
-              }))
-            }
-            id="ciPolicyNo"
-            placeholder="Policy Number"
+            value={carrier.legal_name || ''}
+            onChange={(e) => setCarrier((prevCarrier) => ({ ...prevCarrier, legal_name: e.target.value.trim() }))}
+            id="legalName"
+            placeholder="Legal Name"
           />
         </div>
         <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="ciCoverage">Coverage Amount</label>
+          <label htmlFor="remitName">Remit Name</label>
           <input
-            type="number"
-            value={carrier.ci_coverage || ''}
-            onChange={(e) =>
-              setCarrier((prevCarrier) => ({
-                ...prevCarrier,
-                ci_coverage: Number(e.target.value) || 0,
-              }))
-            }
-            id="ciCoverage"
-            placeholder="Coverage Amount"
+            type="text"
+            value={carrier.remit_name || ''}
+            onChange={(e) => setCarrier((prevCarrier) => ({ ...prevCarrier, remit_name: e.target.value.trim() }))}
+            id="remitName"
+            placeholder="Remit Name"
           />
         </div>
       </div>
-      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="ciStartDate">Start Date</label>
-          <input
-            type="date"
-            value={carrier.ci_start_date || ''}
-            onChange={(e) =>
-              setCarrier((prevCarrier) => ({
-                ...prevCarrier,
-                ci_start_date: e.target.value.trim(),
-              }))
-            }
-            id="ciStartDate"
-          />
-        </div>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="ciEndDate">End Date</label>
-          <input
-            type="date"
-            value={carrier.ci_end_date || ''}
-            onChange={(e) =>
-              setCarrier((prevCarrier) => ({
-                ...prevCarrier,
-                ci_end_date: e.target.value.trim(),
-              }))
-            }
-            id="ciEndDate"
-          />
-        </div>
 
+      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
         <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="coiCert">Certificate of Insurance</label>
-          <input type="file" name="coiCert" onChange={handleFileChange} accept="application/pdf" />
-          {renderDownloadLink(carrier.coi_cert, 'Certificate of Insurance')}
-          {uploading && <p>Uploading...</p>}
+          <label htmlFor="accNo">Account Number</label>
+          <input
+            type="text"
+            value={carrier.acc_no || ''}
+            onChange={(e) => setCarrier((prevCarrier) => ({ ...prevCarrier, acc_no: e.target.value.trim() }))}
+            id="accNo"
+            placeholder="Account Number"
+          />
+        </div>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="branch">Branch</label>
+          <input
+            type="text"
+            value={carrier.branch || ''}
+            onChange={(e) => setCarrier((prevCarrier) => ({ ...prevCarrier, branch: e.target.value.trim() }))}
+            id="branch"
+            placeholder="Branch"
+          />
+        </div>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="website">Website</label>
+          <input
+            type="text"
+            value={carrier.website || ''}
+            onChange={(e) => setCarrier((prevCarrier) => ({ ...prevCarrier, website: e.target.value.trim() }))}
+            id="website"
+            placeholder="Website"
+          />
+        </div>
+      </div>
+
+      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="fedIdNo">Federal ID Number</label>
+          <input
+            type="text"
+            value={carrier.fed_id_no || ''}
+            onChange={(e) => setCarrier((prevCarrier) => ({ ...prevCarrier, fed_id_no: e.target.value.trim() }))}
+            id="fedIdNo"
+            placeholder="Federal ID Number"
+          />
+        </div>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="prefCurr">Preferred Currency</label>
+          <select
+            value={carrier.pref_curr || ''}
+            onChange={(e) => setCarrier((prevCarrier) => ({ ...prevCarrier, pref_curr: e.target.value }))}
+            id="prefCurr"
+          >
+            <option value="">Select Currency</option>
+            <option value="USD">USD</option>
+            <option value="CAD">CAD</option>
+          </select>
+        </div>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="payTerms">Payment Terms</label>
+          <input
+            type="text"
+            value={carrier.pay_terms || ''}
+            onChange={(e) => setCarrier((prevCarrier) => ({ ...prevCarrier, pay_terms: e.target.value.trim() }))}
+            id="payTerms"
+            placeholder="Payment Terms"
+          />
+        </div>
+      </div>
+
+      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+        <div className="form-group" style={{ display: 'flex', flex: 1, verticalAlign: 'center', gap: '1rem' }}>
+          <input
+            type="checkbox"
+            checked={carrier.form_1099 || false}
+            onChange={(e) => setCarrier((prevCarrier) => ({ ...prevCarrier, form_1099: e.target.checked }))}
+            id="form1099"
+            style={{ width: '16px', height: '16px' }}
+          />
+          <label htmlFor="form1099">1099</label>
+        </div>
+        <div className="form-group" style={{ display: 'flex', flex: 1, verticalAlign: 'center', gap: '1rem' }}>
+          <input
+            type="checkbox"
+            checked={carrier.advertise || false}
+            onChange={(e) => setCarrier((prevCarrier) => ({ ...prevCarrier, advertise: e.target.checked }))}
+            id="advertise"
+            style={{ width: '16px', height: '16px' }}
+          />
+          <label htmlFor="advertise">Advertise</label>
+        </div>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="advertiseEmail">Advertise Email</label>
+          <input
+            type="email"
+            value={carrier.advertise_email || ''}
+            onChange={(e) => setCarrier((prevCarrier) => ({ ...prevCarrier, advertise_email: e.target.value.trim() }))}
+            id="advertiseEmail"
+            placeholder="Advertise Email"
+          />
         </div>
       </div>
     </fieldset>
   );
 };
 
-export default CargoInsurance;
+export default General;

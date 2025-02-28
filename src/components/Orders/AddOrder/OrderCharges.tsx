@@ -1,34 +1,24 @@
-import { DeleteOutlined } from "@ant-design/icons";
-
-interface Charge {
-  type: string;
-  charge: number;
-  percent: string | number;
-}
-
-interface Order {
-  charges: Charge[];
-}
+import { DeleteOutlined } from '@ant-design/icons';
+import { Order, Charge } from '../../../types/OrderTypes';
 
 interface OrderChargesProps {
   setOrder: React.Dispatch<React.SetStateAction<Order>>;
   order: Order;
   charge: Charge;
   index: number;
-  onRemove: (index: number) => void;
+  handleChargeChange: (index: number, updatedCharge: Charge) => void;
+  handleRemoveCharge: (index: number) => void;
 }
 
-const OrderCharges: React.FC<OrderChargesProps> = ({ setOrder, order, charge = { type: "", charge: 0, percent: "" }, index, onRemove }) => {
-  const rateOptions = ["Flat", "Percentage"];
+const OrderCharges: React.FC<OrderChargesProps> = ({ setOrder, charge, index, handleRemoveCharge }) => {
+  const rateOptions = ['Flat', 'Percentage'];
 
   const handleOrderChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
 
     setOrder((prevOrder) => ({
       ...prevOrder,
-      charges: prevOrder.charges.map((loc, idx) =>
-        idx === index ? { ...loc, [name]: value } : loc
-      ),
+      charges: prevOrder.charges.map((loc, idx) => (idx === index ? { ...loc, [name]: value } : loc)),
     }));
   };
 
@@ -36,15 +26,15 @@ const OrderCharges: React.FC<OrderChargesProps> = ({ setOrder, order, charge = {
     <div className="contact-form">
       <div className="form-group">
         <label>Type</label>
-        <input type="text" name="type" value={charge.type || ""} onChange={handleOrderChange} />
+        <input type="text" name="type" value={charge.type || ''} onChange={handleOrderChange} />
       </div>
       <div className="form-group">
         <label>Charge</label>
-        <input type="number" name="charge" value={charge.charge || ""} onChange={handleOrderChange} />
+        <input type="number" name="charge" value={charge.charge || ''} onChange={handleOrderChange} />
       </div>
       <div className="form-group">
         <label htmlFor="percent">Percent/Flat Rate</label>
-        <select name="percent" value={charge.percent || ""} onChange={handleOrderChange}>
+        <select name="percent" value={charge.percent || ''} onChange={handleOrderChange}>
           <option value="">Select..</option>
           {rateOptions.map((option) => (
             <option key={option} value={option}>
@@ -54,7 +44,7 @@ const OrderCharges: React.FC<OrderChargesProps> = ({ setOrder, order, charge = {
         </select>
       </div>
 
-      <button type="button" onClick={() => onRemove(index)} className="remove">
+      <button type="button" onClick={() => handleRemoveCharge(index)} className="remove">
         <DeleteOutlined />
       </button>
     </div>

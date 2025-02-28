@@ -1,22 +1,14 @@
 import { useEffect, useRef } from 'react';
+import { Customer } from '../../../types/CustomerTypes';
 
 type AddressComponents = google.maps.GeocoderAddressComponent[];
 
-type FormCustomer = {
-  cust_primary_address: string;
-  cust_primary_city: string;
-  cust_primary_state: string;
-  cust_primary_country: string;
-  cust_primary_postal: string;
-  cust_primary_unit_no?: string;
-};
-
 type PrimaryAddressProps = {
-  formCustomer: FormCustomer;
-  setformCustomer: React.Dispatch<React.SetStateAction<FormCustomer>>;
+  formCustomer: Customer;
+  setFormCustomer: React.Dispatch<React.SetStateAction<Customer>>;
 };
 
-function PrimaryAddress({ formCustomer, setformCustomer }: PrimaryAddressProps) {
+function PrimaryAddress({ formCustomer, setFormCustomer }: PrimaryAddressProps) {
   const addressRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -58,16 +50,14 @@ function PrimaryAddress({ formCustomer, setformCustomer }: PrimaryAddressProps) 
 
   const updateAddressFields = (addressComponents: AddressComponents) => {
     const getComponent = (type: string, fallback = ''): string => {
-      return (
-        addressComponents.find((c) => c.types.includes(type))?.long_name || fallback
-      );
+      return addressComponents.find((c) => c.types.includes(type))?.long_name || fallback;
     };
 
     const streetNumber = getComponent('street_number');
     const route = getComponent('route');
     const mainAddress = `${streetNumber} ${route}`.trim();
 
-    setformCustomer((prevCustomer) => ({
+    setFormCustomer((prevCustomer) => ({
       ...prevCustomer,
       cust_primary_address: mainAddress,
       cust_primary_city: getComponent('locality'),
@@ -88,9 +78,7 @@ function PrimaryAddress({ formCustomer, setformCustomer }: PrimaryAddressProps) 
             ref={addressRef}
             placeholder="Enter your address"
             value={formCustomer.cust_primary_address}
-            onChange={(e) =>
-              setformCustomer({ ...formCustomer, cust_primary_address: e.target.value })
-            }
+            onChange={(e) => setFormCustomer({ ...formCustomer, cust_primary_address: e.target.value })}
           />
         </div>
         <div className="form-group" style={{ flex: 1 }}>
@@ -98,9 +86,7 @@ function PrimaryAddress({ formCustomer, setformCustomer }: PrimaryAddressProps) 
           <input
             type="text"
             value={formCustomer.cust_primary_city}
-            onChange={(e) =>
-              setformCustomer({ ...formCustomer, cust_primary_city: e.target.value })
-            }
+            onChange={(e) => setFormCustomer({ ...formCustomer, cust_primary_city: e.target.value })}
           />
         </div>
         <div className="form-group" style={{ flex: 1 }}>
@@ -108,9 +94,7 @@ function PrimaryAddress({ formCustomer, setformCustomer }: PrimaryAddressProps) 
           <input
             type="text"
             value={formCustomer.cust_primary_state}
-            onChange={(e) =>
-              setformCustomer({ ...formCustomer, cust_primary_state: e.target.value })
-            }
+            onChange={(e) => setFormCustomer({ ...formCustomer, cust_primary_state: e.target.value })}
           />
         </div>
       </div>
@@ -120,9 +104,7 @@ function PrimaryAddress({ formCustomer, setformCustomer }: PrimaryAddressProps) 
           <input
             type="text"
             value={formCustomer.cust_primary_country}
-            onChange={(e) =>
-              setformCustomer({ ...formCustomer, cust_primary_country: e.target.value })
-            }
+            onChange={(e) => setFormCustomer({ ...formCustomer, cust_primary_country: e.target.value })}
           />
         </div>
         <div className="form-group" style={{ flex: 1 }}>
@@ -130,9 +112,7 @@ function PrimaryAddress({ formCustomer, setformCustomer }: PrimaryAddressProps) 
           <input
             type="text"
             value={formCustomer.cust_primary_postal}
-            onChange={(e) =>
-              setformCustomer({ ...formCustomer, cust_primary_postal: e.target.value })
-            }
+            onChange={(e) => setFormCustomer({ ...formCustomer, cust_primary_postal: e.target.value })}
           />
         </div>
         <div className="form-group" style={{ flex: 1 }}>
@@ -140,9 +120,7 @@ function PrimaryAddress({ formCustomer, setformCustomer }: PrimaryAddressProps) 
           <input
             type="text"
             value={formCustomer.cust_primary_unit_no || ''}
-            onChange={(e) =>
-              setformCustomer({ ...formCustomer, cust_primary_unit_no: e.target.value })
-            }
+            onChange={(e) => setFormCustomer({ ...formCustomer, cust_primary_unit_no: e.target.value })}
           />
         </div>
       </div>

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Carrier } from '../../../types/CarrierTypes';
 
-// Define component props
 interface LiabilityInsuranceProps {
   carrier: Carrier;
   setCarrier: React.Dispatch<React.SetStateAction<Carrier>>;
@@ -10,13 +9,7 @@ interface LiabilityInsuranceProps {
 const MAX_TEXT_LENGTH = 255;
 
 const LiabilityInsurance: React.FC<LiabilityInsuranceProps> = ({ carrier, setCarrier }) => {
-  const [errors, setErrors] = useState<{ [key: string]: string | null }>({
-    li_provider: null,
-    li_policy_no: null,
-    li_coverage: null,
-    li_start_date: null,
-    li_end_date: null,
-  });
+  const [errors, setErrors] = useState<{ [key: string]: string | null }>({});
 
   // Function to sanitize input
   const sanitizeInput = (input: string) => {
@@ -34,7 +27,7 @@ const LiabilityInsurance: React.FC<LiabilityInsuranceProps> = ({ carrier, setCar
     }
 
     setErrors((prev) => ({ ...prev, [id]: null }));
-    setCarrier({ ...carrier, [id]: sanitizedValue });
+    setCarrier((prev) => ({ ...prev, [id]: sanitizedValue }));
   };
 
   // Handle number input change
@@ -48,19 +41,30 @@ const LiabilityInsurance: React.FC<LiabilityInsuranceProps> = ({ carrier, setCar
     }
 
     setErrors((prev) => ({ ...prev, [id]: null }));
-    setCarrier({ ...carrier, [id]: numericValue });
+    setCarrier((prev) => ({ ...prev, [id]: numericValue }));
   };
 
-  // Handle date change
+  // Handle date input change (Fixed!)
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
-    setCarrier({ ...carrier, [id]: value });
 
-    if (id === 'li_end_date' && carrier.li_start_date && value < carrier.li_start_date) {
-      setErrors((prev) => ({ ...prev, li_end_date: 'End date cannot be before start date.' }));
-    } else {
-      setErrors((prev) => ({ ...prev, li_end_date: null }));
-    }
+    setErrors((prevErrors) => {
+      const newErrors =
+        id === 'li_end_date' && carrier.li_start_date && value < carrier.li_start_date
+          ? { ...prevErrors, li_end_date: 'End date cannot be before start date.' }
+          : { ...prevErrors, li_end_date: null };
+
+      console.log('Updated errors:', newErrors);
+      return newErrors;
+    });
+
+    setCarrier((prev) => {
+      if (id === 'li_end_date' && prev.li_start_date && value < prev.li_start_date) {
+        console.log('Not updating carrier due to invalid date.');
+        return prev;
+      }
+      return { ...prev, [id]: value };
+    });
   };
 
   return (

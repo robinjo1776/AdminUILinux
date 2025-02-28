@@ -1,45 +1,43 @@
-import { useState } from "react";
-import { Carrier } from "../../../types/CarrierTypes";
+import { useState } from 'react';
+import { Carrier } from '../../../types/CarrierTypes';
 
 interface CargoInsuranceProps {
   carrier: Carrier;
   setCarrier: React.Dispatch<React.SetStateAction<Carrier>>;
 }
- 
+
 const CargoInsurance: React.FC<CargoInsuranceProps> = ({ carrier, setCarrier }) => {
   const [uploading, setUploading] = useState<boolean>(false);
-  const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
+  const API_URL = import.meta.env.VITE_API_BASE_URL?.trim() || 'http://127.0.0.1:8000/api';
   const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
-  const sanitizeInput = (input: string) => {
-    return input.replace(/[<>]/g, ""); // Remove potential HTML tags
-  };
+  const sanitizeInput = (input: string) => input.replace(/[<>]/g, ''); // Remove potential HTML tags
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     // Validate file type
-    if (file.type !== "application/pdf") {
-      alert("Only PDF files are allowed.");
+    if (file.type !== 'application/pdf') {
+      alert('Only PDF files are allowed.');
       return;
     }
 
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
-      alert("File size must be less than 5MB.");
+      alert('File size must be less than 5MB.');
       return;
     }
 
     setUploading(true);
 
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append('file', file);
 
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     try {
       const response = await fetch(`${API_URL}/upload`, {
-        method: "POST",
+        method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -48,8 +46,8 @@ const CargoInsurance: React.FC<CargoInsuranceProps> = ({ carrier, setCarrier }) 
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("Upload failed:", errorText);
-        alert("File upload failed. Please try again.");
+        console.error('Upload failed:', errorText);
+        alert('File upload failed. Please try again.');
         return;
       }
 
@@ -57,15 +55,15 @@ const CargoInsurance: React.FC<CargoInsuranceProps> = ({ carrier, setCarrier }) 
       if (data.fileUrl) {
         setCarrier((prevCarrier) => ({
           ...prevCarrier,
-          coi_cert: data.fileUrl,
+          coi_cert: data.fileUrl ?? '',
         }));
       } else {
-        console.error("File URL not returned in response");
-        alert("File upload failed: No file URL returned.");
+        console.error('File URL not returned in response');
+        alert('File upload failed: No file URL returned.');
       }
     } catch (error) {
-      console.error("Error uploading file:", error);
-      alert("Network error during file upload. Please check your connection.");
+      console.error('Error uploading file:', error);
+      alert('Network error during file upload. Please check your connection.');
     } finally {
       setUploading(false);
     }
@@ -87,7 +85,7 @@ const CargoInsurance: React.FC<CargoInsuranceProps> = ({ carrier, setCarrier }) 
   return (
     <fieldset className="form-section">
       <legend>Cargo Insurance Details</legend>
-      <div className="form-row" style={{ display: "flex", gap: "1rem" }}>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
         <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="ciProvider">Cargo Insurance Provider</label>
           <input
@@ -126,7 +124,7 @@ const CargoInsurance: React.FC<CargoInsuranceProps> = ({ carrier, setCarrier }) 
             onChange={(e) =>
               setCarrier((prevCarrier) => ({
                 ...prevCarrier,
-                ci_coverage: sanitizeInput(e.target.value),
+                ci_coverage: Number(e.target.value), // ✅ Convert to number
               }))
             }
             id="ciCoverage"
@@ -134,7 +132,7 @@ const CargoInsurance: React.FC<CargoInsuranceProps> = ({ carrier, setCarrier }) 
           />
         </div>
       </div>
-      <div className="form-row" style={{ display: "flex", gap: "1rem" }}>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
         <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="ciStartDate">Start Date</label>
           <input
@@ -166,8 +164,9 @@ const CargoInsurance: React.FC<CargoInsuranceProps> = ({ carrier, setCarrier }) 
 
         <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="coiCert">Certificate of Insurance</label>
-          <input type="file" name="coiCert" onChange={handleFileChange} accept="application/pdf" />
-          {renderDownloadLink(carrier.coi_cert, "Certificate of Insurance")}
+          <input type="file" id="coiCert"  onChange={handleFileChange} accept="application/pdf" />
+
+          {renderDownloadLink(carrier.coi_cert, 'Certificate of Insurance')}
           {uploading && <p>Uploading...</p>}
         </div>
       </div>

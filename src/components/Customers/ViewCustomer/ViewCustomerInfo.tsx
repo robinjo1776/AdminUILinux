@@ -1,20 +1,10 @@
-interface CustomerInfoProps {
-  formCustomer: {
-    cust_type?: string;
-    cust_name?: string;
-    cust_ref_no?: string;
-    cust_website?: string;
-    cust_email?: string;
-    cust_contact_no?: string;
-    cust_contact_no_ext?: string;
-    cust_tax_id?: string;
-  };
-  setformCustomer: (customer: any) => void; // Adjust type if setformCustomer has a stricter type
+import { Customer } from '../../../types/CustomerTypes';
+
+interface ViewCustomerInfoProps {
+  formCustomer: Customer;
 }
 
-const ViewCustomerInfo: React.FC<CustomerInfoProps> = ({ formCustomer }) => {
-  const customerTypeOptions = ['Manufacturer', 'Trader', 'Distributor', 'Retailer', 'Freight Forwarder'];
-
+const ViewCustomerInfo: React.FC<ViewCustomerInfoProps> = ({ formCustomer }) => {
   return (
     <fieldset>
       <legend>Customer Information</legend>

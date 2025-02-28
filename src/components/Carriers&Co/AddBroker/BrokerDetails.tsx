@@ -64,11 +64,7 @@ const BrokerDetails: React.FC<BrokerDetailsProps> = ({ broker, setBroker }) => {
     }));
   };
 
-  const getComponent = (
-    type: string,
-    fallback: string,
-    components: google.maps.GeocoderAddressComponent[]
-  ): string => {
+  const getComponent = (type: string, fallback: string, components: google.maps.GeocoderAddressComponent[]): string => {
     const component = components.find((c) => c.types.includes(type));
     return component ? component.long_name : fallback;
   };
@@ -76,9 +72,10 @@ const BrokerDetails: React.FC<BrokerDetailsProps> = ({ broker, setBroker }) => {
   return (
     <fieldset>
       <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="brokerName">Name</label>
+        <div className="form-group" style={{ flex: 1 }} data-testid="broker-details">
+          <label htmlFor="broker_name">Name</label>
           <input
+            id="broker_name"
             type="text"
             value={broker.broker_name}
             onChange={(e) => setBroker({ ...broker, broker_name: e.target.value })}
@@ -87,8 +84,9 @@ const BrokerDetails: React.FC<BrokerDetailsProps> = ({ broker, setBroker }) => {
         </div>
 
         <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="primaryAddressStreet">Street</label>
+          <label htmlFor="broker_address">Street</label>
           <input
+            id="broker_address"
             type="text"
             ref={addressRef}
             value={broker.broker_address}
@@ -98,8 +96,9 @@ const BrokerDetails: React.FC<BrokerDetailsProps> = ({ broker, setBroker }) => {
         </div>
 
         <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="primaryAddressCity">City</label>
+          <label htmlFor="broker_city">City</label>
           <input
+            id="broker_city"
             type="text"
             value={broker.broker_city}
             onChange={(e) => setBroker({ ...broker, broker_city: e.target.value })}
@@ -109,8 +108,9 @@ const BrokerDetails: React.FC<BrokerDetailsProps> = ({ broker, setBroker }) => {
       </div>
       <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
         <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="primaryAddressState">State</label>
+          <label htmlFor="broker_state">State</label>
           <input
+            id="broker_state"
             type="text"
             value={broker.broker_state}
             onChange={(e) => setBroker({ ...broker, broker_state: e.target.value })}
@@ -119,8 +119,9 @@ const BrokerDetails: React.FC<BrokerDetailsProps> = ({ broker, setBroker }) => {
         </div>
 
         <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="primaryAddressCountry">Country</label>
+          <label htmlFor="broker_country">Country</label>
           <input
+            id="broker_country"
             type="text"
             value={broker.broker_country}
             onChange={(e) => setBroker({ ...broker, broker_country: e.target.value })}
@@ -129,8 +130,9 @@ const BrokerDetails: React.FC<BrokerDetailsProps> = ({ broker, setBroker }) => {
         </div>
 
         <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="primaryAddressPostalCode">Postal Code</label>
+          <label htmlFor="broker_postal">Postal Code</label>
           <input
+            id="broker_postal"
             type="text"
             value={broker.broker_postal}
             onChange={(e) => setBroker({ ...broker, broker_postal: e.target.value })}
