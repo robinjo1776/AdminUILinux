@@ -5,7 +5,7 @@ import { Vendor, Contact } from '../../types/VendorTypes';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
-export const useAddVendor = (onClose: () => void, onAddVendor: (vendor: Vendor) => void) => {
+export const useAddVendor = (onClose: () => void, onSuccess: () => void) => {
   const [vendor, setVendor] = useState<Vendor>({
     id: 0,
     type: '',
@@ -113,18 +113,76 @@ export const useAddVendor = (onClose: () => void, onAddVendor: (vendor: Vendor) 
         ? await axios.put(`${API_URL}/vendor/${vendor.id}`, vendor, { headers })
         : await axios.post(`${API_URL}/vendor`, vendor, { headers });
 
-      Swal.fire(vendor.id ? 'Updated!' : 'Saved!', 'Vendor data has been processed successfully.', 'success');
-      onAddVendor(response.data);
+      Swal.fire(vendor.id ? 'Success!' : 'Saved!', 'Vendor added successfully.', 'success');
       clearVendorForm();
-      onClose();
+      onSuccess();
     } catch (error: any) {
       console.error('Error saving/updating vendor:', error.response ? error.response.data : error.message);
       Swal.fire('Error', 'An error occurred while processing the vendor.', 'error');
     }
   };
 
-  const clearVendorForm = () => {
-    setVendor({ ...vendor, id: 0, contacts: [] });
+  const clearVendorForm = (): void => {
+    setVendor({
+      id: 0,
+      type: '',
+      legal_name: '',
+      remit_name: '',
+      vendor_type: '',
+      service: '',
+      primary_address: '',
+      primary_city: '',
+      primary_state: '',
+      primary_country: '',
+      primary_postal: '',
+      primary_email: '',
+      primary_phone: '',
+      primary_fax: '',
+      scac: '',
+      docket_number: '',
+      vendor_code: '',
+      gst_hst_number: '',
+      qst_number: '',
+      ca_bond_number: '',
+      website: '',
+      sameAsPrimary: false,
+      mailing_address: '',
+      mailing_city: '',
+      mailing_state: '',
+      mailing_country: '',
+      mailing_postal: '',
+      mailing_email: '',
+      mailing_phone: '',
+      mailing_fax: '',
+      us_tax_id: '',
+      payroll_no: '',
+      wcb_no: '',
+      ar_name: '',
+      ar_email: '',
+      ar_contact_no: '',
+      ar_ext: '',
+      ap_name: '',
+      ap_email: '',
+      ap_contact_no: '',
+      ap_ext: '',
+      bank_name: '',
+      bank_phone: '',
+      bank_email: '',
+      bank_us_acc_no: '',
+      bank_cdn_acc_no: '',
+      bank_address: '',
+      cargo_company: '',
+      cargo_policy_start: '',
+      cargo_policy_end: '',
+      cargo_ins_amt: 0,
+      liab_company: '',
+      liab_policy_start: '',
+      liab_policy_end: '',
+      liab_ins_amt: 0,
+      contacts: [],
+      created_at: '',
+      updated_at: '',
+    });
   };
 
   return {

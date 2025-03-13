@@ -1,157 +1,116 @@
-import { useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { Carrier } from '../../../types/CarrierTypes';
+import { z } from 'zod';
+import DOMPurify from 'dompurify';
+import { useGoogleAutocomplete } from '../../../hooks/useGoogleAutocomplete';
+
+declare global {
+  interface Window {
+    google?: any;
+  }
+}
 
 interface PrimaryAddressProps {
   carrier: Carrier;
   setCarrier: React.Dispatch<React.SetStateAction<Carrier>>;
 }
 
+const primarySchema = z.object({
+  primary_address: z
+    .string()
+    .max(255, 'Address is too long')
+    .regex(/^[a-zA-Z0-9\s,.'-]*$/, 'Invalid street format')
+    .optional(),
+  primary_city: z
+    .string()
+    .max(200, 'City name is too long')
+    .regex(/^[a-zA-Z\s.'-]*$/, 'Invalid city format')
+    .optional(),
+  primary_state: z
+    .string()
+    .max(200, 'Invalid state')
+    .regex(/^[a-zA-Z\s.'-]*$/, 'Invalid state format')
+    .optional(),
+  primary_country: z
+    .string()
+    .max(100, 'Invalid country')
+    .regex(/^[a-zA-Z\s.'-]*$/, 'Invalid country format')
+    .optional(),
+  primary_postal: z
+    .string()
+    .max(20, 'Postal code cannot exceed 20 characters')
+    .regex(/^[a-zA-Z0-9-\s ]*$/, 'Invalid postal code')
+    .optional(),
+  primary_phone: z
+    .string()
+    .max(30, 'Phone cannot exceed 30 characters')
+    .regex(/^[0-9-+()\s]*$/, 'Invalid phone format')
+    .optional(),
+});
+
 const PrimaryAddress: React.FC<PrimaryAddressProps> = ({ carrier, setCarrier }) => {
-  const addressRef = useRef<HTMLInputElement | null>(null);
-
-  useEffect(() => {
-    const loadGoogleMapsApi = () => {
-      if (window.google && window.google.maps) {
-        initializeAutocomplete();
-        return;
-      }
-      const script = document.createElement('script');
-      script.src = 'https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places';
-      script.async = true;
-      script.defer = true;
-      script.onload = () => {
-        if (window.google && window.google.maps) {
-          initializeAutocomplete();
-        }
-      };
-      document.head.appendChild(script);
-    };
-
-    loadGoogleMapsApi();
-  }, []);
-
-  const initializeAutocomplete = () => {
-    if (!addressRef.current) return;
-
-    const autocomplete = new window.google.maps.places.Autocomplete(addressRef.current, {
-      types: ['address'],
-    });
-
-    autocomplete.addListener('place_changed', () => {
-      const place = autocomplete.getPlace();
-      if (!place || !place.address_components) {
-        console.error('No valid address selected');
-        return;
-      }
-      updateAddressFields(place);
-    });
-  };
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const updateAddressFields = (place: google.maps.places.PlaceResult) => {
-    const addressComponents = place.address_components || [];
-
-    const streetNumber = getComponent('street_number', '', addressComponents);
-    const route = getComponent('route', '', addressComponents);
-    const mainAddress = sanitizeInput(`${streetNumber} ${route}`.trim());
-
-    setCarrier((prevCarrier) => ({
-      ...prevCarrier,
-      primary_address: mainAddress,
-      primary_city: sanitizeInput(getComponent('locality', '', addressComponents)),
-      primary_state: sanitizeInput(getComponent('administrative_area_level_1', '', addressComponents)),
-      primary_country: sanitizeInput(getComponent('country', '', addressComponents)),
-      primary_postal: sanitizeInput(getComponent('postal_code', '', addressComponents)),
+    const getComponent = (type: string) => place.address_components?.find((c) => c.types.includes(type))?.long_name || '';
+    setCarrier((prev) => ({
+      ...prev,
+      primary_address: `${getComponent('street_number')} ${getComponent('route')}`.trim(),
+      primary_city: getComponent('locality'),
+      primary_state: getComponent('administrative_area_level_1'),
+      primary_country: getComponent('country'),
+      primary_postal: getComponent('postal_code'),
     }));
   };
+  const addressRef = useGoogleAutocomplete(updateAddressFields);
 
-  const getComponent = (type: string, fallback: string, components: google.maps.GeocoderAddressComponent[]): string => {
-    const component = components.find((c) => c.types.includes(type));
-    return component ? component.long_name : fallback;
+  const validateAndSetField = (field: keyof Carrier, value: string) => {
+    const sanitizedValue = DOMPurify.sanitize(value);
+    let error = '';
+
+    const tempVendor = { ...carrier, [field]: sanitizedValue };
+    const result = primarySchema.safeParse(tempVendor);
+
+    if (!result.success) {
+      const fieldError = result.error.errors.find((err) => err.path[0] === field);
+      error = fieldError ? fieldError.message : '';
+    }
+
+    setErrors((prevErrors) => ({ ...prevErrors, [field]: error }));
+    setCarrier(tempVendor);
   };
 
-  const sanitizeInput = (input: string): string => {
-    return input.replace(/[^a-zA-Z0-9 ,.-]/g, '').trim();
-  };
-
-  const handleInputChange = (field: keyof Carrier, value: string) => {
-    setCarrier({
-      ...carrier,
-      [field]: sanitizeInput(value),
-    });
-  };
+  const fields = [
+    { label: 'Street', key: 'primary_address', placeholder: 'Enter street address' },
+    { label: 'City', key: 'primary_city', placeholder: 'Enter city name' },
+    { label: 'State', key: 'primary_state', placeholder: 'Enter state' },
+    { label: 'Country', key: 'primary_country', placeholder: 'Enter country' },
+    { label: 'Postal Code', key: 'primary_postal', placeholder: 'Enter postal code' },
+    { label: 'Phone', key: 'primary_phone', placeholder: 'Enter phone number' },
+  ];
 
   return (
     <fieldset>
       <legend>Primary Address</legend>
-
-      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="primaryAddressStreet">Street</label>
-          <input
-            type="text"
-            ref={addressRef}
-            value={carrier.primary_address}
-            onChange={(e) => handleInputChange('primary_address', e.target.value)}
-            placeholder="Street"
-          />
-        </div>
-
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="primaryAddressCity">City</label>
-          <input
-            type="text"
-            value={carrier.primary_city}
-            onChange={(e) => handleInputChange('primary_city', e.target.value)}
-            placeholder="City"
-            id="primaryAddressCity"
-          />
-        </div>
-
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="primaryAddressState">State</label>
-          <input
-            type="text"
-            value={carrier.primary_state}
-            onChange={(e) => handleInputChange('primary_state', e.target.value)}
-            placeholder="State"
-            id="primaryAddressState"
-          />
-        </div>
-      </div>
-
-      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="primaryAddressCountry">Country</label>
-          <input
-            type="text"
-            value={carrier.primary_country}
-            onChange={(e) => handleInputChange('primary_country', e.target.value)}
-            placeholder="Country"
-            id="primaryAddressCountry"
-          />
-        </div>
-
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="primaryAddressPostalCode">Postal Code</label>
-          <input
-            type="text"
-            value={carrier.primary_postal}
-            onChange={(e) => handleInputChange('primary_postal', e.target.value)}
-            placeholder="Postal Code"
-            id="primaryAddressPostalCode"
-          />
-        </div>
-
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="primaryAddressUnitNo">Phone</label>
-          <input
-            type="text"
-            value={carrier.primary_phone}
-            onChange={(e) => handleInputChange('primary_phone', e.target.value)}
-            placeholder="Phone"
-            id="primaryAddressUnitNo"
-          />
-        </div>
+      <div className="form-grid" style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))' }}>
+        {fields.map(({ label, key, placeholder }) => (
+          <div className="form-group" key={key}>
+            <label htmlFor={key}>{label}</label>
+            <input
+              type="text"
+              id={key}
+              placeholder={placeholder}
+              value={(carrier[key as keyof Carrier] as string | number) || ''}
+              onChange={(e) => validateAndSetField(key as keyof Carrier, e.target.value)}
+              ref={key === 'primary_address' ? addressRef : undefined}
+            />
+            {errors[key] && (
+              <span className="error" style={{ color: 'red' }}>
+                {errors[key]}
+              </span>
+            )}
+          </div>
+        ))}
       </div>
     </fieldset>
   );

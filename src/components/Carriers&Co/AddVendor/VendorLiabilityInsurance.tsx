@@ -1,94 +1,82 @@
 import { FC, useState } from 'react';
 import { Vendor } from '../../../types/VendorTypes';
+import { z } from 'zod';
+import DOMPurify from 'dompurify';
 
 interface VendorLiabilityInsuranceProps {
   vendor: Vendor;
   setVendor: React.Dispatch<React.SetStateAction<Vendor>>;
 }
 
+const liabilitySchema = z
+  .object({
+    liab_company: z
+      .string()
+      .max(150, 'Liability Insurance Provider must be at most 150 characters')
+      .regex(/^[a-zA-Z0-9\s.,'-]*$/, 'Only letters, numbers,spaces, apostrophes, periods, commas, and hyphens allowed')
+      .optional(),
+    liab_policy_start: z.string().optional(),
+    liab_policy_end: z.string().optional(),
+    liab_ins_amt: z.string().regex(/^\d*$/, 'Coverage amount must be a positive number').optional(),
+  })
+  .refine(
+    (data) => {
+      if (!data.liab_policy_start || !data.liab_policy_end) return true;
+      const start = new Date(data.liab_policy_start);
+      const end = new Date(data.liab_policy_end);
+      return !isNaN(start.getTime()) && !isNaN(end.getTime()) && start <= end;
+    },
+    {
+      message: 'End date must be after or equal to start date',
+      path: ['liab_policy_end'],
+    }
+  );
+
 const VendorLiabilityInsurance: FC<VendorLiabilityInsuranceProps> = ({ vendor, setVendor }) => {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validateAndSetVendor = (field: keyof Vendor, value: string) => {
-    let errorMessage = '';
+    const sanitizedValue = DOMPurify.sanitize(value);
+    let error = '';
 
-    value = value.trim();
+    const tempVendor = { ...vendor, [field]: sanitizedValue };
 
-    // Validation rules
-    if (field === 'liab_company' && value && !/^[a-zA-Z0-9\s.,&'-]+$/.test(value)) {
-      errorMessage = 'Invalid characters in provider name.';
+    const result = liabilitySchema.safeParse(tempVendor);
+    if (!result.success) {
+      const fieldError = result.error.errors.find((err) => err.path[0] === field);
+      error = fieldError ? fieldError.message : '';
     }
 
-    if (field === 'liab_policy_start' || field === 'liab_policy_end') {
-      const startDate = new Date(vendor.liab_policy_start);
-      const endDate = new Date(value);
-
-      if (field === 'liab_policy_end' && startDate && endDate < startDate) {
-        errorMessage = 'End date cannot be before start date.';
-      }
-    }
-
-    if (field === 'liab_ins_amt' && value && (isNaN(Number(value)) || Number(value) < 0)) {
-      errorMessage = 'Coverage amount must be a positive number.';
-    }
-
-    setErrors((prev) => ({ ...prev, [field]: errorMessage }));
-
-    if (!errorMessage) {
-      setVendor((prev) => ({ ...prev, [field]: value }));
-    }
+    setErrors((prevErrors) => ({ ...prevErrors, [field]: error }));
+    setVendor(tempVendor);
   };
-
+  const fields: { label: string; key: keyof Vendor; type?: string; placeholder?: string }[] = [
+    { label: 'Liability Insurance Provider', key: 'liab_company', placeholder: 'Enter provider name' },
+    { label: 'Start Date', key: 'liab_policy_start', type: 'date' },
+    { label: 'End Date', key: 'liab_policy_end', type: 'date' },
+    { label: 'Coverage Amount', key: 'liab_ins_amt', type: 'number', placeholder: 'Enter coverage amount' },
+  ];
   return (
     <fieldset className="form-section">
       <legend>Liability Insurance Details</legend>
-
-      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="liProvider">Liability Insurance Provider</label>
-          <input
-            type="text"
-            id="liProvider"
-            placeholder="Liability Insurance Provider"
-            value={vendor.liab_company || ''}
-            onChange={(e) => validateAndSetVendor('liab_company', e.target.value)}
-          />
-          {errors.liab_company && <span className="error">{errors.liab_company}</span>}
-        </div>
-
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="liStartDate">Start Date</label>
-          <input
-            type="date"
-            id="liStartDate"
-            value={vendor.liab_policy_start || ''}
-            onChange={(e) => validateAndSetVendor('liab_policy_start', e.target.value)}
-          />
-          {errors.liab_policy_start && <span className="error">{errors.liab_policy_start}</span>}
-        </div>
-
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="liEndDate">End Date</label>
-          <input
-            type="date"
-            id="liEndDate"
-            value={vendor.liab_policy_end || ''}
-            onChange={(e) => validateAndSetVendor('liab_policy_end', e.target.value)}
-          />
-          {errors.liab_policy_end && <span className="error">{errors.liab_policy_end}</span>}
-        </div>
-
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="liCoverage">Coverage Amount</label>
-          <input
-            type="number"
-            id="liCoverage"
-            placeholder="Coverage Amount"
-            value={vendor.liab_ins_amt || ''}
-            onChange={(e) => validateAndSetVendor('liab_ins_amt', e.target.value)}
-          />
-          {errors.liab_ins_amt && <span className="error">{errors.liab_ins_amt}</span>}
-        </div>
+      <div className="form-grid" style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))' }}>
+        {fields.map(({ label, key, type, placeholder }) => (
+          <div className="form-group" key={key}>
+            <label htmlFor={key}>{label}</label>
+            <input
+              id={key}
+              type={type || 'text'}
+              value={(vendor[key] as string | number) || ''}
+              onChange={(e) => validateAndSetVendor(key, e.target.value)}
+              placeholder={placeholder}
+            />
+            {errors[key] && (
+              <span className="error" style={{ color: 'red' }}>
+                {errors[key]}
+              </span>
+            )}
+          </div>
+        ))}
       </div>
     </fieldset>
   );

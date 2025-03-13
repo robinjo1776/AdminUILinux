@@ -24,25 +24,26 @@ const useCarrierTable = () => {
     content: '',
   });
 
+  const fetchCarriers = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('No token found');
+
+      setLoading(true);
+      const { data } = await axios.get<Carrier[]>(`${API_URL}/carrier`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setCarriers(data);
+    } catch (error) {
+      console.error('Error loading carriers:', error);
+      handleFetchError(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchCarriers = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) throw new Error('No token found');
-
-        setLoading(true);
-        const { data } = await axios.get<Carrier[]>(`${API_URL}/carrier`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setCarriers(data);
-      } catch (error) {
-        console.error('Error loading carriers:', error);
-        handleFetchError(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchCarriers();
   }, []);
 
@@ -53,54 +54,6 @@ const useCarrierTable = () => {
         title: 'Unauthorized',
         text: 'You need to log in to access this resource.',
       });
-    }
-  };
-
-  const updateCarrier = (updatedCarrier: Carrier) => {
-    setCarriers((prevCarriers) => prevCarriers.map((carrier) => (carrier.id === updatedCarrier.id ? { ...carrier, ...updatedCarrier } : carrier)));
-  };
-
-  const toggleSelectAll = () => {
-    if (selectedCarriers.length === paginatedData.length) {
-      setSelectedCarriers([]);
-    } else {
-      setSelectedCarriers(paginatedData.map((carrier) => carrier.id!).filter((id): id is number => id !== undefined));
-    }
-  };
-
-  const toggleSelect = (id: number) => {
-    setSelectedCarriers((prev) => (prev.includes(id) ? prev.filter((selectedId) => selectedId !== id) : [...prev, id]));
-  };
-
-  const deleteSelected = async () => {
-    if (!selectedCarriers.length) {
-      Swal.fire({ icon: 'warning', title: 'No record selected', text: 'Please select a record to delete.' });
-      return;
-    }
-
-    const confirmed = await Swal.fire({
-      title: 'Are you sure?',
-      text: 'This action cannot be undone.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, delete selected!',
-      cancelButtonText: 'No, cancel!',
-    });
-
-    if (confirmed.isConfirmed) {
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) throw new Error('No token found');
-
-        await Promise.all(selectedCarriers.map((id) => axios.delete(`${API_URL}/carrier/${id}`, { headers: { Authorization: `Bearer ${token}` } })));
-
-        setCarriers((prev) => prev.filter((carrier) => !selectedCarriers.includes(carrier.id)));
-        setSelectedCarriers([]);
-        Swal.fire('Deleted!', 'Selected carriers have been deleted.', 'success');
-      } catch (error) {
-        console.error('Error deleting carriers:', error);
-        Swal.fire({ icon: 'error', title: 'Error!', text: 'Failed to delete selected carriers.' });
-      }
     }
   };
 
@@ -127,6 +80,63 @@ const useCarrierTable = () => {
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
+  const handleSort = (key: string) => {
+    if (sortBy === key) {
+      setSortDesc(!sortDesc);
+    } else {
+      setSortBy(key as keyof Carrier);
+      setSortDesc(false);
+    }
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedCarriers.length === paginatedData.length) {
+      setSelectedCarriers([]);
+    } else {
+      setSelectedCarriers(paginatedData.map((carrier) => carrier.id!).filter((id): id is number => id !== undefined));
+    }
+  };
+
+  const toggleSelect = (id: number) => {
+    setSelectedCarriers((prev) => (prev.includes(id) ? prev.filter((selectedId) => selectedId !== id) : [...prev, id]));
+  };
+
+  const updateCarrier = (updatedCarrier: Carrier) => {
+    setCarriers((prevCarriers) => prevCarriers.map((carrier) => (carrier.id === updatedCarrier.id ? { ...carrier, ...updatedCarrier } : carrier)));
+  };
+
+  const deleteSelected = async () => {
+    if (!selectedCarriers.length) {
+      Swal.fire({ icon: 'warning', title: 'No record selected', text: 'Please select a record to delete.' });
+      return;
+    }
+
+    const confirmed = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'This action cannot be undone.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete selected!',
+      cancelButtonText: 'No, cancel!',
+    });
+
+    if (confirmed.isConfirmed) {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) throw new Error('No token found');
+
+        await Promise.all(selectedCarriers.map((id) => axios.delete(`${API_URL}/carrier/${id}`, { headers: { Authorization: `Bearer ${token}` } })));
+
+        setCarriers((prev) => prev.filter((carrier) => !selectedCarriers.includes(carrier.id)));
+        setSelectedCarriers([]);
+        Swal.fire('The selected carriers have been deleted.', 'success');
+      } catch (error) {
+        console.error('Error deleting carriers:', error);
+        Swal.fire({ icon: 'error', title: 'Error!', text: 'Failed to delete selected carriers.' });
+      }
+    }
+  };
+
   const openEditModal = (carrier: Carrier) => {
     setSelectedCarrier(carrier);
     setEditModalOpen(true);
@@ -135,15 +145,6 @@ const useCarrierTable = () => {
   const openViewModal = (carrier: Carrier) => {
     setSelectedCarrier(carrier);
     setViewModalOpen(true);
-  };
-
-  const handleSort = (key: string) => {
-    if (sortBy === key) {
-      setSortDesc(!sortDesc);
-    } else {
-      setSortBy(key as keyof Carrier);
-      setSortDesc(false);
-    }
   };
 
   const sendEmails = async () => {
@@ -174,6 +175,7 @@ const useCarrierTable = () => {
   };
 
   return {
+    fetchCarriers,
     carriers,
     loading,
     searchQuery,

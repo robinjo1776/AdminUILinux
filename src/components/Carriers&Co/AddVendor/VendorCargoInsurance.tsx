@@ -1,96 +1,91 @@
 import { FC, useState } from 'react';
 import { Vendor } from '../../../types/VendorTypes';
+import { z } from 'zod';
+import DOMPurify from 'dompurify';
 
 interface VendorCargoInsuranceProps {
   vendor: Vendor;
   setVendor: React.Dispatch<React.SetStateAction<Vendor>>;
 }
 
+const vendorCargoSchema = z
+  .object({
+    cargo_company: z
+      .string()
+      .max(150, 'Cargo company must be at most 150 characters')
+      .regex(/^[a-zA-Z0-9\s.,'-]*$/, 'Only letters, numbers,spaces, apostrophes, periods, commas, and hyphens allowed')
+      .optional(),
+    cargo_policy_start: z.string().optional(),
+    cargo_policy_end: z.string().optional(),
+    cargo_ins_amt: z
+      .string()
+      .regex(/^\d+(\.\d{1,2})?$/, 'Coverage amount must be a valid number')
+      .optional(),
+  })
+  .refine(
+    (data) => {
+      if (!data.cargo_policy_start || !data.cargo_policy_end) return true; // Skip validation if empty
+      const start = new Date(data.cargo_policy_start);
+      const end = new Date(data.cargo_policy_end);
+      return !isNaN(start.getTime()) && !isNaN(end.getTime()) && start <= end;
+    },
+    {
+      message: 'End date must be after or equal to start date',
+      path: ['cargo_policy_end'],
+    }
+  );
+
 const VendorCargoInsurance: FC<VendorCargoInsuranceProps> = ({ vendor, setVendor }) => {
-  const [errors, setErrors] = useState({
-    cargo_company: '',
-    cargo_policy_start: '',
-    cargo_policy_end: '',
-    cargo_ins_amt: '',
-  });
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  const validateAndSetVendor = (field: keyof Vendor, value: string | number) => {
-    let errorMessage = '';
+  const validateAndSetVendor = (field: keyof Vendor, value: string) => {
+    const sanitizedValue = DOMPurify.sanitize(value);
+    const tempVendor = { ...vendor, [field]: sanitizedValue };
 
-    // Sanitize inputs
-    if (typeof value === 'string') value = value.trim();
-
-    // Validation rules
-    if (field === 'cargo_company' && !value) errorMessage = 'Cargo insurance provider is required.';
-    if (field === 'cargo_policy_start' && !value) errorMessage = 'Start date is required.';
-    if (field === 'cargo_policy_end' && !value) errorMessage = 'End date is required.';
-    if (field === 'cargo_ins_amt') {
-      const numValue = Number(value);
-      if (isNaN(numValue) || numValue < 0) errorMessage = 'Coverage amount must be a valid number and at least 0.';
+    const result = vendorCargoSchema.safeParse(tempVendor);
+    if (!result.success) {
+      const newErrors: { [key: string]: string } = {};
+      result.error.errors.forEach((err) => {
+        if (err.path.length > 0) {
+          newErrors[err.path[0]] = err.message;
+        }
+      });
+      setErrors(newErrors);
+    } else {
+      setErrors({});
     }
 
-    // Ensure start date is before end date
-    if (field === 'cargo_policy_start' || field === 'cargo_policy_end') {
-      const startDate = new Date(field === 'cargo_policy_start' ? value : vendor.cargo_policy_start);
-      const endDate = new Date(field === 'cargo_policy_end' ? value : vendor.cargo_policy_end);
-
-      if (startDate > endDate) errorMessage = 'Start date cannot be after end date.';
-    }
-
-    // Update state
-    setErrors((prev) => ({ ...prev, [field]: errorMessage }));
-    if (!errorMessage) setVendor((prev) => ({ ...prev, [field]: value }));
+    setVendor(tempVendor);
   };
+
+  const fields: { label: string; key: keyof Vendor; type?: string; placeholder?: string }[] = [
+    { label: 'Cargo Insurance Provider', key: 'cargo_company', placeholder: 'Enter provider name' },
+    { label: 'Start Date', key: 'cargo_policy_start', type: 'date' },
+    { label: 'End Date', key: 'cargo_policy_end', type: 'date' },
+    { label: 'Coverage Amount', key: 'cargo_ins_amt', type: 'text', placeholder: 'Enter coverage amount' },
+  ];
 
   return (
     <fieldset className="form-section">
       <legend>Cargo Insurance Details</legend>
-      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="ciProvider">Cargo Insurance Provider</label>
-          <input
-            type="text"
-            id="ciProvider"
-            placeholder="Cargo Insurance Provider"
-            value={vendor.cargo_company}
-            onChange={(e) => validateAndSetVendor('cargo_company', e.target.value)}
-          />
-          {errors.cargo_company && <span className="error">{errors.cargo_company}</span>}
-        </div>
-
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="ciStartDate">Start Date</label>
-          <input
-            type="date"
-            id="ciStartDate"
-            value={vendor.cargo_policy_start}
-            onChange={(e) => validateAndSetVendor('cargo_policy_start', e.target.value)}
-          />
-          {errors.cargo_policy_start && <span className="error">{errors.cargo_policy_start}</span>}
-        </div>
-
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="ciEndDate">End Date</label>
-          <input
-            type="date"
-            id="ciEndDate"
-            value={vendor.cargo_policy_end}
-            onChange={(e) => validateAndSetVendor('cargo_policy_end', e.target.value)}
-          />
-          {errors.cargo_policy_end && <span className="error">{errors.cargo_policy_end}</span>}
-        </div>
-
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="ciCoverage">Coverage Amount</label>
-          <input
-            type="number"
-            id="ciCoverage"
-            placeholder="Coverage Amount"
-            value={vendor.cargo_ins_amt}
-            onChange={(e) => validateAndSetVendor('cargo_ins_amt', Number(e.target.value))}
-          />
-          {errors.cargo_ins_amt && <span className="error">{errors.cargo_ins_amt}</span>}
-        </div>
+      <div className="form-grid" style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))' }}>
+        {fields.map(({ label, key, type, placeholder }) => (
+          <div className="form-group" key={key}>
+            <label htmlFor={key}>{label}</label>
+            <input
+              id={key}
+              type={type || 'text'}
+              value={(vendor[key] as string | number) || ''}
+              onChange={(e) => validateAndSetVendor(key, e.target.value)}
+              placeholder={placeholder}
+            />
+            {errors[key] && (
+              <span className="error" style={{ color: 'red' }}>
+                {errors[key]}
+              </span>
+            )}
+          </div>
+        ))}
       </div>
     </fieldset>
   );

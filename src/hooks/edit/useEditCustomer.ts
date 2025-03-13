@@ -57,7 +57,7 @@ const defaultCustomer: Customer = {
   cust_credit_agreement: '',
   cust_sbk_agreement: '',
   cust_credit_notes: '',
-  contact: [],
+  cust_contact: [],
   cust_equipment: [],
   created_at: '',
   updated_at: '',
@@ -111,7 +111,7 @@ export function useEditCustomer({ customer, onUpdate, onClose }: UseEditCustomer
   const handleContactChange = (index: number, updatedContact: Contact) => {
     setFormCustomer((prev) => ({
       ...prev,
-      contact: prev.contact.map((contact, i) => (i === index ? updatedContact : contact)),
+      cust_contact: prev.cust_contact.map((contact, i) => (i === index ? updatedContact : contact)),
     }));
   };
 
@@ -125,7 +125,7 @@ export function useEditCustomer({ customer, onUpdate, onClose }: UseEditCustomer
   const handleRemoveContact = (index: number) => {
     setFormCustomer((prev) => ({
       ...prev,
-      contact: prev.contact.filter((_, i) => i !== index),
+      cust_contact: prev.cust_contact.filter((_, i) => i !== index),
     }));
   };
 

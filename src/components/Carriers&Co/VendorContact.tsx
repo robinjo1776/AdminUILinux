@@ -1,105 +1,103 @@
-import { DeleteOutlined } from '@ant-design/icons';
-import { ChangeEvent, useCallback } from 'react';
+import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { ChangeEvent, FC, useCallback, useState } from 'react';
+import { z } from 'zod';
+import DOMPurify from 'dompurify';
 import { Contact } from '../../types/VendorTypes';
 
 interface VendorContactProps {
   contacts: Contact[];
   index: number;
-  onAddContact: () => void;
   handleContactChange: (index: number, updatedContact: Contact) => void;
   handleRemoveContact: (index: number) => void;
+  onAddContact: () => void;
 }
 
-// Validation Functions
-const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-const validatePhone = (phone: string) => /^\+?[0-9\s-]{7,15}$/.test(phone);
+const contactSchema = z.object({
+  name: z
+    .string()
+    .max(200, 'Name must be at most 200 characters')
+    .regex(/^[a-zA-Z\s.,'-]+$/, 'Only letters, spaces, apostrophes, periods,commas and hyphens allowed')
+    .optional(),
+  phone: z
+    .string()
+    .max(30, 'Phone cannot exceed 30 characters')
+    .regex(/^[0-9-+()\s]*$/, 'Invalid phone format')
+    .optional(),
+  email: z.string().max(255, 'Email must be at most 255 characters').email('Invalid email format').optional(),
+  fax: z
+    .string()
+    .max(30, 'Fax cannot exceed 30 characters')
+    .regex(/^[0-9-+()\s]*$/, 'Invalid fax format')
+    .optional(),
+  designation: z
+    .string()
+    .max(100, 'Designation must be at most 100 characters')
+    .regex(/^[a-zA-Z\s.,'-]+$/, 'Only letters, spaces, apostrophes, periods,commas and hyphens allowed')
+    .optional(),
+});
 
-const VendorContact: React.FC<VendorContactProps> = ({ contacts, index, onAddContact, handleContactChange, handleRemoveContact }) => {
-  const contact = contacts[index]; // Get the specific contact
+const VendorContact: FC<VendorContactProps> = ({ contacts, index, handleContactChange, handleRemoveContact, onAddContact }) => {
+  const contact = contacts[index] ?? {};
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleInputChange = useCallback(
-    (field: keyof Contact) => (e: ChangeEvent<HTMLInputElement>) => {
-      let value = e.target.value.trim();
+  const validateAndSetContact = useCallback(
+    (field: keyof Contact, value: string) => {
+      const sanitizedValue = DOMPurify.sanitize(value);
+      let error = '';
 
-      if (field === 'email' && value && !validateEmail(value)) return;
-      if (field === 'phone' && value && !validatePhone(value)) return;
+      const updatedContact = { ...contact, [field]: sanitizedValue };
+      const result = contactSchema.safeParse(updatedContact);
 
-      handleContactChange(index, { ...contact, [field]: value });
+      if (!result.success) {
+        const fieldError = result.error.errors.find((err) => err.path[0] === field);
+        error = fieldError ? fieldError.message : '';
+      }
+
+      setErrors((prevErrors) => ({ ...prevErrors, [field]: error }));
+      handleContactChange(index, updatedContact);
     },
     [contact, handleContactChange, index]
   );
 
+  const fields = [
+    { label: 'Name', key: 'name', type: 'text', placeholder: 'Enter name' },
+    { label: 'Phone', key: 'phone', type: 'tel', placeholder: 'Enter phone' },
+    { label: 'Email', key: 'email', type: 'email', placeholder: 'Enter email' },
+    { label: 'Fax', key: 'fax', type: 'text', placeholder: 'Enter fax' },
+    { label: 'Designation', key: 'designation', type: 'text', placeholder: 'Enter designation' },
+  ];
+
   return (
-    <fieldset className="form-section">
-      <div>
-        <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
-          <div className="form-group" style={{ flex: 1 }}>
-            <label htmlFor={`name-${index}`}>Name</label>
+    <fieldset className="form-section" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <div className="form-grid" style={{ display: 'grid', gap: '10px', gridTemplateColumns: 'repeat(5, 1fr)', flex: 1 }}>
+        {fields.map(({ label, key, type, placeholder }) => (
+          <div className="form-group" key={key} style={{ display: 'flex', flexDirection: 'column' }}>
+            <label htmlFor={`${key}-${index}`}>{label}</label>
             <input
-              id={`name-${index}`}
-              type="text"
-              name="name"
-              value={contact?.name || ''}
-              onChange={handleInputChange('name')}
-              placeholder="Enter name"
+              id={`${key}-${index}`}
+              type={type}
+              name={key}
+              value={(contact[key as keyof Contact] as string) || ''}
+              onChange={(e) => validateAndSetContact(key as keyof Contact, e.target.value)}
+              placeholder={placeholder}
             />
+            {errors[key] && (
+              <span className="error" style={{ color: 'red' }}>
+                {errors[key]}
+              </span>
+            )}
           </div>
-
-          <div className="form-group" style={{ flex: 1 }}>
-            <label htmlFor={`phone-${index}`}>Phone</label>
-            <input
-              id={`phone-${index}`}
-              type="tel"
-              name="phone"
-              value={contact?.phone || ''}
-              onChange={handleInputChange('phone')}
-              placeholder="Enter phone"
-            />
-          </div>
-
-          <div className="form-group" style={{ flex: 1 }}>
-            <label htmlFor={`email-${index}`}>Email</label>
-            <input
-              id={`email-${index}`}
-              type="email"
-              name="email"
-              value={contact?.email || ''}
-              onChange={handleInputChange('email')}
-              placeholder="Enter email"
-            />
-          </div>
-        </div>
-
-        <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-          <div className="form-group" style={{ flex: 1 }}>
-            <label htmlFor={`fax-${index}`}>Fax</label>
-            <input
-              id={`fax-${index}`}
-              type="text"
-              name="fax"
-              value={contact?.fax || ''}
-              onChange={handleInputChange('fax')}
-              placeholder="Enter fax"
-            />
-          </div>
-
-          <div className="form-group" style={{ flex: 1 }}>
-            <label htmlFor={`designation-${index}`}>Designation</label>
-            <input
-              id={`designation-${index}`}
-              type="text"
-              name="designation"
-              value={contact?.designation || ''}
-              onChange={handleInputChange('designation')}
-              placeholder="Enter designation"
-            />
-          </div>
-        </div>
+        ))}
       </div>
 
-      <button type="button" onClick={() => handleRemoveContact(index)} className="trash-bottom" style={{ marginTop: '10px', flex: 1 }}>
-        <DeleteOutlined />
-      </button>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0px' }}>
+        <button type="button" onClick={onAddContact} className="add-button">
+          <PlusOutlined />
+        </button>
+        <button type="button" onClick={() => handleRemoveContact(index)} className="delete-button">
+          <DeleteOutlined />
+        </button>
+      </div>
     </fieldset>
   );
 };

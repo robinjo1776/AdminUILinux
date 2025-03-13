@@ -1,6 +1,6 @@
-import { Charge } from '../../../types/OrderTypes';
+import { Charge } from '../../types/OrderTypes';
 
-interface EditOrderDiscountsProps {
+interface OrderDiscountProps {
   setFormOrder: React.Dispatch<React.SetStateAction<any>>;
   order: any;
   discount?: Partial<Charge>; // Ensure discount can have optional fields
@@ -8,7 +8,7 @@ interface EditOrderDiscountsProps {
   onRemove: (index: number) => void;
 }
 
-const EditOrderDiscounts: React.FC<EditOrderDiscountsProps> = ({
+const OrderDiscount: React.FC<OrderDiscountProps> = ({
   setFormOrder,
   discount = { type: '', charge: '', percent: '' }, // Ensure a valid default object
   index,
@@ -54,4 +54,4 @@ const EditOrderDiscounts: React.FC<EditOrderDiscountsProps> = ({
   );
 };
 
-export default EditOrderDiscounts;
+export default OrderDiscount;

@@ -1,4 +1,6 @@
 import { FC, useState } from 'react';
+import DOMPurify from 'dompurify';
+import { z } from 'zod';
 import { Vendor } from '../../../types/VendorTypes';
 
 interface VendorDetailsProps {
@@ -6,116 +8,114 @@ interface VendorDetailsProps {
   setVendor: React.Dispatch<React.SetStateAction<Vendor>>;
 }
 
+const vendorDetailSchema = z.object({
+  legal_name: z
+    .string()
+    .max(200, 'Legal Name must be at most 200 characters long')
+    .regex(/^[a-zA-Z0-9\s.,'-]*$/, 'Only letters, numbers,spaces, apostrophes, periods, commas, and hyphens allowed')
+    .optional(),
+  remit_name: z
+    .string()
+    .max(200, 'Remit Name must be at most 200 characters long')
+    .regex(/^[a-zA-Z0-9\s.,'-]*$/, 'Only letters, numbers,spaces, apostrophes, periods, commas, and hyphens allowed')
+    .optional(),
+  vendor_type: z
+    .string()
+    .max(50, 'Vendor Type must be at most 50 characters long')
+    .regex(/^[a-zA-Z0-9\s.,'-]*$/, 'Only letters, numbers,spaces, apostrophes, periods, commas, and hyphens allowed')
+    .optional(),
+  service: z
+    .string()
+    .max(100, 'Service must be at most 100 characters long')
+    .regex(/^[a-zA-Z0-9\s.,'-]*$/, 'Only letters, numbers,spaces, apostrophes, periods, commas, and hyphens allowed')
+    .optional(),
+  scac: z
+    .string()
+    .max(10, 'SCAC must be at most 10 characters long')
+    .regex(/^[a-zA-Z0-9-]*$/, 'Only letters, numbers, and dashes allowed')
+    .optional(),
+  docket_number: z
+    .string()
+    .max(50, 'Docket# must be at most 50 characters long')
+    .regex(/^[a-zA-Z0-9-]*$/, 'Only letters, numbers, and dashes allowed')
+    .optional(),
+  vendor_code: z
+    .string()
+    .max(20, 'Vendor Code must be at most 20 characters long')
+    .regex(/^[a-zA-Z\s0-9-]*$/, 'Only letters, numbers, spaces and dashes allowed')
+    .optional(),
+  gst_hst_number: z
+    .string()
+    .max(20, 'CA Bond# must be at most 50 characters long')
+    .regex(/^[a-zA-Z0-9-]*$/, 'Only letters, numbers, and dashes allowed')
+    .optional(),
+  qst_number: z
+    .string()
+    .max(20, 'CA Bond# must be at most 50 characters long')
+    .regex(/^[a-zA-Z0-9-]*$/, 'Only letters, numbers, and dashes allowed')
+    .optional(),
+  ca_bond_number: z
+    .string()
+    .max(50, 'CA Bond# must be at most 50 characters long')
+    .regex(/^[a-zA-Z0-9-]*$/, 'Only letters, numbers, and dashes allowed')
+    .optional(),
+  website: z.string().max(255, 'Website must be at most 255 characters long').url('Invalid website URL').optional(),
+});
+
 const VendorDetails: FC<VendorDetailsProps> = ({ vendor, setVendor }) => {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validateAndSetVendor = (field: keyof Vendor, value: string) => {
-    let errorMessage = '';
+    const sanitizedValue = DOMPurify.sanitize(value);
+    let error = '';
 
-    value = value.trim();
+    const tempVendor = { ...vendor, [field]: sanitizedValue };
+    const result = vendorDetailSchema.safeParse(tempVendor);
 
-    if (field === 'website' && value && !/^https?:\/\/[^\s$.?#].[^\s]*$/.test(value)) {
-      errorMessage = 'Invalid website URL.';
+    if (!result.success) {
+      const fieldError = result.error.errors.find((err) => err.path[0] === field);
+      error = fieldError ? fieldError.message : '';
     }
 
-    if (['scac', 'gst_hst_number', 'qst_number', 'docket_number', 'ca_bond_number'].includes(field)) {
-      if (value && !/^[a-zA-Z0-9-]+$/.test(value)) {
-        errorMessage = 'Only letters, numbers, and dashes allowed.';
-      }
-    }
-
-    setErrors((prev) => ({ ...prev, [field]: errorMessage }));
-
-    if (!errorMessage) {
-      setVendor((prev) => ({ ...prev, [field]: value }));
-    }
+    setErrors((prevErrors) => ({ ...prevErrors, [field]: error }));
+    setVendor(tempVendor);
   };
+
+  const fields = [
+    { label: 'Legal Name', key: 'legal_name', placeholder: 'Enter legal name' },
+    { label: 'Remit Name', key: 'remit_name', placeholder: 'Enter remit name' },
+    { label: 'Vendor Type', key: 'vendor_type', placeholder: 'Enter vendor type' },
+    { label: 'Service', key: 'service', placeholder: 'Enter service type' },
+    { label: 'SCAC', key: 'scac', placeholder: 'Enter SCAC code' },
+    { label: 'Docket#', key: 'docket_number', placeholder: 'Enter docket number' },
+    { label: 'Vendor Code', key: 'vendor_code', placeholder: 'Enter vendor code' },
+    { label: 'GST/HST#', key: 'gst_hst_number', placeholder: 'Enter GST/HST number' },
+    { label: 'QST#', key: 'qst_number', placeholder: 'Enter QST number' },
+    { label: 'CA Bond#', key: 'ca_bond_number', placeholder: 'Enter CA bond number' },
+    { label: 'Website', key: 'website', placeholder: 'Enter website URL' },
+  ];
 
   return (
     <fieldset className="form-section">
       <legend>Vendor Details</legend>
-
-      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
-        {[
-          { label: 'Legal Name', id: 'legalName', field: 'legal_name' as keyof Vendor },
-          { label: 'Remit Name', id: 'remitName', field: 'remit_name' as keyof Vendor },
-          { label: 'Vendor Type', id: 'vendorType', field: 'vendor_type' as keyof Vendor },
-        ].map(({ label, id, field }) => (
-          <div className="form-group" style={{ flex: 1 }} key={id}>
-            <label htmlFor={id}>{label}</label>
+      <div className="form-grid" style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))' }}>
+        {fields.map(({ label, key, placeholder }) => (
+          <div className="form-group" key={key}>
+            <label htmlFor={key}>{label}</label>
             <input
               type="text"
-              id={id}
-              placeholder={label}
-              value={typeof vendor[field] === 'string' || typeof vendor[field] === 'number' ? vendor[field] : ''}
-              onChange={(e) => validateAndSetVendor(field as keyof Vendor, e.target.value)}
+              id={key}
+              placeholder={placeholder}
+              value={(vendor[key as keyof Vendor] as string | number) || ''}
+              onChange={(e) => validateAndSetVendor(key as keyof Vendor, e.target.value)}
             />
-
-            {errors[field] && <span className="error">{errors[field]}</span>}
+            {errors[key] && (
+              <span className="error" style={{ color: 'red' }}>
+                {errors[key]}
+              </span>
+            )}
           </div>
         ))}
-      </div>
-
-      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-        {[
-          { label: 'Service', id: 'service', field: 'service' },
-          { label: 'SCAC', id: 'scac', field: 'scac' },
-          { label: 'Docket#', id: 'docketNumber', field: 'docket_number' },
-        ].map(({ label, id, field }) => (
-          <div className="form-group" style={{ flex: 1 }} key={id}>
-            <label htmlFor={id}>{label}</label>
-            <input
-              type="text"
-              id={id}
-              placeholder={label}
-              value={(vendor[field as keyof Vendor] as string | number) || ''}
-              onChange={(e) => validateAndSetVendor(field as keyof Vendor, e.target.value)}
-            />
-            {errors[field] && <span className="error">{errors[field]}</span>}
-          </div>
-        ))}
-      </div>
-
-      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-        {[
-          { label: 'Vendor Code', id: 'vendorCode', field: 'vendor_code' },
-          { label: 'GST/HST#', id: 'gstHstNumber', field: 'gst_hst_number' },
-          { label: 'QST#', id: 'qstNumber', field: 'qst_number' },
-        ].map(({ label, id, field }) => (
-          <div className="form-group" style={{ flex: 1 }} key={id}>
-            <label htmlFor={id}>{label}</label>
-            <input
-              type="text"
-              id={id}
-              placeholder={label}
-              value={(vendor[field as keyof Vendor] as string | number) || ''}
-              onChange={(e) => validateAndSetVendor(field as keyof Vendor, e.target.value)}
-            />
-            {errors[field] && <span className="error">{errors[field]}</span>}
-          </div>
-        ))}
-      </div>
-
-      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-        {[
-          { label: 'CA Bond#', id: 'caBondNumber', field: 'ca_bond_number' },
-          { label: 'Website', id: 'website', field: 'website' },
-        ].map(({ label, id, field }) => (
-          <div className="form-group" style={{ flex: 1 }} key={id}>
-            <label htmlFor={id}>{label}</label>
-            <input
-              type="text"
-              id={id}
-              placeholder={label}
-              value={(vendor[field as keyof Vendor] as string | number) || ''}
-              onChange={(e) => validateAndSetVendor(field as keyof Vendor, e.target.value)}
-            />
-            {errors[field] && <span className="error">{errors[field]}</span>}
-          </div>
-        ))}
-        <div className="form-group" style={{ flex: 1 }}>
-          <input type="hidden" />
-        </div>
       </div>
     </fieldset>
   );

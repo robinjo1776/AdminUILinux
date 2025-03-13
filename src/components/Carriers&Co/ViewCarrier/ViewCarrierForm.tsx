@@ -1,6 +1,4 @@
 import { useEffect, useState, useContext } from 'react';
-import axios from 'axios';
-import Swal from 'sweetalert2';
 import { UserContext } from '../../../UserProvider';
 import ViewGeneral from './ViewGeneral';
 import ViewCarrierDetails from './ViewCarrierDetails';
@@ -54,7 +52,7 @@ const ViewCarrierForm: React.FC<ViewCarrierFormProps> = ({ carrier, onClose }) =
     li_end_date: '',
     ci_provider: '',
     ci_policy_no: '',
-    ci_coverage: '',
+    ci_coverage: 0,
     ci_start_date: '',
     ci_end_date: '',
     coi_cert: '',
@@ -72,9 +70,9 @@ const ViewCarrierForm: React.FC<ViewCarrierFormProps> = ({ carrier, onClose }) =
     mailing_postal: '',
     mailing_phone: '',
     int_notes: '',
-    contact: [],
-    equipment: [],
-    lane: [],
+    contacts: [],
+    equipments: [],
+    lanes: [],
     created_at: '',
     updated_at: '',
   });
@@ -85,9 +83,9 @@ const ViewCarrierForm: React.FC<ViewCarrierFormProps> = ({ carrier, onClose }) =
     if (carrier) {
       setFormCarrier({
         ...carrier,
-        contact: Array.isArray(carrier.contact) ? carrier.contact : JSON.parse((carrier.contact as any) || '[]'),
-        equipment: Array.isArray(carrier.equipment) ? carrier.equipment : JSON.parse((carrier.equipment as any) || '[]'),
-        lane: Array.isArray(carrier.lane) ? carrier.lane : JSON.parse((carrier.lane as any) || '[]'),
+        contacts: Array.isArray(carrier.contacts) ? carrier.contacts : JSON.parse((carrier.contacts as any) || '[]'),
+        equipments: Array.isArray(carrier.equipments) ? carrier.equipments : JSON.parse((carrier.equipments as any) || '[]'),
+        lanes: Array.isArray(carrier.lanes) ? carrier.lanes : JSON.parse((carrier.lanes as any) || '[]'),
       });
     }
   }, [carrier]);
@@ -101,20 +99,20 @@ const ViewCarrierForm: React.FC<ViewCarrierFormProps> = ({ carrier, onClose }) =
         <ViewCargoInsurance formCarrier={formCarrier} />
         <ViewPrimaryAddress formCarrier={formCarrier} />
         <ViewMailingAddress formCarrier={formCarrier} />
-        {formCarrier.contact.map((contact, index) => (
+        {formCarrier.contacts.map((contact, index) => (
           <ViewCarrierContact key={index} contact={contact} index={index} />
         ))}
 
-        {formCarrier.equipment.map((equipment, index) => (
+        {formCarrier.equipments.map((equipment, index) => (
           <ViewCarrierEquipment key={index} equipment={equipment} index={index} />
         ))}
 
-        {formCarrier.lane.map((lane, index) => (
+        {formCarrier.lanes.map((lane, index) => (
           <ViewCarrierLane key={index} lane={lane} index={index} />
         ))}
 
         <div className="form-actions">
-          <button type="button" className="btn-cancel" onClick={onClose}>
+          <button type="button" className="btn-cancel" onClick={onClose} style={{ padding: '9px 15px' }}>
             Cancel
           </button>
         </div>

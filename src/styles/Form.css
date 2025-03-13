@@ -85,6 +85,12 @@ legend{
   font-size: 12px;
 }
 
+#sameAsPrimary {
+  visibility: visible !important;
+  margin-left: 0.5rem;
+}
+
+
 /*Contact form */
 
 .contact-form {

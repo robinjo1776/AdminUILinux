@@ -1,13 +1,13 @@
-import { useEffect, useRef } from 'react';
+import { FC, useState } from 'react';
 import { Vendor } from '../../../types/VendorTypes';
+import { z } from 'zod';
+import DOMPurify from 'dompurify';
+import { useGoogleAutocomplete } from '../../../hooks/useGoogleAutocomplete';
 
-interface AddressComponent {
-  types: string[];
-  long_name: string;
-}
-
-interface PlaceResult {
-  address_components?: AddressComponent[];
+declare global {
+  interface Window {
+    google?: any;
+  }
 }
 
 interface VendorPrimaryAddressProps {
@@ -15,128 +15,112 @@ interface VendorPrimaryAddressProps {
   setVendor: React.Dispatch<React.SetStateAction<Vendor>>;
 }
 
-const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-const validatePhoneFax = (input: string) => /^[0-9+\-()\s]*$/.test(input);
+const primarySchema = z.object({
+  primary_address: z
+    .string()
+    .max(255, 'Address is too long')
+    .regex(/^[a-zA-Z0-9\s,.'-]*$/, 'Invalid street format')
+    .optional(),
+  primary_city: z
+    .string()
+    .max(200, 'City name is too long')
+    .regex(/^[a-zA-Z\s.'-]*$/, 'Invalid city format')
+    .optional(),
+  primary_state: z
+    .string()
+    .max(200, 'Invalid state')
+    .regex(/^[a-zA-Z\s.'-]*$/, 'Invalid state format')
+    .optional(),
+  primary_country: z
+    .string()
+    .max(100, 'Invalid country')
+    .regex(/^[a-zA-Z\s.'-]*$/, 'Invalid country format')
+    .optional(),
+  primary_postal: z
+    .string()
+    .max(20, 'Postal code cannot exceed 20 characters')
+    .regex(/^[a-zA-Z0-9-\s ]*$/, 'Invalid postal code')
+    .optional(),
+  primary_email: z.string().max(255, 'Email cannot exceed 255 characters').email('Invalid email format').optional(),
+  primary_phone: z
+    .string()
+    .max(30, 'Phone cannot exceed 30 characters')
+    .regex(/^[0-9-+()\s]*$/, 'Invalid phone format')
+    .optional(),
+  primary_fax: z
+    .string()
+    .max(30, 'Fax cannot exceed 30 characters')
+    .regex(/^[0-9-+()\s]*$/, 'Invalid fax format')
+    .optional(),
+});
 
-function VendorPrimaryAddress({ vendor, setVendor }: VendorPrimaryAddressProps) {
-  const addressRef = useRef<HTMLInputElement | null>(null);
+const VendorPrimaryAddress: FC<VendorPrimaryAddressProps> = ({ vendor, setVendor }) => {
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  useEffect(() => {
-    const loadGoogleMapsApi = () => {
-      if (window.google && window.google.maps) {
-        initializeAutocomplete();
-        return;
-      }
-      const script = document.createElement('script');
-      script.src = 'https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places';
-      script.async = true;
-      script.defer = true;
-      script.onload = () => {
-        if (window.google && window.google.maps) {
-          initializeAutocomplete();
-        }
-      };
-      document.head.appendChild(script);
-    };
-    loadGoogleMapsApi();
-  }, []);
-
-  const initializeAutocomplete = () => {
-    if (!addressRef.current) return;
-    const autocomplete = new window.google.maps.places.Autocomplete(addressRef.current, {
-      types: ['address'],
-    });
-    autocomplete.addListener('place_changed', () => {
-      const place = autocomplete.getPlace() as PlaceResult;
-      if (!place || !place.address_components) {
-        console.error('No valid address selected');
-        return;
-      }
-      updateAddressFields(place);
-    });
-  };
-
-  const updateAddressFields = (place: PlaceResult) => {
-    const addressComponents = place.address_components ?? [];
-    const streetNumber = getComponent('street_number', '', addressComponents);
-    const route = getComponent('route', '', addressComponents);
-    const mainAddress = `${streetNumber} ${route}`.trim();
-
-    setVendor((prevVendor) => ({
-      ...prevVendor,
-      primary_address: mainAddress,
-      primary_city: getComponent('locality', '', addressComponents),
-      primary_state: getComponent('administrative_area_level_1', '', addressComponents),
-      primary_country: getComponent('country', '', addressComponents),
-      primary_postal: getComponent('postal_code', '', addressComponents),
+  const updateAddressFields = (place: google.maps.places.PlaceResult) => {
+    const getComponent = (type: string) => place.address_components?.find((c) => c.types.includes(type))?.long_name || '';
+    setVendor((prev) => ({
+      ...prev,
+      primary_address: `${getComponent('street_number')} ${getComponent('route')}`.trim(),
+      primary_city: getComponent('locality'),
+      primary_state: getComponent('administrative_area_level_1'),
+      primary_country: getComponent('country'),
+      primary_postal: getComponent('postal_code'),
     }));
   };
+  const addressRef = useGoogleAutocomplete(updateAddressFields);
 
-  const getComponent = (type: string, fallback: string, components: AddressComponent[]) => {
-    const component = components.find((c) => c.types.includes(type));
-    return component ? component.long_name : fallback;
+  const validateAndSetField = (field: keyof Vendor, value: string) => {
+    const sanitizedValue = DOMPurify.sanitize(value);
+    let error = '';
+
+    const tempVendor = { ...vendor, [field]: sanitizedValue };
+    const result = primarySchema.safeParse(tempVendor);
+
+    if (!result.success) {
+      const fieldError = result.error.errors.find((err) => err.path[0] === field);
+      error = fieldError ? fieldError.message : '';
+    }
+
+    setErrors((prevErrors) => ({ ...prevErrors, [field]: error }));
+    setVendor(tempVendor);
   };
 
+  const fields = [
+    { label: 'Street', key: 'primary_address', placeholder: 'Enter street address' },
+    { label: 'City', key: 'primary_city', placeholder: 'Enter city name' },
+    { label: 'State', key: 'primary_state', placeholder: 'Enter state' },
+    { label: 'Country', key: 'primary_country', placeholder: 'Enter country' },
+    { label: 'Postal Code', key: 'primary_postal', placeholder: 'Enter postal code' },
+    { label: 'Phone', key: 'primary_phone', placeholder: 'Enter phone number' },
+    { label: 'Fax', key: 'primary_fax', placeholder: 'Enter fax number' },
+    { label: 'Email', key: 'primary_email', placeholder: 'Enter email address' },
+  ];
   return (
     <fieldset>
       <legend>Primary Address</legend>
-      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
-        <input
-          type="text"
-          ref={addressRef}
-          placeholder="Street"
-          value={vendor.primary_address}
-          onChange={(e) => setVendor({ ...vendor, primary_address: e.target.value.trim() })}
-        />
-        <input
-          type="text"
-          placeholder="City"
-          value={vendor.primary_city}
-          onChange={(e) => setVendor({ ...vendor, primary_city: e.target.value.trim() })}
-        />
-        <input
-          type="text"
-          placeholder="State"
-          value={vendor.primary_state}
-          onChange={(e) => setVendor({ ...vendor, primary_state: e.target.value.trim() })}
-        />
-      </div>
-      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
-        <input
-          type="text"
-          placeholder="Country"
-          value={vendor.primary_country}
-          onChange={(e) => setVendor({ ...vendor, primary_country: e.target.value.trim() })}
-        />
-        <input
-          type="text"
-          placeholder="Postal Code"
-          value={vendor.primary_postal}
-          onChange={(e) => setVendor({ ...vendor, primary_postal: e.target.value.trim() })}
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={vendor.primary_email}
-          onChange={(e) => setVendor({ ...vendor, primary_email: validateEmail(e.target.value) ? e.target.value.trim() : vendor.primary_email })}
-        />
-      </div>
-      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
-        <input
-          type="text"
-          placeholder="Phone"
-          value={vendor.primary_phone}
-          onChange={(e) => setVendor({ ...vendor, primary_phone: validatePhoneFax(e.target.value) ? e.target.value.trim() : vendor.primary_phone })}
-        />
-        <input
-          type="text"
-          placeholder="Fax"
-          value={vendor.primary_fax}
-          onChange={(e) => setVendor({ ...vendor, primary_fax: validatePhoneFax(e.target.value) ? e.target.value.trim() : vendor.primary_fax })}
-        />
+      <div className="form-grid" style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))' }}>
+        {fields.map(({ label, key, placeholder }) => (
+          <div className="form-group" key={key}>
+            <label htmlFor={key}>{label}</label>
+            <input
+              type="text"
+              id={key}
+              placeholder={placeholder}
+              value={(vendor[key as keyof Vendor] as string | number) || ''}
+              onChange={(e) => validateAndSetField(key as keyof Vendor, e.target.value)}
+              ref={key === 'primary_address' ? addressRef : undefined}
+            />
+            {errors[key] && (
+              <span className="error" style={{ color: 'red' }}>
+                {errors[key]}
+              </span>
+            )}
+          </div>
+        ))}
       </div>
     </fieldset>
   );
-}
+};
 
 export default VendorPrimaryAddress;

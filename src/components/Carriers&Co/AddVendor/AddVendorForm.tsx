@@ -12,16 +12,15 @@ import VendorAP from './VendorAP';
 import VendorBanking from './VendorBanking';
 import VendorContact from '../VendorContact';
 import VendorType from './VendorType';
-import { Vendor, Contact } from '../../../types/VendorTypes';
 import { useAddVendor } from '../../../hooks/add/useAddVendor';
 
 interface AddVendorFormProps {
   onClose: () => void;
-  onAddVendor: (vendor: Vendor) => void;
+  onSuccess: () => void;
 }
 
-const AddVendorForm: React.FC<AddVendorFormProps> = ({ onClose, onAddVendor }) => {
-  const { vendor, setVendor, handleAddContact, handleRemoveContact, handleContactChange, handleSubmit } = useAddVendor(onClose, onAddVendor);
+const AddVendorForm: React.FC<AddVendorFormProps> = ({ onClose, onSuccess }) => {
+  const { vendor, setVendor, handleAddContact, handleRemoveContact, handleContactChange, handleSubmit } = useAddVendor(onClose, onSuccess);
 
   return (
     <div className="form-container">
@@ -51,15 +50,17 @@ const AddVendorForm: React.FC<AddVendorFormProps> = ({ onClose, onAddVendor }) =
                 handleRemoveContact={handleRemoveContact}
               />
             ))}
+          </div>
+          {vendor.contacts.length === 0 && (
             <button type="button" onClick={handleAddContact} className="add-button">
               <PlusOutlined />
             </button>
-          </div>
+          )}
         </fieldset>
 
         <div className="form-actions">
           <button type="submit" className="btn-submit">
-            Add Vendor
+            Create Vendor
           </button>
           <button type="button" className="btn-cancel" onClick={onClose}>
             Cancel

@@ -31,7 +31,7 @@ export interface Carrier {
   advertise_email: string;
   carr_type: string;
   rating: string;
-  brok_carr_aggmt: string;
+  brok_carr_aggmt: string | File | null;
   docket_no: string;
   dot_number: string;
   wcb_no: string;
@@ -52,7 +52,7 @@ export interface Carrier {
   ci_coverage: number;
   ci_start_date: string;
   ci_end_date: string;
-  coi_cert: string;
+  coi_cert: string | File | null;
   primary_address: string;
   primary_city: string;
   primary_state: string;
@@ -67,9 +67,9 @@ export interface Carrier {
   mailing_postal: string;
   mailing_phone: string;
   int_notes: string;
-  contact: Contact[];
-  equipment: Equipment[];
-  lane: Lane[];
+  contacts: Contact[];
+  equipments: Equipment[];
+  lanes: Lane[];
   created_at: string;
   updated_at: string;
 }

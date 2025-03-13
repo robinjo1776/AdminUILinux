@@ -1,13 +1,7 @@
-import Select from 'react-select';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Order } from '../../../types/OrderTypes';
-
-interface Customer {
-  value: string;
-  label: string;
-  refNo: string;
-}
+import { Customer } from '../../../types/CustomerTypes';
 
 interface OrderGeneralProps {
   order: Order;
@@ -15,7 +9,7 @@ interface OrderGeneralProps {
 }
 
 const OrderGeneral: React.FC<OrderGeneralProps> = ({ order, setOrder }) => {
-  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [customers, setCustomers] = useState<{ value: string; label: string; refNo: string }[]>([]);
   const [customerRefNos, setCustomerRefNos] = useState<{ value: string; label: string }[]>([]);
   const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
@@ -23,16 +17,21 @@ const OrderGeneral: React.FC<OrderGeneralProps> = ({ order, setOrder }) => {
     const fetchCustomers = async () => {
       try {
         const token = localStorage.getItem('token');
-        const { data } = await axios.get<Customer[]>(`${API_URL}/customer`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        const response = await axios.get<Customer[]>(`${API_URL}/customer`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
 
-        const formattedCustomers = data.map((customer) => ({
-          value: customer.value,
-          label: customer.label,
-          refNo: customer.refNo,
+        if (!response || !response.data) {
+          console.error('API response is undefined or invalid:', response);
+          return;
+        }
+
+        console.log('Fetched customers:', response.data);
+
+        const formattedCustomers = response.data.map((customer) => ({
+          value: customer.cust_name,
+          label: customer.cust_name,
+          refNo: customer.cust_ref_no,
         }));
 
         setCustomers(formattedCustomers);
@@ -63,11 +62,15 @@ const OrderGeneral: React.FC<OrderGeneralProps> = ({ order, setOrder }) => {
             <option value="" disabled>
               Select a customer
             </option>
-            {customers.map((customer) => (
-              <option key={customer.value} value={customer.value}>
-                {customer.label}
-              </option>
-            ))}
+            {customers.length > 0 ? (
+              customers.map((customer, index) => (
+                <option key={`${customer.refNo}-${index}`} value={customer.value}>
+                  {customer.label}
+                </option>
+              ))
+            ) : (
+              <option disabled>No customers found</option>
+            )}
           </select>
         </div>
         <div className="form-group" style={{ flex: 1 }}>

@@ -1,163 +1,131 @@
-import { useEffect, useRef } from 'react';
-import { Broker } from '../../../types/BrokerTypes';
+import React, { useState } from 'react';
 import DOMPurify from 'dompurify';
+import { z } from 'zod';
+import { Broker } from '../../../types/BrokerTypes';
+import { useGoogleAutocomplete } from '../../../hooks/useGoogleAutocomplete';
+
+declare global {
+  interface Window {
+    google?: any;
+  }
+}
 
 interface EditBrokerDetailsProps {
   formBroker: Broker;
   setFormBroker: React.Dispatch<React.SetStateAction<Broker>>;
 }
 
-function EditBrokerDetails({ formBroker, setFormBroker }: EditBrokerDetailsProps) {
-  const addressRef = useRef<HTMLInputElement>(null);
+const brokerSchema = z.object({
+  broker_name: z
+    .string()
+    .min(1, 'Name is required')
+    .max(200)
+    .regex(/^[a-zA-Z0-9\s.,'-]+$/, 'Only letters, numbers,spaces, apostrophes, periods, commas, and hyphens allowed'),
+  broker_address: z
+    .string()
+    .max(255, 'Street cannot be more than 255 characters')
+    .regex(/^[a-zA-Z0-9\s,.'-]*$/, 'Invalid street format')
+    .optional(),
+  broker_city: z
+    .string()
+    .max(200, 'City cannot be more than 200 characters')
+    .regex(/^[a-zA-Z\s.'-]*$/, 'Invalid city format')
+    .optional(),
+  broker_state: z
+    .string()
+    .max(200, 'State cannot be more than 200 characters')
+    .regex(/^[a-zA-Z\s.'-]*$/, 'Invalid state format')
+    .optional(),
+  broker_country: z
+    .string()
+    .max(100, 'Country cannot be more than 100 characters')
+    .regex(/^[a-zA-Z\s.'-]*$/, 'Invalid country format')
+    .optional(),
+  broker_postal: z
+    .string()
+    .max(20, 'Postal Code cannot be more than 20 characters')
+    .regex(/^[0-9a-zA-Z\s-]*$/, 'Invalid postal code format')
+    .optional(),
+  broker_email: z.string().max(255, 'Email cannot be more than 255 characters').email('Invalid email format').optional(),
+  broker_phone: z
+    .string()
+    .regex(/^[0-9\-\(\)\s]{0,15}$/, 'Invalid phone number')
+    .optional(),
+  broker_ext: z
+    .string()
+    .regex(/^\+?[0-9]{0,10}$/, 'Invalid extension')
+    .optional(),
+  broker_fax: z
+    .string()
+    .regex(/^[0-9\-\(\)\s]{0,15}$/, 'Invalid fax number')
+    .optional(),
+});
 
-  useEffect(() => {
-    const loadGoogleMapsApi = () => {
-      if (window.google && window.google.maps) {
-        initializeAutocomplete();
-        return;
-      }
-
-      const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}&libraries=places`;
-      script.async = true;
-      script.defer = true;
-      script.onerror = () => console.error('Failed to load Google Maps API');
-      script.onload = () => {
-        if (window.google && window.google.maps) {
-          initializeAutocomplete();
-        }
-      };
-      document.head.appendChild(script);
-    };
-
-    loadGoogleMapsApi();
-  }, []);
-
-  const initializeAutocomplete = () => {
-    if (!addressRef.current) return;
-
-    const autocomplete = new window.google.maps.places.Autocomplete(addressRef.current, {
-      types: ['address'],
-    });
-
-    autocomplete.addListener('place_changed', () => {
-      const place = autocomplete.getPlace();
-      if (!place || !place.address_components) {
-        console.error('No valid address selected');
-        return;
-      }
-      updateAddressFields(place);
-    });
-  };
+const EditBrokerDetails: React.FC<EditBrokerDetailsProps> = ({ formBroker, setFormBroker }) => {
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const updateAddressFields = (place: google.maps.places.PlaceResult) => {
-    if (!place.address_components) {
-      console.error('No valid address selected');
-      return;
-    }
-
-    const addressComponents = place.address_components as google.maps.GeocoderAddressComponent[];
-
-    const streetNumber = getComponent('street_number', '', addressComponents);
-    const route = getComponent('route', '', addressComponents);
-    const mainAddress = `${streetNumber} ${route}`.trim();
-
-    setFormBroker((prevBroker) => ({
-      ...prevBroker,
-      broker_address: mainAddress,
-      broker_city: getComponent('locality', '', addressComponents),
-      broker_state: getComponent('administrative_area_level_1', '', addressComponents),
-      broker_country: getComponent('country', '', addressComponents),
-      broker_postal: getComponent('postal_code', '', addressComponents),
+    const getComponent = (type: string) => place.address_components?.find((c) => c.types.includes(type))?.long_name || '';
+    setFormBroker((prev) => ({
+      ...prev,
+      broker_address: `${getComponent('street_number')} ${getComponent('route')}`.trim(),
+      broker_city: getComponent('locality'),
+      broker_state: getComponent('administrative_area_level_1'),
+      broker_country: getComponent('country'),
+      broker_postal: getComponent('postal_code'),
     }));
   };
+  const addressRef = useGoogleAutocomplete(updateAddressFields);
 
-  const getComponent = (type: string, fallback: string, components: google.maps.GeocoderAddressComponent[]) => {
-    const component = components.find((c) => c.types.includes(type));
-    return component ? component.long_name : fallback;
-  };
-
-  const handleInputChange = (key: keyof Broker, value: string) => {
-    const sanitizedValue = DOMPurify.sanitize(value);
+  const handleChange = (key: keyof Broker, value: string) => {
+    const sanitizedValue = DOMPurify.sanitize(value.trim());
     setFormBroker((prev) => ({ ...prev, [key]: sanitizedValue }));
+
+    const result = brokerSchema.safeParse({ ...formBroker, [key]: sanitizedValue });
+    if (!result.success) {
+      const error = result.error.errors.find((err) => err.path[0] === key)?.message || '';
+      setErrors((prev) => ({ ...prev, [key]: error }));
+    } else {
+      setErrors((prev) => ({ ...prev, [key]: '' }));
+    }
   };
 
-  const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  const validatePhone = (phone: string) => /^\+?[0-9\s\-().]{7,15}$/.test(phone);
+  const fields: { label: string; key: keyof Broker; type?: string }[] = [
+    { label: 'Name', key: 'broker_name' },
+    { label: 'Street', key: 'broker_address' },
+    { label: 'City', key: 'broker_city' },
+    { label: 'State', key: 'broker_state' },
+    { label: 'Country', key: 'broker_country' },
+    { label: 'Postal Code', key: 'broker_postal' },
+    { label: 'Email', key: 'broker_email', type: 'email' },
+    { label: 'Phone', key: 'broker_phone' },
+    { label: 'Ext', key: 'broker_ext' },
+    { label: 'Fax', key: 'broker_fax' },
+  ];
 
   return (
     <fieldset>
-      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="formBrokerName">Name</label>
-          <input type="text" value={formBroker.broker_name} onChange={(e) => handleInputChange('broker_name', e.target.value)} />
-        </div>
-
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="primaryAddressStreet">Street</label>
-          <input
-            type="text"
-            ref={addressRef}
-            placeholder="Enter your address"
-            value={formBroker.broker_address}
-            onChange={(e) => handleInputChange('broker_address', e.target.value)}
-          />
-        </div>
-
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="primaryAddressCity">City</label>
-          <input type="text" value={formBroker.broker_city} onChange={(e) => handleInputChange('broker_city', e.target.value)} />
-        </div>
-      </div>
-
-      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="primaryAddressState">State</label>
-          <input type="text" value={formBroker.broker_state} onChange={(e) => handleInputChange('broker_state', e.target.value)} />
-        </div>
-
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="primaryAddressCountry">Country</label>
-          <input type="text" value={formBroker.broker_country} onChange={(e) => handleInputChange('broker_country', e.target.value)} />
-        </div>
-
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="primaryAddressPostalCode">Postal Code</label>
-          <input type="text" value={formBroker.broker_postal} onChange={(e) => handleInputChange('broker_postal', e.target.value)} />
-        </div>
-      </div>
-
-      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="primaryAddressEmail">Email</label>
-          <input
-            type="text"
-            value={formBroker.broker_email}
-            onChange={(e) => (validateEmail(e.target.value) ? handleInputChange('broker_email', e.target.value) : null)}
-          />
-        </div>
-
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="primaryAddressPhone">Phone</label>
-          <input
-            type="text"
-            value={formBroker.broker_phone}
-            onChange={(e) => (validatePhone(e.target.value) ? handleInputChange('broker_phone', e.target.value) : null)}
-          />
-        </div>
-
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="primaryAddressExtension">Phone Extension</label>
-          <input type="text" value={formBroker.broker_ext} onChange={(e) => handleInputChange('broker_ext', e.target.value)} />
-        </div>
-
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="primaryAddressFax">Fax</label>
-          <input type="text" value={formBroker.broker_fax} onChange={(e) => handleInputChange('broker_fax', e.target.value)} />
-        </div>
+      <div className="form-grid" style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))' }}>
+        {fields.map(({ label, key, type }) => (
+          <div className="form-group" key={key}>
+            {label} {key === 'broker_name' && <span style={{ color: 'red' }}>*</span>}
+            <input
+              id={key}
+              type={type || 'text'}
+              value={(formBroker[key] as string | number) || ''}
+              onChange={(e) => handleChange(key, e.target.value)}
+              ref={key === 'broker_address' ? addressRef : undefined}
+            />
+            {errors[key] && (
+              <span className="error" style={{ color: 'red' }}>
+                {errors[key]}
+              </span>
+            )}
+          </div>
+        ))}
       </div>
     </fieldset>
   );
-}
+};
 
 export default EditBrokerDetails;

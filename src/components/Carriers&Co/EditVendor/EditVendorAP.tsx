@@ -1,4 +1,6 @@
-import React from 'react';
+import { useState } from 'react';
+import DOMPurify from 'dompurify';
+import { z } from 'zod';
 import { Vendor } from '../../../types/VendorTypes';
 
 interface EditVendorAPProps {
@@ -6,80 +8,54 @@ interface EditVendorAPProps {
   setFormVendor: React.Dispatch<React.SetStateAction<Vendor>>;
 }
 
-// Sanitization functions
-const sanitizeName = (value: string) => value.replace(/[^a-zA-Z\s-]/g, ''); // Only letters, spaces, and dashes
-const sanitizeEmail = (value: string) => value.replace(/[^\w@.-]/g, ''); // Removes invalid email characters
-const sanitizeNumber = (value: string) => value.replace(/\D/g, ''); // Removes non-numeric characters
-
+const vendorAPSchema = z.object({
+  ap_name: z
+    .string()
+    .max(200, 'Name must be at most 200 characters')
+    .regex(/^[a-zA-Z0-9\s.,'-]*$/, 'Only letters, numbers,spaces, apostrophes, periods, commas, and hyphens allowed')
+    .optional(),
+  ap_email: z.string().max(255, 'Name must be at most 255 characters').email('Invalid email format').optional(),
+  ap_contact_no: z.string().max(15, 'Contact No must be at most 15 characters').regex(/^\d*$/, 'Contact number must be numeric').optional(),
+  ap_ext: z.string().max(10, 'Extension must be at most 10 characters').regex(/^\d*$/, 'Extension must be numeric').optional(),
+});
 const EditVendorAP: React.FC<EditVendorAPProps> = ({ formVendor, setFormVendor }) => {
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  const validateAndSetVendor = (field: keyof Vendor, value: string) => {
+    const sanitizedValue = DOMPurify.sanitize(value);
+    const tempVendor = { ...formVendor, [field]: sanitizedValue };
+
+    const result = vendorAPSchema.safeParse(tempVendor);
+    setErrors(result.success ? {} : Object.fromEntries(result.error.errors.map((e) => [e.path[0], e.message])));
+    setFormVendor(tempVendor);
+  };
+
+  const fields = [
+    { label: 'Name', name: 'ap_name' },
+    { label: 'Email', name: 'ap_email' },
+    { label: 'Contact No', name: 'ap_contact_no' },
+    { label: 'Ext', name: 'ap_ext' },
+  ];
   return (
     <fieldset className="form-section">
       <legend>Account Payable Details</legend>
       <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
-        {/* AP Name */}
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="apName">Name</label>
-          <input
-            type="text"
-            id="apName"
-            value={formVendor.ap_name ?? ''}
-            onChange={(e) => {
-              const sanitizedValue = sanitizeName(e.target.value);
-              setFormVendor((prev) => ({ ...prev, ap_name: sanitizedValue }));
-            }}
-            maxLength={50}
-            required
-          />
-        </div>
-
-        {/* AP Email */}
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="apEmail">Email</label>
-          <input
-            type="email"
-            id="apEmail"
-            value={formVendor.ap_email ?? ''}
-            onChange={(e) => {
-              const sanitizedValue = sanitizeEmail(e.target.value);
-              setFormVendor((prev) => ({ ...prev, ap_email: sanitizedValue }));
-            }}
-            maxLength={100}
-            required
-          />
-        </div>
-
-        {/* AP Contact Number */}
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="apContact">Contact No</label>
-          <input
-            type="tel"
-            id="apContact"
-            value={formVendor.ap_contact_no ?? ''}
-            onChange={(e) => {
-              const sanitizedValue = sanitizeNumber(e.target.value);
-              setFormVendor((prev) => ({ ...prev, ap_contact_no: sanitizedValue }));
-            }}
-            maxLength={15}
-            pattern="\d{10,15}"
-            title="Enter a valid contact number"
-            required
-          />
-        </div>
-
-        {/* AP Extension */}
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="apExt">Ext</label>
-          <input
-            type="text"
-            id="apExt"
-            value={formVendor.ap_ext ?? ''}
-            onChange={(e) => {
-              const sanitizedValue = sanitizeNumber(e.target.value);
-              setFormVendor((prev) => ({ ...prev, ap_ext: sanitizedValue }));
-            }}
-            maxLength={5}
-          />
-        </div>
+        {fields.map(({ label, name }) => (
+          <div className="form-group" style={{ flex: 1 }} key={name}>
+            <label htmlFor={name}>{label}</label>
+            <input
+              type="text"
+              id={name}
+              value={(formVendor[name as keyof Vendor] as string | number) || ''}
+              onChange={(e) => validateAndSetVendor(name as keyof Vendor, e.target.value)}
+            />
+            {errors[name] && (
+              <span className="error" style={{ color: 'red' }}>
+                {errors[name]}
+              </span>
+            )}
+          </div>
+        ))}
       </div>
     </fieldset>
   );

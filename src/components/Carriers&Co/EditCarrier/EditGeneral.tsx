@@ -130,37 +130,35 @@ const EditGeneral: React.FC<EditGeneralProps> = ({ formCarrier, setFormCarrier }
 
       {/* Fourth Row */}
       <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label style={{ display: 'inline-flex', alignItems: 'center', width: '100%' }}>
-            1099
-            <input
-              type="checkbox"
-              id="creditApplication"
-              checked={formCarrier.form_1099}
-              onChange={(e) =>
-                setFormCarrier({
-                  ...formCarrier,
-                  form_1099: e.target.checked,
-                })
-              }
-            />
-          </label>
+        <div className="form-group" style={{ display: 'flex', flex: 1, verticalAlign: 'center', gap: '1rem' }}>
+          <input
+            type="checkbox"
+            id="creditApplication"
+            checked={formCarrier.form_1099}
+            onChange={(e) =>
+              setFormCarrier({
+                ...formCarrier,
+                form_1099: e.target.checked,
+              })
+            }
+            style={{ width: '16px', height: '16px' }}
+          />
+          <label htmlFor="advertise">1099</label>
         </div>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label style={{ display: 'inline-flex', alignItems: 'center', width: '100%' }}>
-            Advertise
-            <input
-              type="checkbox"
-              id="advertise"
-              checked={formCarrier.advertise}
-              onChange={(e) =>
-                setFormCarrier({
-                  ...formCarrier,
-                  advertise: e.target.checked,
-                })
-              }
-            />
-          </label>
+        <div className="form-group" style={{ display: 'flex', flex: 1, verticalAlign: 'center', gap: '1rem' }}>
+          <input
+            type="checkbox"
+            id="advertise"
+            checked={formCarrier.advertise}
+            onChange={(e) =>
+              setFormCarrier({
+                ...formCarrier,
+                advertise: e.target.checked,
+              })
+            }
+            style={{ width: '16px', height: '16px' }}
+          />
+          <label htmlFor="advertise">Advertise</label>
         </div>
         <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="advertiseEmail">Advertise Email</label>

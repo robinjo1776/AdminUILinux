@@ -24,7 +24,7 @@ const LeadContactForm: React.FC<LeadContactFormProps> = ({ contact, index, handl
     if (name === 'email') {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(sanitizedValue)) {
-        sanitizedValue = ''; // Invalid email resets input
+        sanitizedValue = ''; 
       }
     }
 

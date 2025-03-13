@@ -27,8 +27,8 @@
   z-index: 999;
   align-items: center;
   justify-content: space-between;
-  padding-left: 4rem;
-  padding-right: 4rem;
+  padding-left: 1.2rem;
+  padding-right: 1.2rem;
   background-color: #586069;
   color: #fff;
 }
@@ -83,11 +83,10 @@
   font-size: 12px; /* Adjusted font size for table text */
   color: #1c2737;
   border: none; /* Remove all borders */
-
 }
 
 .table tr {
-  border-bottom: 1px solid #ddd; 
+  border-bottom: 1px solid #ddd;
 }
 
 .table tr:last-child {

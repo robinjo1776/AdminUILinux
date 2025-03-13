@@ -10,15 +10,14 @@ import InternalNotes from './InternalNotes';
 import CarrierContact from '../CarrierContact';
 import CarrierEquipment from '../CarrierEquipment';
 import CarrierLane from '../CarrierLane';
-import { Carrier } from '../../../types/CarrierTypes';
 import { useAddCarrier } from '../../../hooks/add/useAddCarrier';
 
 interface AddCarrierFormProps {
   onClose: () => void;
-  onAddCarrier: (carrier: Carrier) => void;
+  onSuccess: () => void;
 }
 
-const AddCarrierForm: React.FC<AddCarrierFormProps> = ({ onClose, onAddCarrier }) => {
+const AddCarrierForm: React.FC<AddCarrierFormProps> = ({ onClose, onSuccess }) => {
   const {
     carrier,
     setCarrier,
@@ -32,11 +31,11 @@ const AddCarrierForm: React.FC<AddCarrierFormProps> = ({ onClose, onAddCarrier }
     handleRemoveEquipment,
     handleLaneChange,
     handleRemoveLane,
-  } = useAddCarrier(onClose, onAddCarrier);
+  } = useAddCarrier(onClose, onSuccess);
 
   return (
     <div className="form-container">
-      <form onSubmit={handleSubmit} data-testid="carrier-form">
+      <form onSubmit={handleSubmit} data-testid="carrier-form" encType="multipart/form-data">
         <General carrier={carrier} setCarrier={setCarrier} />
         <CarrierDetails carrier={carrier} setCarrier={setCarrier} />
         <LiabilityInsurance carrier={carrier} setCarrier={setCarrier} />
@@ -48,55 +47,70 @@ const AddCarrierForm: React.FC<AddCarrierFormProps> = ({ onClose, onAddCarrier }
         <fieldset className="form-section">
           <legend>Contacts</legend>
           <div className="form-row">
-            {carrier.contact.map((contact, index) => (
+            {carrier.contacts.map((contact, index) => (
               <CarrierContact
                 key={index}
-                contact={contact}
+                contacts={carrier.contacts}
                 index={index}
+                onAddContact={handleAddContact}
                 handleContactChange={handleContactChange}
                 handleRemoveContact={handleRemoveContact}
               />
             ))}
+          </div>
+          {carrier.contacts.length === 0 && (
             <button type="button" onClick={handleAddContact} className="add-button">
               <PlusOutlined />
             </button>
-          </div>
+          )}
         </fieldset>
 
         <fieldset className="form-section">
           <legend>Equipment</legend>
           <div className="form-row">
-            {carrier.equipment.map((equipment, index) => (
+            {carrier.equipments.map((equipment, index) => (
               <CarrierEquipment
                 key={index}
-                equipment={equipment}
+                equipments={carrier.equipments}
                 index={index}
+                onAddEquipment={handleAddEquipment}
                 handleEquipmentChange={handleEquipmentChange}
                 handleRemoveEquipment={handleRemoveEquipment}
               />
             ))}
+          </div>
+          {carrier.equipments.length === 0 && (
             <button type="button" onClick={handleAddEquipment} className="add-button">
               <PlusOutlined />
             </button>
-          </div>
+          )}
         </fieldset>
 
         <fieldset className="form-section">
           <legend>Lanes</legend>
           <div className="form-row">
-            {carrier.lane.map((lane, index) => (
-              <CarrierLane key={index} lane={lane} index={index} handleLaneChange={handleLaneChange} handleRemoveLane={handleRemoveLane} />
+            {carrier.lanes.map((lane, index) => (
+              <CarrierLane
+                key={index}
+                lanes={carrier.lanes}
+                index={index}
+                onAddLane={handleAddLane}
+                handleLaneChange={handleLaneChange}
+                handleRemoveLane={handleRemoveLane}
+              />
             ))}
+          </div>
+          {carrier.lanes.length === 0 && (
             <button type="button" onClick={handleAddLane} className="add-button">
               <PlusOutlined />
             </button>
-          </div>
+          )}
         </fieldset>
 
         <div className="form-actions">
-        <button type="submit" className="btn-submit" data-testid="submit-button">
-  Add Carrier
-</button>
+          <button type="submit" className="btn-submit" data-testid="submit-button">
+            Add Carrier
+          </button>
 
           <button type="button" className="btn-cancel" onClick={onClose}>
             Cancel

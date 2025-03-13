@@ -1,5 +1,11 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Order } from '../../../types/OrderTypes';
+
+type API_Customer = {
+  cust_name: string;
+  cust_ref_no: string;
+};
 
 type Customer = {
   value: string;
@@ -7,31 +13,26 @@ type Customer = {
   refNo: string;
 };
 
-type FormOrder = {
-  customer?: string;
-  customer_ref_no?: string;
-  branch?: string;
-  booked_by?: string;
-  account_rep?: string;
-  sales_rep?: string;
-  customer_po_no?: string;
-};
-
 type EditOrderGeneralProps = {
-  formOrder: FormOrder;
-  setFormOrder: (order: FormOrder) => void;
+  formOrder: Order;
+  setFormOrder: (order: Order) => void;
 };
 
 function EditOrderGeneral({ formOrder, setFormOrder }: EditOrderGeneralProps) {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [customerRefNos, setCustomerRefNos] = useState<{ value: string; label: string }[]>([]);
-  const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
+  const API_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000/api';
 
   useEffect(() => {
     const fetchCustomers = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('No auth token found');
+        return;
+      }
+
       try {
-        const token = localStorage.getItem('token');
-        const { data } = await axios.get<Customer[]>(`${API_URL}/customer`, {
+        const { data } = await axios.get<API_Customer[]>(`${API_URL}/customer`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -39,7 +40,7 @@ function EditOrderGeneral({ formOrder, setFormOrder }: EditOrderGeneralProps) {
 
         console.log('Fetched customers:', data);
 
-        const formattedCustomers = data.map((customer) => ({
+        const formattedCustomers: Customer[] = data.map((customer) => ({
           value: customer.cust_name,
           label: customer.cust_name,
           refNo: customer.cust_ref_no,
@@ -55,11 +56,11 @@ function EditOrderGeneral({ formOrder, setFormOrder }: EditOrderGeneralProps) {
   }, []);
 
   useEffect(() => {
-    if (formOrder.customer) {
-      const selectedCustomer = customers.find((c) => c.value === formOrder.customer);
-      setCustomerRefNos(selectedCustomer ? [{ value: selectedCustomer.refNo, label: selectedCustomer.refNo }] : []);
-    } else {
-      setCustomerRefNos([]);
+    const selectedCustomer = customers.find((c) => c.value === formOrder.customer);
+    const newRefNos = selectedCustomer ? [{ value: selectedCustomer.refNo, label: selectedCustomer.refNo }] : [];
+
+    if (JSON.stringify(newRefNos) !== JSON.stringify(customerRefNos)) {
+      setCustomerRefNos(newRefNos);
     }
   }, [formOrder.customer, customers]);
 
@@ -69,12 +70,7 @@ function EditOrderGeneral({ formOrder, setFormOrder }: EditOrderGeneralProps) {
       <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
         <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="customer">Customer</label>
-          <select
-            id="quote_customer"
-            value={formOrder.customer || ''}
-            onChange={(e) => setFormOrder({ ...formOrder, customer: e.target.value })}
-            required
-          >
+          <select id="customer" value={formOrder.customer || ''} onChange={(e) => setFormOrder({ ...formOrder, customer: e.target.value })} required>
             <option value="" disabled>
               Select a customer
             </option>
@@ -88,7 +84,7 @@ function EditOrderGeneral({ formOrder, setFormOrder }: EditOrderGeneralProps) {
         <div className="form-group" style={{ flex: 1 }}>
           <label htmlFor="customerRefNo">Customer Ref. No</label>
           <select
-            id="quote_customer_ref_no"
+            id="customerRefNo"
             value={formOrder.customer_ref_no || ''}
             onChange={(e) => setFormOrder({ ...formOrder, customer_ref_no: e.target.value })}
             required
@@ -104,35 +100,45 @@ function EditOrderGeneral({ formOrder, setFormOrder }: EditOrderGeneralProps) {
           </select>
         </div>
         <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="remitName">Branch</label>
-          <input type="text" value={formOrder.branch || ''} onChange={(e) => setFormOrder({ ...formOrder, branch: e.target.value })} id="remitName" />
+          <label htmlFor="branch">Branch</label>
+          <input type="text" id="branch" value={formOrder.branch || ''} onChange={(e) => setFormOrder({ ...formOrder, branch: e.target.value })} />
         </div>
       </div>
       <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
         <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="accNo">Booked By</label>
-          <input type="text" value={formOrder.booked_by || ''} onChange={(e) => setFormOrder({ ...formOrder, booked_by: e.target.value })} id="accNo" />
-        </div>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="branch">Account Rep</label>
+          <label htmlFor="bookedBy">Booked By</label>
           <input
             type="text"
-            value={formOrder.account_rep || ''}
-            onChange={(e) => setFormOrder({ ...formOrder, account_rep: e.target.value })}
-            id="branch"
+            id="bookedBy"
+            value={formOrder.booked_by || ''}
+            onChange={(e) => setFormOrder({ ...formOrder, booked_by: e.target.value })}
           />
         </div>
         <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="website">Sales Rep</label>
-          <input type="text" value={formOrder.sales_rep || ''} onChange={(e) => setFormOrder({ ...formOrder, sales_rep: e.target.value })} id="website" />
-        </div>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="fedIdNo">Customer PO Number</label>
+          <label htmlFor="accountRep">Account Rep</label>
           <input
             type="text"
+            id="accountRep"
+            value={formOrder.account_rep || ''}
+            onChange={(e) => setFormOrder({ ...formOrder, account_rep: e.target.value })}
+          />
+        </div>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="salesRep">Sales Rep</label>
+          <input
+            type="text"
+            id="salesRep"
+            value={formOrder.sales_rep || ''}
+            onChange={(e) => setFormOrder({ ...formOrder, sales_rep: e.target.value })}
+          />
+        </div>
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="customerPoNo">Customer PO Number</label>
+          <input
+            type="text"
+            id="customerPoNo"
             value={formOrder.customer_po_no || ''}
             onChange={(e) => setFormOrder({ ...formOrder, customer_po_no: e.target.value })}
-            id="fedIdNo"
           />
         </div>
       </div>

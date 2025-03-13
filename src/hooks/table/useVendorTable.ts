@@ -6,7 +6,6 @@ import { Vendor } from '../../types/VendorTypes';
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 const useVendorTable = () => {
-  //State variables
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -26,26 +25,26 @@ const useVendorTable = () => {
   });
 
   //Fetching
+  const fetchVendors = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('No token found');
+
+      setLoading(true);
+      const { data } = await axios.get<Vendor[]>(`${API_URL}/vendor`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setVendors(data);
+    } catch (error) {
+      console.error('Error loading vendors:', error);
+      handleFetchError(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchVendors = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) throw new Error('No token found');
-
-        setLoading(true);
-        const { data } = await axios.get<Vendor[]>(`${API_URL}/vendor`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        setVendors(data);
-      } catch (error) {
-        console.error('Error loading vendors:', error);
-        handleFetchError(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchVendors();
   }, []);
 
@@ -129,7 +128,7 @@ const useVendorTable = () => {
 
         setVendors((prev) => prev.filter((vendor) => !selectedVendors.includes(vendor.id)));
         setSelectedVendors([]);
-        Swal.fire('Deleted!', 'Selected vendors have been deleted.', 'success');
+        Swal.fire('Deleted!', 'The selected vendors have been removed.', 'success');
       } catch (error) {
         console.error('Error deleting vendors:', error);
         Swal.fire({ icon: 'error', title: 'Error!', text: 'Failed to delete selected vendors.' });
@@ -176,6 +175,7 @@ const useVendorTable = () => {
   };
 
   return {
+    fetchVendors,
     vendors,
     loading,
     searchQuery,

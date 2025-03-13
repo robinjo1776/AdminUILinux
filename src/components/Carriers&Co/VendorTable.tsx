@@ -1,6 +1,3 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import Swal from 'sweetalert2';
 import { Table, TableHeader } from '../common/Table';
 import Modal from '../common/Modal';
 import { EditOutlined, DeleteOutlined, MailOutlined, PlusOutlined, SearchOutlined, EyeOutlined } from '@ant-design/icons';
@@ -11,10 +8,9 @@ import { Vendor } from '../../types/VendorTypes';
 import Pagination from '../common/Pagination';
 import useVendorTable from '../../hooks/table/useVendorTable';
 
-const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
-
 const VendorTable: React.FC = () => {
   const {
+    fetchVendors,
     vendors,
     loading,
     searchQuery,
@@ -22,11 +18,9 @@ const VendorTable: React.FC = () => {
     sortBy,
     sortDesc,
     selectedVendors,
-    setSelectedVendors,
     paginatedData,
     totalPages,
     currentPage,
-    setCurrentPage,
     isEditModalOpen,
     isAddModalOpen,
     isViewModalOpen,
@@ -67,14 +61,13 @@ const VendorTable: React.FC = () => {
       ) as JSX.Element,
       render: (item: Vendor) => <input type="checkbox" checked={selectedVendors.includes(item.id)} onChange={() => toggleSelect(item.id)} />,
     },
-    { key: 'legal_name', label: 'Legal Name' },
-    { key: 'vendor_code', label: 'Code' },
-    { key: 'primary_address', label: 'Address' },
-    { key: 'primary_phone', label: 'Phone' },
-    { key: 'primary_email', label: 'Email' },
-    { key: 'vendor_type', label: 'Type' },
-    { key: 'service', label: 'Service' },
-
+    { key: 'legal_name', label: 'Legal Name', render: (item) => item.legal_name || <span>-</span> },
+    { key: 'vendor_code', label: 'Code', render: (item) => item.vendor_code || <span>-</span> },
+    { key: 'primary_address', label: 'Address', render: (item) => item.primary_address || <span>-</span> },
+    { key: 'primary_phone', label: 'Phone', render: (item) => item.primary_phone || <span>-</span> },
+    { key: 'primary_email', label: 'Email', render: (item) => item.primary_email || <span>-</span> },
+    { key: 'vendor_type', label: 'Type', render: (item) => item.vendor_type || <span>-</span> },
+    { key: 'service', label: 'Service', render: (item) => item.service || <span>-</span> },
     {
       key: 'actions',
       label: 'Actions',
@@ -140,7 +133,7 @@ const VendorTable: React.FC = () => {
       </Modal>
 
       <Modal isOpen={isAddModalOpen} onClose={() => setAddModalOpen(false)} title="Add Vendor">
-        <AddVendorForm onClose={() => setAddModalOpen(false)} onAddVendor={(newCarrier) => updateVendor(newCarrier)} />
+        <AddVendorForm onClose={() => setAddModalOpen(false)} onSuccess={fetchVendors} />{' '}
       </Modal>
 
       <Modal isOpen={isEmailModalOpen} onClose={() => setEmailModalOpen(false)} title="Send Email">

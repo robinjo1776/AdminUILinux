@@ -1,151 +1,141 @@
 import { useState } from 'react';
 import { Carrier } from '../../../types/CarrierTypes';
+import DOMPurify from 'dompurify';
+import { z } from 'zod';
 
 interface GeneralProps {
   carrier: Carrier;
   setCarrier: React.Dispatch<React.SetStateAction<Carrier>>;
 }
 
+const carrierSchema = z.object({
+  dba: z
+    .string()
+    .max(100, 'DBA cannot exceed 100 characters')
+    .regex(/^[a-zA-Z0-9\s.,'-]*$/, 'Only letters, numbers, spaces, apostrophes, periods, commas, and hyphens allowed')
+    .optional(),
+  legal_name: z
+    .string()
+    .max(100, 'Legal Name cannot exceed 100 characters')
+    .regex(/^[a-zA-Z0-9\s.,'-]*$/, 'Only letters, numbers, spaces, apostrophes, periods, commas, and hyphens allowed')
+    .optional(),
+  remit_name: z
+    .string()
+    .max(100, 'Remit Name cannot exceed 100 characters')
+    .regex(/^[a-zA-Z0-9\s.,'-]*$/, 'Only letters, numbers, spaces, apostrophes, periods, commas, and hyphens allowed')
+    .optional(),
+  acc_no: z
+    .string()
+    .max(50, 'Account Number cannot exceed 50 characters')
+    .regex(/^[a-zA-Z0-9-]*$/, 'Only letters, numbers, and dashes allowed')
+    .optional(),
+  branch: z
+    .string()
+    .max(50, 'Branch cannot exceed 50 characters')
+    .regex(/^[a-zA-Z0-9\s.,'-]*$/, 'Only letters, numbers, spaces, apostrophes, periods, commas, and hyphens allowed')
+    .optional(),
+  website: z.string().max(150, 'Website URL too long').url('Invalid URL').optional(),
+  fed_id_no: z
+    .string()
+    .max(20, 'Federal ID Number cannot exceed 20 characters')
+    .regex(/^[a-zA-Z0-9-]*$/, 'Only letters, numbers, and dashes allowed')
+    .optional(),
+  pref_curr: z.enum(['USD', 'CAD']).optional(),
+  pay_terms: z
+    .string()
+    .max(50, 'Payment Terms cannot exceed 50 characters')
+    .regex(/^[a-zA-Z0-9\s.,'-]*$/, 'Only letters, numbers, spaces, apostrophes, periods, commas, and hyphens allowed')
+    .optional(),
+  form_1099: z.boolean().optional(),
+  advertise: z.boolean().optional(),
+  advertise_email: z.string().max(255, 'Email cannot exceed 255 characters').email('Invalid email format').optional(),
+});
+
+const fields = [
+  { key: 'dba', label: 'DBA', placeholder: 'Enter DBA', type: 'text' },
+  { key: 'legal_name', label: 'Legal Name', placeholder: 'Enter Legal Name', type: 'text' },
+  { key: 'remit_name', label: 'Remit Name', placeholder: 'Enter Remit Name', type: 'text' },
+  { key: 'acc_no', label: 'Account Number', placeholder: 'Enter Account Number', type: 'text' },
+  { key: 'branch', label: 'Branch', placeholder: 'Enter Branch', type: 'text' },
+  { key: 'website', label: 'Website', placeholder: 'Enter Website URL', type: 'text' },
+  { key: 'fed_id_no', label: 'Federal ID Number', placeholder: 'Enter Federal ID Number', type: 'text' },
+  { key: 'pay_terms', label: 'Payment Terms', placeholder: 'Enter Payment Terms', type: 'text' },
+  { key: 'advertise_email', label: 'Advertise Email', placeholder: 'Enter Advertise Email', type: 'text' },
+  { key: 'advertise', label: 'Advertise', type: 'boolean' },
+  { key: 'form_1099', label: '1099', type: 'boolean' },
+];
+
 const General: React.FC<GeneralProps> = ({ carrier, setCarrier }) => {
-  const [uploading, setUploading] = useState(false);
-  const API_URL = import.meta.env.VITE_API_BASE_URL?.trim() || 'http://127.0.0.1:8000/api';
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validateAndSetCarrier = (field: keyof Carrier, value: string | boolean) => {
+    let sanitizedValue = value;
+
+    if (['approved', 'form_1099', 'advertise'].includes(field) && typeof value !== 'boolean') {
+      sanitizedValue = value === 'true';
+    } else if (typeof value !== 'boolean') {
+      sanitizedValue = DOMPurify.sanitize(value);
+    }
+
+    let error = '';
+    const tempCarrier = { ...carrier, [field]: sanitizedValue };
+    const result = carrierSchema.safeParse(tempCarrier);
+
+    if (!result.success) {
+      const fieldError = result.error.errors.find((err) => err.path[0] === field);
+      error = fieldError ? fieldError.message : '';
+    }
+
+    setErrors((prevErrors) => ({ ...prevErrors, [field]: error }));
+    setCarrier(tempCarrier);
+  };
 
   return (
     <fieldset className="form-section">
       <legend>General</legend>
 
-      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="dba">DBA</label>
-          <input
-            type="text"
-            value={carrier.dba || ''}
-            onChange={(e) => setCarrier((prevCarrier) => ({ ...prevCarrier, dba: e.target.value.trim() }))}
-            id="dba"
-            placeholder="DBA"
-          />
-        </div>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="legalName">Legal Name</label>
-          <input
-            type="text"
-            value={carrier.legal_name || ''}
-            onChange={(e) => setCarrier((prevCarrier) => ({ ...prevCarrier, legal_name: e.target.value.trim() }))}
-            id="legalName"
-            placeholder="Legal Name"
-          />
-        </div>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="remitName">Remit Name</label>
-          <input
-            type="text"
-            value={carrier.remit_name || ''}
-            onChange={(e) => setCarrier((prevCarrier) => ({ ...prevCarrier, remit_name: e.target.value.trim() }))}
-            id="remitName"
-            placeholder="Remit Name"
-          />
-        </div>
-      </div>
-
-      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="accNo">Account Number</label>
-          <input
-            type="text"
-            value={carrier.acc_no || ''}
-            onChange={(e) => setCarrier((prevCarrier) => ({ ...prevCarrier, acc_no: e.target.value.trim() }))}
-            id="accNo"
-            placeholder="Account Number"
-          />
-        </div>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="branch">Branch</label>
-          <input
-            type="text"
-            value={carrier.branch || ''}
-            onChange={(e) => setCarrier((prevCarrier) => ({ ...prevCarrier, branch: e.target.value.trim() }))}
-            id="branch"
-            placeholder="Branch"
-          />
-        </div>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="website">Website</label>
-          <input
-            type="text"
-            value={carrier.website || ''}
-            onChange={(e) => setCarrier((prevCarrier) => ({ ...prevCarrier, website: e.target.value.trim() }))}
-            id="website"
-            placeholder="Website"
-          />
-        </div>
-      </div>
-
-      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="fedIdNo">Federal ID Number</label>
-          <input
-            type="text"
-            value={carrier.fed_id_no || ''}
-            onChange={(e) => setCarrier((prevCarrier) => ({ ...prevCarrier, fed_id_no: e.target.value.trim() }))}
-            id="fedIdNo"
-            placeholder="Federal ID Number"
-          />
-        </div>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="prefCurr">Preferred Currency</label>
-          <select
-            value={carrier.pref_curr || ''}
-            onChange={(e) => setCarrier((prevCarrier) => ({ ...prevCarrier, pref_curr: e.target.value }))}
-            id="prefCurr"
-          >
+      <div className="form-grid" style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))' }}>
+        <div className="form-group" style={{ flex: '1 1 45%' }}>
+          <label htmlFor="pref_curr">Preferred Currency</label>
+          <select id="pref_curr" value={carrier.pref_curr || ''} onChange={(e) => validateAndSetCarrier('pref_curr', e.target.value)}>
             <option value="">Select Currency</option>
             <option value="USD">USD</option>
             <option value="CAD">CAD</option>
           </select>
+          {errors.pref_curr && (
+            <span className="error" style={{ color: 'red' }}>
+              {errors.pref_curr}
+            </span>
+          )}
         </div>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="payTerms">Payment Terms</label>
-          <input
-            type="text"
-            value={carrier.pay_terms || ''}
-            onChange={(e) => setCarrier((prevCarrier) => ({ ...prevCarrier, pay_terms: e.target.value.trim() }))}
-            id="payTerms"
-            placeholder="Payment Terms"
-          />
-        </div>
-      </div>
 
-      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-        <div className="form-group" style={{ display: 'flex', flex: 1, verticalAlign: 'center', gap: '1rem' }}>
-          <input
-            type="checkbox"
-            checked={carrier.form_1099 || false}
-            onChange={(e) => setCarrier((prevCarrier) => ({ ...prevCarrier, form_1099: e.target.checked }))}
-            id="form1099"
-            style={{ width: '16px', height: '16px' }}
-          />
-          <label htmlFor="form1099">1099</label>
-        </div>
-        <div className="form-group" style={{ display: 'flex', flex: 1, verticalAlign: 'center', gap: '1rem' }}>
-          <input
-            type="checkbox"
-            checked={carrier.advertise || false}
-            onChange={(e) => setCarrier((prevCarrier) => ({ ...prevCarrier, advertise: e.target.checked }))}
-            id="advertise"
-            style={{ width: '16px', height: '16px' }}
-          />
-          <label htmlFor="advertise">Advertise</label>
-        </div>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="advertiseEmail">Advertise Email</label>
-          <input
-            type="email"
-            value={carrier.advertise_email || ''}
-            onChange={(e) => setCarrier((prevCarrier) => ({ ...prevCarrier, advertise_email: e.target.value.trim() }))}
-            id="advertiseEmail"
-            placeholder="Advertise Email"
-          />
-        </div>
+        {/* Dynamic Input Fields */}
+        {fields.map(({ key, label, placeholder, type }) => (
+          <div className="form-group" style={{ flex: '1 1 45%' }} key={key}>
+            <label htmlFor={key}>{label}</label>
+            {type === 'boolean' ? (
+              <input
+                type="checkbox"
+                id={key}
+                checked={!!carrier[key as keyof Carrier]}
+                onChange={(e) => validateAndSetCarrier(key as keyof Carrier, e.target.checked)}
+              />
+            ) : (
+              <input
+                type="text"
+                id={key}
+                placeholder={placeholder}
+                value={String(carrier[key as keyof Carrier] || '')}
+                onChange={(e) => validateAndSetCarrier(key as keyof Carrier, e.target.value)}
+              />
+            )}
+            {errors[key] && (
+              <span className="error" style={{ color: 'red' }}>
+                {errors[key]}
+              </span>
+            )}
+          </div>
+        ))}
       </div>
     </fieldset>
   );

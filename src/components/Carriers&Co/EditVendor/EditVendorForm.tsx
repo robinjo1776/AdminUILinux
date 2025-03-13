@@ -25,7 +25,9 @@ const EditVendorForm: React.FC<EditVendorFormProps> = ({ vendor, onClose, onUpda
     onClose,
     onUpdate
   );
-  console.log('Form vendor:' , formVendor);
+
+  console.log('Form vendor:', formVendor);
+
   return (
     <div className="form-container">
       <form
@@ -47,18 +49,31 @@ const EditVendorForm: React.FC<EditVendorFormProps> = ({ vendor, onClose, onUpda
             <EditVendorBanking formVendor={formVendor} setFormVendor={setFormVendor} />
             <EditVendorCargoInsurance formVendor={formVendor} setFormVendor={setFormVendor} />
             <EditVendorLiabilityInsurance formVendor={formVendor} setFormVendor={setFormVendor} />
-            {formVendor.contacts.map((contact, index) => (
-              <VendorContact
-                key={index}
-                contacts={formVendor.contacts}
-                index={index}
-                onAddContact={handleAddContact}
-                handleRemoveContact={handleRemoveContact}
-                handleContactChange={handleContactChange}
-              />
-            ))}
+
+            {/* Contacts Section */}
+            <fieldset className="form-section">
+              <legend>Contacts</legend>
+              <div className="form-row">
+                {formVendor.contacts?.map((contact, index) => (
+                  <VendorContact
+                    key={index}
+                    contacts={formVendor.contacts}
+                    index={index}
+                    onAddContact={handleAddContact}
+                    handleRemoveContact={handleRemoveContact}
+                    handleContactChange={handleContactChange}
+                  />
+                ))}
+              </div>
+              {formVendor.contacts.length === 0 && (
+                <button type="button" onClick={handleAddContact} className="add-button">
+                  <PlusOutlined />
+                </button>
+              )}
+            </fieldset>
           </>
         )}
+
         <div className="form-actions">
           <button type="submit" className="btn-submit">
             Save

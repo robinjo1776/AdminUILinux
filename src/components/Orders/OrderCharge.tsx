@@ -1,7 +1,7 @@
 import React from 'react';
-import { Order, Charge } from '../../../types/OrderTypes';
+import { Order, Charge } from '../../types/OrderTypes';
 
-interface EditOrderChargesProps {
+interface OrderChargeProps {
   setFormOrder: React.Dispatch<React.SetStateAction<Order>>;
   order: Order;
   charge: Charge;
@@ -10,7 +10,7 @@ interface EditOrderChargesProps {
   onRemove: (index: number) => void;
 }
 
-const EditOrderCharges: React.FC<EditOrderChargesProps> = ({ charge, index, onChange, onRemove }) => {
+const OrderCharge: React.FC<OrderChargeProps> = ({ charge, index, onChange, onRemove }) => {
   const rateOptions = ['Flat', 'Percentage'];
 
   const handleChargeChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -51,4 +51,4 @@ const EditOrderCharges: React.FC<EditOrderChargesProps> = ({ charge, index, onCh
   );
 };
 
-export default EditOrderCharges;
+export default OrderCharge;

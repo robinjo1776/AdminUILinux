@@ -3,6 +3,14 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import { Vendor, Contact } from '../../types/VendorTypes';
 
+// Helper function to format date strings
+const formatDateForInput = (date: string | Date) => {
+  if (!date) return '';
+  const d = typeof date === 'string' ? new Date(date) : date;
+  if (isNaN(d.getTime())) return '';
+  return d.toISOString().split('T')[0];
+};
+
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 const useEditVendor = (vendor: Vendor | null, onClose: () => void, onUpdate: (vendor: Vendor) => void) => {
@@ -70,7 +78,17 @@ const useEditVendor = (vendor: Vendor | null, onClose: () => void, onUpdate: (ve
   useEffect(() => {
     if (vendor) {
       const parsedContacts = Array.isArray(vendor.contacts) ? vendor.contacts : JSON.parse(vendor.contacts || '[]');
-      setFormVendor({ ...vendor, contacts: parsedContacts.length > 0 ? parsedContacts : [] });
+
+      const updatedVendor = {
+        ...vendor,
+        contacts: parsedContacts.length > 0 ? parsedContacts : [],
+        liab_policy_start: formatDateForInput(vendor.liab_policy_start),
+        liab_policy_end: formatDateForInput(vendor.liab_policy_end),
+        cargo_policy_start: formatDateForInput(vendor.cargo_policy_start),
+        cargo_policy_end: formatDateForInput(vendor.cargo_policy_end),
+      };
+
+      setFormVendor(updatedVendor);
     }
   }, [vendor]);
 
@@ -128,4 +146,4 @@ const useEditVendor = (vendor: Vendor | null, onClose: () => void, onUpdate: (ve
     handleContactChange,
   };
 };
-export default useEditVendor
+export default useEditVendor;

@@ -1,4 +1,6 @@
-import React from 'react';
+import { FC, useState } from 'react';
+import DOMPurify from 'dompurify';
+import { z } from 'zod';
 import { Vendor } from '../../../types/VendorTypes';
 
 interface EditVendorARProps {
@@ -6,80 +8,56 @@ interface EditVendorARProps {
   setFormVendor: React.Dispatch<React.SetStateAction<Vendor>>;
 }
 
-// Sanitization functions
-const sanitizeName = (value: string) => value.replace(/[^a-zA-Z\s-]/g, ''); // Only letters, spaces, and dashes
-const sanitizeEmail = (value: string) => value.replace(/[^\w@.-]/g, ''); // Removes invalid email characters
-const sanitizeNumber = (value: string) => value.replace(/\D/g, ''); // Removes non-numeric characters
+const vendorARSchema = z.object({
+  ar_name: z
+    .string()
+    .max(200, 'Name must be at most 200 characters')
+    .regex(/^[a-zA-Z0-9\s.,'-]*$/, 'Only letters, numbers,spaces, apostrophes, periods, commas, and hyphens allowed')
+    .optional(),
+  ar_email: z.string().max(255, 'Name must be at most 255 characters').email('Invalid email format').optional(),
+  ar_contact_no: z.string().max(15, 'Contact No must be at most 15 characters').regex(/^\d*$/, 'Contact number must be numeric').optional(),
+  ar_ext: z.string().max(10, 'Extension must be at most 10 characters').regex(/^\d*$/, 'Extension must be numeric').optional(),
+});
 
 const EditVendorAR: React.FC<EditVendorARProps> = ({ formVendor, setFormVendor }) => {
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  const validateAndSetVendor = (field: keyof Vendor, value: string) => {
+    const sanitizedValue = DOMPurify.sanitize(value);
+    const tempVendor = { ...formVendor, [field]: sanitizedValue };
+
+    const result = vendorARSchema.safeParse(tempVendor);
+    setErrors(result.success ? {} : Object.fromEntries(result.error.errors.map((e) => [e.path[0], e.message])));
+    setFormVendor(tempVendor);
+  };
+
+  const fields = [
+    { label: 'Name', name: 'ar_name' },
+    { label: 'Email', name: 'ar_email' },
+    { label: 'Contact No', name: 'ar_contact_no' },
+    { label: 'Ext', name: 'ar_ext' },
+  ];
+
   return (
     <fieldset className="form-section">
       <legend>Account Receivable Details</legend>
       <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
-        {/* AR Name */}
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="arName">Name</label>
-          <input
-            type="text"
-            id="arName"
-            value={formVendor.ar_name ?? ''}
-            onChange={(e) => {
-              const sanitizedValue = sanitizeName(e.target.value);
-              setFormVendor((prev) => ({ ...prev, ar_name: sanitizedValue }));
-            }}
-            maxLength={50}
-            required
-          />
-        </div>
-
-        {/* AR Email */}
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="arEmail">Email</label>
-          <input
-            type="email"
-            id="arEmail"
-            value={formVendor.ar_email ?? ''}
-            onChange={(e) => {
-              const sanitizedValue = sanitizeEmail(e.target.value);
-              setFormVendor((prev) => ({ ...prev, ar_email: sanitizedValue }));
-            }}
-            maxLength={100}
-            required
-          />
-        </div>
-
-        {/* AR Contact Number */}
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="arContact">Contact No</label>
-          <input
-            type="tel"
-            id="arContact"
-            value={formVendor.ar_contact_no ?? ''}
-            onChange={(e) => {
-              const sanitizedValue = sanitizeNumber(e.target.value);
-              setFormVendor((prev) => ({ ...prev, ar_contact_no: sanitizedValue }));
-            }}
-            maxLength={15}
-            pattern="\d{10,15}"
-            title="Enter a valid contact number"
-            required
-          />
-        </div>
-
-        {/* AR Extension */}
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="arExt">Ext</label>
-          <input
-            type="text"
-            id="arExt"
-            value={formVendor.ar_ext ?? ''}
-            onChange={(e) => {
-              const sanitizedValue = sanitizeNumber(e.target.value);
-              setFormVendor((prev) => ({ ...prev, ar_ext: sanitizedValue }));
-            }}
-            maxLength={5}
-          />
-        </div>
+        {fields.map(({ label, name }) => (
+          <div className="form-group" style={{ flex: 1 }} key={name}>
+            <label htmlFor={name}>{label}</label>
+            <input
+              type="text"
+              id={name}
+              value={(formVendor[name as keyof Vendor] as string | number) || ''}
+              onChange={(e) => validateAndSetVendor(name as keyof Vendor, e.target.value)}
+            />
+            {errors[name] && (
+              <span className="error" style={{ color: 'red' }}>
+                {errors[name]}
+              </span>
+            )}
+          </div>
+        ))}
       </div>
     </fieldset>
   );

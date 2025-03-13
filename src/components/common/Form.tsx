@@ -1,20 +1,26 @@
 import '../../styles/Form.css';
 import AutocompleteAddressInput from './AutocompleteAddressInput';
 
-const Form = ({ formData, onChange, options }) => {
-  const handleChange = (key, value) => {
+interface FormProps {
+  formData: Record<string, any>;
+  onChange: (updatedData: Record<string, any>) => void;
+  options: Record<string, string[]>;
+}
+
+const Form: React.FC<FormProps> = ({ formData, onChange, options }) => {
+  const handleChange = (key: string, value: string) => {
     onChange({ ...formData, [key]: value });
   };
 
-  const handleSelectChange = (key, value) => {
+  const handleSelectChange = (key: string, value: string) => {
     onChange({ ...formData, [key]: value });
   };
 
-  const formatLabel = (key) => {
+  const formatLabel = (key: string): string => {
     return key.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
   };
 
-  const inputType = (key) => {
+  const inputType = (key: string): string => {
     switch (key) {
       case 'email':
         return 'email';
@@ -30,10 +36,10 @@ const Form = ({ formData, onChange, options }) => {
     }
   };
 
-  const isTextarea = (key) => ['notes'].includes(key);
-  const isRequired = (key) => ['customer_name', 'phone', 'email'].includes(key);
+  const isTextarea = (key: string): boolean => ['notes'].includes(key);
+  const isRequired = (key: string): boolean => ['customer_name', 'phone', 'email'].includes(key);
 
-  const renderField = (key) => {
+  const renderField = (key: string) => {
     const fieldType = isTextarea(key) ? 'textarea' : 'input';
     const value = formData[key] || '';
 

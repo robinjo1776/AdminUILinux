@@ -1,184 +1,108 @@
 import { useEffect, useRef, useState, FC } from 'react';
 import { Vendor } from '../../../types/VendorTypes';
+import { z } from 'zod';
+import DOMPurify from 'dompurify';
+import { useGoogleAutocomplete } from '../../../hooks/useGoogleAutocomplete';
+
+declare global {
+  interface Window {
+    google?: any;
+  }
+}
 
 interface VendorBankingProps {
   vendor: Vendor;
   setVendor: React.Dispatch<React.SetStateAction<Vendor>>;
 }
 
+const vendorBankingSchema = z.object({
+  bank_name: z
+    .string()
+    .max(150, 'Bank name must be at most 150 characters')
+    .regex(/^[a-zA-Z0-9\s.,'-]*$/, 'Only letters, numbers,spaces, apostrophes, periods, commas, and hyphens allowed')
+    .optional(),
+  bank_phone: z.string().max(15, 'Phone must be at most 15 digits').regex(/^\d*$/, 'Only numbers allowed').optional(),
+  bank_email: z.string().max(255, 'Email must be at most 255 characters').email('Invalid email format').optional(),
+  bank_us_acc_no: z
+    .string()
+    .length(9, 'US Account No must be exactly 9 digits')
+    .regex(/^\d{9}$/, 'Only numbers allowed')
+    .optional(),
+  bank_cdn_acc_no: z.string().max(12, 'Canadian Account No must be at most 12 digits').regex(/^\d*$/, 'Only numbers allowed').optional(),
+  bank_address: z
+    .string()
+    .max(100, 'Address too long')
+    .regex(/^[a-zA-Z0-9\s.,'-]*$/, 'Only letters, numbers,spaces, apostrophes, periods, commas, and hyphens allowed')
+    .optional(),
+});
+
 const VendorBanking: FC<VendorBankingProps> = ({ vendor, setVendor }) => {
-  const addressRef = useRef<HTMLInputElement | null>(null);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  useEffect(() => {
-    const loadGoogleMapsApi = () => {
-      if ((window as any).google?.maps) {
-        initializeAutocomplete();
-        return;
-      }
-      const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places`;
-      script.async = true;
-      script.defer = true;
-      script.onload = () => {
-        if ((window as any).google?.maps) {
-          initializeAutocomplete();
-        }
-      };
-      document.head.appendChild(script);
-    };
-
-    loadGoogleMapsApi();
-  }, []);
-
-  const initializeAutocomplete = () => {
-    if (!addressRef.current) return;
-    const autocomplete = new (window as any).google.maps.places.Autocomplete(addressRef.current, {
-      types: ['address'],
-    });
-
-    autocomplete.addListener('place_changed', () => {
-      const place = autocomplete.getPlace();
-      if (!place || !place.address_components) {
-        console.error('No valid address selected');
-        return;
-      }
-      updateAddressFields(place);
-    });
-  };
-
   const updateAddressFields = (place: google.maps.places.PlaceResult) => {
-    const addressComponents = place.address_components || [];
-    const streetNumber = getComponent('street_number', '', addressComponents);
-    const route = getComponent('route', '', addressComponents);
-    const mainAddress = `${streetNumber} ${route}`.trim();
-    setVendor((prevVendor) => ({ ...prevVendor, bank_address: mainAddress }));
+    const getComponent = (type: string) => place.address_components?.find((c) => c.types.includes(type))?.long_name || '';
+
+    const fullAddress =
+      place.formatted_address ||
+      `${getComponent('street_number')} ${getComponent('route')}, ${getComponent('locality')}, ${getComponent(
+        'administrative_area_level_1'
+      )} ${getComponent('postal_code')}, ${getComponent('country')}`;
+
+    setVendor((prev) => ({
+      ...prev,
+      bank_address: fullAddress,
+    }));
   };
 
-  const getComponent = (type: string, fallback: string, components: google.maps.GeocoderAddressComponent[]) => {
-    const component = components.find((c) => c.types.includes(type));
-    return component ? component.long_name : fallback;
-  };
+  const addressRef = useGoogleAutocomplete(updateAddressFields);
 
   const validateAndSetVendor = (field: keyof Vendor, value: string) => {
+    const sanitizedValue = DOMPurify.sanitize(value);
     let error = '';
-    let sanitizedValue = value.trim();
 
-    switch (field) {
-      case 'bank_name':
-        sanitizedValue = sanitizedValue.replace(/[^a-zA-Z\s]/g, ''); // Keep only letters
-        if (sanitizedValue.length < 2 || sanitizedValue.length > 50) {
-          error = 'Bank name must be 2-50 characters long';
-        }
-        break;
-      case 'bank_phone':
-        sanitizedValue = sanitizedValue.replace(/\D/g, ''); // Keep only numbers
-        if (sanitizedValue.length < 7) error = 'Phone must be at least 7 digits';
-        break;
-      case 'bank_email':
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sanitizedValue)) {
-          error = 'Invalid email format';
-        }
-        break;
-      case 'bank_us_acc_no':
-        sanitizedValue = sanitizedValue.replace(/\D/g, ''); // Keep only numbers
-        if (sanitizedValue.length !== 9) error = 'US Account No must be exactly 9 digits';
-        break;
-      case 'bank_cdn_acc_no':
-        sanitizedValue = sanitizedValue.replace(/\D/g, ''); // Keep only numbers
-        if (sanitizedValue.length < 7 || sanitizedValue.length > 12) error = 'Canadian Account No must be 7-12 digits';
-        break;
-      default:
-        break;
+    const tempVendor = { ...vendor, [field]: sanitizedValue };
+
+    const result = vendorBankingSchema.safeParse(tempVendor);
+    if (!result.success) {
+      const fieldError = result.error.errors.find((err) => err.path[0] === field);
+      error = fieldError ? fieldError.message : '';
     }
 
     setErrors((prevErrors) => ({ ...prevErrors, [field]: error }));
-    setVendor({ ...vendor, [field]: sanitizedValue });
+    setVendor(tempVendor);
   };
 
+  const fields: { label: string; key: keyof Vendor; placeholder: string }[] = [
+    { label: 'Bank Name', key: 'bank_name', placeholder: 'Enter bank name (e.g., Chase Bank)' },
+    { label: 'Phone', key: 'bank_phone', placeholder: 'Enter phone number (at least 7 digits)' },
+    { label: 'Email', key: 'bank_email', placeholder: 'Enter bank email (e.g., support@bank.com)' },
+    { label: 'US Account No', key: 'bank_us_acc_no', placeholder: 'Enter 9-digit US account number' },
+    { label: 'Canadian Account No', key: 'bank_cdn_acc_no', placeholder: 'Enter 7-12 digit Canadian account number' },
+    { label: 'Address', key: 'bank_address', placeholder: 'Enter bank address' },
+  ];
+
   return (
-    <fieldset className="form-section">
+    <fieldset>
       <legend>Bank Details</legend>
-      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
-        {/* Bank Name */}
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="bankName">Name</label>
-          <input
-            type="text"
-            value={vendor.bank_name}
-            onChange={(e) => validateAndSetVendor('bank_name', e.target.value)}
-            id="bankName"
-            placeholder="Name"
-          />
-          {errors.bank_name && <small className="error">{errors.bank_name}</small>}
-        </div>
-
-        {/* Bank Phone */}
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="bankPhone">Phone</label>
-          <input
-            type="text"
-            value={vendor.bank_phone}
-            onChange={(e) => validateAndSetVendor('bank_phone', e.target.value)}
-            id="bankPhone"
-            placeholder="Phone"
-          />
-          {errors.bank_phone && <small className="error">{errors.bank_phone}</small>}
-        </div>
-
-        {/* Bank Email */}
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="bankEmail">Email</label>
-          <input
-            type="text"
-            value={vendor.bank_email}
-            onChange={(e) => validateAndSetVendor('bank_email', e.target.value)}
-            id="bankEmail"
-            placeholder="Email"
-          />
-          {errors.bank_email && <small className="error">{errors.bank_email}</small>}
-        </div>
-      </div>
-
-      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
-        {/* US Account No */}
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="bankUSAccNo">US Account No</label>
-          <input
-            type="text"
-            value={vendor.bank_us_acc_no}
-            onChange={(e) => validateAndSetVendor('bank_us_acc_no', e.target.value)}
-            id="bankUSAccNo"
-            placeholder="US Account No"
-          />
-          {errors.bank_us_acc_no && <small className="error">{errors.bank_us_acc_no}</small>}
-        </div>
-
-        {/* Canadian Account No */}
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="bankCdnAccNo">Canadian Account No</label>
-          <input
-            type="text"
-            value={vendor.bank_cdn_acc_no}
-            onChange={(e) => validateAndSetVendor('bank_cdn_acc_no', e.target.value)}
-            id="bankCdnAccNo"
-            placeholder="Canadian Account No"
-          />
-          {errors.bank_cdn_acc_no && <small className="error">{errors.bank_cdn_acc_no}</small>}
-        </div>
-
-        {/* Bank Address */}
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="bankAddress">Address</label>
-          <input
-            type="text"
-            ref={addressRef}
-            value={vendor.bank_address}
-            onChange={(e) => setVendor({ ...vendor, bank_address: e.target.value })}
-            id="bankAddress"
-            placeholder="Address"
-          />
-        </div>
+      <div className="form-grid" style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))' }}>
+        {fields.map(({ label, key, placeholder }) => (
+          <div className="form-group" key={key}>
+            <label htmlFor={key}>{label}</label>
+            <input
+              id={key}
+              type="text"
+              value={(vendor[key] as string | number) || ''}
+              onChange={(e) => validateAndSetVendor(key, e.target.value)}
+              ref={key === 'bank_address' ? addressRef : undefined}
+              placeholder={placeholder}
+            />
+            {errors[key] && (
+              <span className="error" style={{ color: 'red' }}>
+                {errors[key]}
+              </span>
+            )}
+          </div>
+        ))}
       </div>
     </fieldset>
   );

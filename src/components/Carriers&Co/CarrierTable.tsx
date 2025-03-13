@@ -9,6 +9,7 @@ import useCarrierTable from '../../hooks/table/useCarrierTable';
 
 const CarrierTable: React.FC = () => {
   const {
+    fetchCarriers,
     carriers,
     loading,
     searchQuery,
@@ -128,7 +129,7 @@ const CarrierTable: React.FC = () => {
       </Modal>
 
       <Modal isOpen={isAddModalOpen} onClose={() => setAddModalOpen(false)} title="Add Carrier">
-        <AddCarrierForm onClose={() => setAddModalOpen(false)} onAddCarrier={(newCarrier) => updateCarrier(newCarrier)} />
+        <AddCarrierForm onClose={() => setAddModalOpen(false)} onSuccess={fetchCarriers} />
       </Modal>
 
       <Modal isOpen={isEmailModalOpen} onClose={() => setEmailModalOpen(false)} title="Send Email">

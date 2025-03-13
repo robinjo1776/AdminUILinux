@@ -1,15 +1,14 @@
 import '../../../styles/Form.css';
 import BrokerDetails from './BrokerDetails';
-import { Broker } from '../../../types/BrokerTypes';
 import { useAddBroker } from '../../../hooks/add/useAddBroker';
 
 interface AddBrokerFormProps {
   onClose: () => void;
-  onAddBroker: (broker: Broker) => void;
+  onSuccess: () => void;
 }
 
-const AddBrokerForm: React.FC<AddBrokerFormProps> = ({ onClose, onAddBroker }) => {
-  const { broker, setBroker, handleSubmit } = useAddBroker(onAddBroker, onClose);
+const AddBrokerForm: React.FC<AddBrokerFormProps> = ({ onClose, onSuccess }) => {
+  const { broker, setBroker, handleSubmit } = useAddBroker(onClose, onSuccess);
 
   return (
     <div className="form-container">

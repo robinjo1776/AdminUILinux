@@ -60,7 +60,7 @@ const useEditBroker = ({ broker, onUpdate, onClose }: UseEditBrokerProps) => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      Swal.fire({ icon: 'success', title: 'Updated!', text: 'Broker data has been updated successfully.' });
+      Swal.fire({ icon: 'success', title: 'Success!', text: 'Broker details updated.' });
       onUpdate(response.data);
       onClose();
     } catch (error: any) {

@@ -3,10 +3,8 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import { Order, Charge, Location } from '../../types/OrderTypes';
 
-const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
-
 export const useAddOrder = (onClose: () => void, onAddOrder: (order: Order) => void) => {
-  const [order, setOrder] = useState<Order>({
+  const initialOrderState: Order = {
     id: 0,
     customer: '',
     customer_ref_no: '',
@@ -38,7 +36,10 @@ export const useAddOrder = (onClose: () => void, onAddOrder: (order: Order) => v
     notes: '',
     created_at: '',
     updated_at: '',
-  });
+  };
+
+  const [order, setOrder] = useState<Order>(initialOrderState);
+  const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();

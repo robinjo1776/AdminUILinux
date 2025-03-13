@@ -1,101 +1,64 @@
-import { FC, useState } from "react";
-import { Vendor } from "../../../types/VendorTypes";
+import { FC, useState } from 'react';
+import DOMPurify from 'dompurify';
+import { z } from 'zod';
+import { Vendor } from '../../../types/VendorTypes';
 
 interface VendorARProps {
   vendor: Vendor;
   setVendor: (vendor: Vendor) => void;
 }
 
+const vendorARSchema = z.object({
+  ar_name: z
+    .string()
+    .max(200, 'Name must be at most 200 characters')
+    .regex(/^[a-zA-Z0-9\s.,'-]*$/, 'Only letters, numbers,spaces, apostrophes, periods, commas, and hyphens allowed')
+    .optional(),
+  ar_email: z.string().max(255, 'Name must be at most 255 characters').email('Invalid email format').optional(),
+  ar_contact_no: z.string().max(15, 'Contact No must be at most 15 characters').regex(/^\d*$/, 'Contact number must be numeric').optional(),
+  ar_ext: z.string().max(10, 'Extension must be at most 10 characters').regex(/^\d*$/, 'Extension must be numeric').optional(),
+});
+
 const VendorAR: FC<VendorARProps> = ({ vendor, setVendor }) => {
-  const [errors, setErrors] = useState<{ arName?: string; arEmail?: string; arContactNo?: string; arExt?: string }>({});
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const validateAndSetVendor = (field: keyof Vendor, value: string) => {
-    let error = "";
-    let sanitizedValue = value.trim();
+    const sanitizedValue = DOMPurify.sanitize(value);
+    const tempVendor = { ...vendor, [field]: sanitizedValue };
 
-    switch (field) {
-      case "ar_name":
-        sanitizedValue = sanitizedValue.replace(/[^a-zA-Z\s]/g, ""); // Remove non-alphabetic chars
-        if (sanitizedValue.length < 2 || sanitizedValue.length > 50) {
-          error = "Name must be between 2 and 50 alphabetic characters";
-        }
-        break;
-      case "ar_email":
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sanitizedValue)) {
-          error = "Invalid email format";
-        }
-        break;
-      case "ar_contact_no":
-        sanitizedValue = sanitizedValue.replace(/\D/g, ""); // Keep only numbers
-        if (sanitizedValue.length < 7) error = "Contact number must be at least 7 digits";
-        break;
-      case "ar_ext":
-        sanitizedValue = sanitizedValue.replace(/\D/g, ""); // Keep only numbers
-        if (sanitizedValue && isNaN(Number(sanitizedValue))) error = "Extension must be numeric";
-        break;
-      default:
-        break;
-    }
-
-    setErrors((prevErrors) => ({ ...prevErrors, [field]: error }));
-    setVendor({ ...vendor, [field]: sanitizedValue });
+    const result = vendorARSchema.safeParse(tempVendor);
+    setErrors(result.success ? {} : Object.fromEntries(result.error.errors.map((e) => [e.path[0], e.message])));
+    setVendor(tempVendor);
   };
+
+  const fields = [
+    { label: 'Name', name: 'ar_name', placeholder: 'Enter full name (e.g., John Doe)' },
+    { label: 'Email', name: 'ar_email', placeholder: 'Enter email (e.g., john.doe@example.com)' },
+    { label: 'Contact No', name: 'ar_contact_no', placeholder: 'Enter contact number (at least 7 digits)' },
+    { label: 'Ext', name: 'ar_ext', placeholder: 'Enter extension (optional)' },
+  ];
 
   return (
     <fieldset className="form-section">
       <legend>Account Receivable Details</legend>
-      <div className="form-row" style={{ display: "flex", gap: "1rem" }}>
-        {/* Name */}
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="arName">Name</label>
-          <input
-            type="text"
-            value={vendor.ar_name}
-            onChange={(e) => validateAndSetVendor("ar_name", e.target.value)}
-            id="arName"
-            placeholder="Name"
-          />
-          {errors.arName && <small className="error">{errors.arName}</small>}
-        </div>
-
-        {/* Email */}
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="arEmail">Email</label>
-          <input
-            type="text"
-            value={vendor.ar_email}
-            onChange={(e) => validateAndSetVendor("ar_email", e.target.value)}
-            id="arEmail"
-            placeholder="Email"
-          />
-          {errors.arEmail && <small className="error">{errors.arEmail}</small>}
-        </div>
-
-        {/* Contact No */}
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="arContactNo">Contact No</label>
-          <input
-            type="text"
-            value={vendor.ar_contact_no}
-            onChange={(e) => validateAndSetVendor("ar_contact_no", e.target.value)}
-            id="arContactNo"
-            placeholder="Contact No"
-          />
-          {errors.arContactNo && <small className="error">{errors.arContactNo}</small>}
-        </div>
-
-        {/* Extension */}
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="arExt">Ext</label>
-          <input
-            type="text"
-            value={vendor.ar_ext}
-            onChange={(e) => validateAndSetVendor("ar_ext", e.target.value)}
-            id="arExt"
-            placeholder="Ext"
-          />
-          {errors.arExt && <small className="error">{errors.arExt}</small>}
-        </div>
+      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
+        {fields.map(({ label, name, placeholder }) => (
+          <div className="form-group" style={{ flex: 1 }} key={name}>
+            <label htmlFor={name}>{label}</label>
+            <input
+              type="text"
+              id={name}
+              value={(vendor[name as keyof Vendor] as string | number) || ''}
+              onChange={(e) => validateAndSetVendor(name as keyof Vendor, e.target.value)}
+              placeholder={placeholder}
+            />
+            {errors[name] && (
+              <span className="error" style={{ color: 'red' }}>
+                {errors[name]}
+              </span>
+            )}
+          </div>
+        ))}
       </div>
     </fieldset>
   );

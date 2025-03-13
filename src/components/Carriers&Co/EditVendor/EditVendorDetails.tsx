@@ -1,4 +1,6 @@
-import React from 'react';
+import { useState } from 'react';
+import DOMPurify from 'dompurify';
+import { z } from 'zod';
 import { Vendor } from '../../../types/VendorTypes';
 
 interface EditVendorDetailsProps {
@@ -6,73 +8,109 @@ interface EditVendorDetailsProps {
   setFormVendor: React.Dispatch<React.SetStateAction<Vendor>>;
 }
 
-const sanitizeInput = (value: string) => {
-  return value.replace(/[^a-zA-Z0-9 \-.,]/g, '');
-};
-
+const vendorDetailSchema = z.object({
+  legal_name: z
+    .string()
+    .max(200, 'Legal Name must be at most 200 characters long')
+    .regex(/^[a-zA-Z0-9\s.,'-]*$/, 'Only letters, numbers,spaces, apostrophes, periods, commas, and hyphens allowed')
+    .optional(),
+  remit_name: z
+    .string()
+    .max(200, 'Remit Name must be at most 200 characters long')
+    .regex(/^[a-zA-Z0-9\s.,'-]*$/, 'Only letters, numbers,spaces, apostrophes, periods, commas, and hyphens allowed')
+    .optional(),
+  vendor_type: z
+    .string()
+    .max(50, 'Vendor Type must be at most 50 characters long')
+    .regex(/^[a-zA-Z0-9\s.,'-]*$/, 'Only letters, numbers,spaces, apostrophes, periods, commas, and hyphens allowed')
+    .optional(),
+  service: z
+    .string()
+    .max(100, 'Service must be at most 100 characters long')
+    .regex(/^[a-zA-Z0-9\s.,'-]*$/, 'Only letters, numbers,spaces, apostrophes, periods, commas, and hyphens allowed')
+    .optional(),
+  scac: z
+    .string()
+    .max(10, 'SCAC must be at most 10 characters long')
+    .regex(/^[a-zA-Z0-9-]*$/, 'Only letters, numbers, and dashes allowed')
+    .optional(),
+  docket_number: z
+    .string()
+    .max(50, 'Docket# must be at most 50 characters long')
+    .regex(/^[a-zA-Z0-9-]*$/, 'Only letters, numbers, and dashes allowed')
+    .optional(),
+  vendor_code: z
+    .string()
+    .max(20, 'Vendor Code must be at most 20 characters long')
+    .regex(/^[a-zA-Z\s0-9-]*$/, 'Only letters, numbers, spaces and dashes allowed')
+    .optional(),
+  gst_hst_number: z
+    .string()
+    .regex(/^[a-zA-Z0-9-]*$/, 'Only letters, numbers, and dashes allowed')
+    .optional(),
+  qst_number: z
+    .string()
+    .regex(/^[a-zA-Z0-9-]*$/, 'Only letters, numbers, and dashes allowed')
+    .optional(),
+  ca_bond_number: z
+    .string()
+    .regex(/^[a-zA-Z0-9-]*$/, 'Only letters, numbers, and dashes allowed')
+    .optional(),
+  website: z.string().max(255, 'Website must be at most 255 characters long').url('Invalid website URL').optional(),
+});
 const EditVendorDetails: React.FC<EditVendorDetailsProps> = ({ formVendor, setFormVendor }) => {
-  const handleChange = (field: keyof Vendor) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    const sanitizedValue = sanitizeInput(e.target.value);
-    setFormVendor({ ...formVendor, [field]: sanitizedValue });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validateAndSetVendor = (field: keyof Vendor, value: string) => {
+    const sanitizedValue = DOMPurify.sanitize(value);
+    let error = '';
+
+    const tempVendor = { ...formVendor, [field]: sanitizedValue };
+    const result = vendorDetailSchema.safeParse(tempVendor);
+
+    if (!result.success) {
+      const fieldError = result.error.errors.find((err) => err.path[0] === field);
+      error = fieldError ? fieldError.message : '';
+    }
+
+    setErrors((prevErrors) => ({ ...prevErrors, [field]: error }));
+    setFormVendor(tempVendor);
   };
+
+  const fields = [
+    { label: 'Legal Name', key: 'legal_name' },
+    { label: 'Remit Name', key: 'remit_name' },
+    { label: 'Vendor Type', key: 'vendor_type' },
+    { label: 'Service', key: 'service' },
+    { label: 'SCAC', key: 'scac' },
+    { label: 'Docket#', key: 'docket_number' },
+    { label: 'Vendor Code', key: 'vendor_code' },
+    { label: 'GST/HST#', key: 'gst_hst_number' },
+    { label: 'QST#', key: 'qst_number' },
+    { label: 'CA Bond#', key: 'ca_bond_number' },
+    { label: 'Website', key: 'website' },
+  ];
 
   return (
     <fieldset className="form-section">
       <legend>Vendor Details</legend>
-      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="legalName">Legal Name</label>
-          <input type="text" value={formVendor.legal_name} onChange={handleChange('legal_name')} id="legalName" />
-        </div>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="remitName">Remit Name</label>
-          <input type="text" value={formVendor.remit_name} onChange={handleChange('remit_name')} id="remitName" />
-        </div>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="vendorType">Vendor Type</label>
-          <input type="text" value={formVendor.vendor_type} onChange={handleChange('vendor_type')} id="vendorType" />
-        </div>
-      </div>
-      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="service">Service</label>
-          <input type="text" value={formVendor.service} onChange={handleChange('service')} id="service" />
-        </div>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="scac">SCAC</label>
-          <input type="text" value={formVendor.scac} onChange={handleChange('scac')} id="scac" />
-        </div>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="docketNumber">Docket#</label>
-          <input type="text" value={formVendor.docket_number} onChange={handleChange('docket_number')} id="docketNumber" />
-        </div>
-      </div>
-      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="vendorCode">Vendor Code</label>
-          <input type="text" value={formVendor.vendor_code} onChange={handleChange('vendor_code')} id="vendorCode" />
-        </div>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="gstHstNumber">GST/HST#</label>
-          <input type="text" value={formVendor.gst_hst_number} onChange={handleChange('gst_hst_number')} id="gstHstNumber" />
-        </div>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="qstNumber">QST#</label>
-          <input type="text" value={formVendor.qst_number} onChange={handleChange('qst_number')} id="qstNumber" />
-        </div>
-      </div>
-      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="caBondNumber">CA bond#</label>
-          <input type="text" value={formVendor.ca_bond_number} onChange={handleChange('ca_bond_number')} id="caBondNumber" />
-        </div>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="website">Website</label>
-          <input type="text" value={formVendor.website} onChange={handleChange('website')} id="website" />
-        </div>
-        <div className="form-group" style={{ flex: 1 }}>
-          <input type="hidden" />
-        </div>
+      <div className="form-grid" style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))' }}>
+        {fields.map(({ label, key }) => (
+          <div className="form-group" key={key}>
+            <label htmlFor={key}>{label}</label>
+            <input
+              type="text"
+              id={key}
+              value={(formVendor[key as keyof Vendor] as string | number) || ''}
+              onChange={(e) => validateAndSetVendor(key as keyof Vendor, e.target.value)}
+            />
+            {errors[key] && (
+              <span className="error" style={{ color: 'red' }}>
+                {errors[key]}
+              </span>
+            )}
+          </div>
+        ))}
       </div>
     </fieldset>
   );

@@ -1,15 +1,29 @@
 import { useEffect, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
-import { FaShippingFast, FaChartLine, FaDollarSign, FaUsers } from 'react-icons/fa'; // Icons for visual appeal
+import { FaShippingFast, FaChartLine, FaDollarSign, FaUsers } from 'react-icons/fa';
 import '../styles/dashboard.css';
 
-const Dashboard = () => {
-  const [dashboardData, setDashboardData] = useState(null);
+interface OrderTrend {
+  date: string;
+  orders: number;
+}
+
+interface DashboardData {
+  totalOrders: number;
+  totalShipments: number;
+  totalRevenue: number;
+  activeCustomers: number;
+  orderTrends: OrderTrend[];
+}
+
+const Dashboard: React.FC = () => {
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
-      throw new Error('No token found');
+      console.error('No token found');
+      return;
     }
     fetch('http://127.0.0.1:8000/api/dashboard-data', {
       headers: {
@@ -18,7 +32,7 @@ const Dashboard = () => {
       },
     })
       .then((response) => response.json())
-      .then((data) => setDashboardData(data))
+      .then((data: DashboardData) => setDashboardData(data))
       .catch((error) => console.error('Error fetching data:', error));
   }, []);
 

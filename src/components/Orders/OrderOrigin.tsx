@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { DeleteOutlined } from '@ant-design/icons';
-import { Location } from '../../../types/OrderTypes';
+import { Location } from '../../types/OrderTypes';
 
 type Order = {
   origin_location: Location[];
 };
 
-type EditOrderOriginProps = {
+type OrderOriginProps = {
   setFormOrder: (updateFn: (prevOrder: Order) => Order) => void;
   order: Order;
   origin: Location;
@@ -14,7 +14,7 @@ type EditOrderOriginProps = {
   onRemove: (index: number) => void;
 };
 
-function EditOrderOrigin({ setFormOrder, order, origin, index, onRemove }: EditOrderOriginProps) {
+function OrderOrigin({ setFormOrder, order, origin, index, onRemove }: OrderOriginProps) {
   const addressRef = useRef<HTMLInputElement>(null);
   const [scriptLoaded, setScriptLoaded] = useState<boolean>(!!window.google?.maps);
 
@@ -119,4 +119,4 @@ function EditOrderOrigin({ setFormOrder, order, origin, index, onRemove }: EditO
   );
 }
 
-export default EditOrderOrigin;
+export default OrderOrigin;

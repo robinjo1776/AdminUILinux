@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { DeleteOutlined } from '@ant-design/icons';
-import { Order, Location } from '../../../types/OrderTypes';
+import { Order, Location } from '../../types/OrderTypes';
 
-interface EditOrderDestinationProps {
+interface OrderDestinationProps {
   setFormOrder: React.Dispatch<React.SetStateAction<Order>>;
   order: Order;
   destination: Location;
@@ -10,7 +10,7 @@ interface EditOrderDestinationProps {
   onRemove: (index: number) => void;
 }
 
-const EditOrderDestination: React.FC<EditOrderDestinationProps> = ({ setFormOrder, order, destination = {}, index, onRemove }) => {
+const OrderDestination: React.FC<OrderDestinationProps> = ({ setFormOrder, order, destination = {}, index, onRemove }) => {
   const addressRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -191,4 +191,4 @@ const EditOrderDestination: React.FC<EditOrderDestinationProps> = ({ setFormOrde
   );
 };
 
-export default EditOrderDestination;
+export default OrderDestination;

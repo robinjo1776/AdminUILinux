@@ -1,59 +1,91 @@
-import React from 'react';
-import { Vendor } from "../../../types/VendorTypes";
+import { FC, useState } from 'react';
+import { Vendor } from '../../../types/VendorTypes';
+import { z } from 'zod';
+import DOMPurify from 'dompurify';
+
+// Helper function to format date strings
+const formatDateForInput = (date: string | Date) => {
+  if (!date) return '';
+  const d = typeof date === 'string' ? new Date(date) : date;
+  if (isNaN(d.getTime())) return '';
+  return d.toISOString().split('T')[0];
+};
 
 interface EditVendorLiabilityInsuranceProps {
   formVendor: Vendor;
   setFormVendor: React.Dispatch<React.SetStateAction<Vendor>>;
 }
 
+const liabilitySchema = z
+  .object({
+    liab_company: z
+      .string()
+      .max(150, 'Liability Insurance Provider must be at most 150 characters')
+      .regex(/^[a-zA-Z0-9\s.,'-]*$/, 'Only letters, numbers,spaces, apostrophes, periods, commas, and hyphens allowed')
+      .optional(),
+    liab_policy_start: z.string().optional(),
+    liab_policy_end: z.string().optional(),
+    liab_ins_amt: z.string().regex(/^\d*$/, 'Coverage amount must be a positive number').optional(),
+  })
+  .refine(
+    (data) => {
+      if (!data.liab_policy_start || !data.liab_policy_end) return true;
+      const start = new Date(data.liab_policy_start);
+      const end = new Date(data.liab_policy_end);
+      return !isNaN(start.getTime()) && !isNaN(end.getTime()) && start <= end;
+    },
+    {
+      message: 'End date must be after or equal to start date',
+      path: ['liab_policy_end'],
+    }
+  );
+
 const EditVendorLiabilityInsurance: React.FC<EditVendorLiabilityInsuranceProps> = ({ formVendor, setFormVendor }) => {
-  // Helper function to format the date
-  const formatDate = (date: string | null): string => {
-    if (!date) return '';
-    const d = new Date(date);
-    return d.toISOString().split('T')[0]; // Convert to YYYY-MM-DD
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validateAndSetVendor = (field: keyof Vendor, value: string) => {
+    const sanitizedValue = DOMPurify.sanitize(value);
+    let error = '';
+
+    const tempVendor = { ...formVendor, [field]: sanitizedValue };
+
+    const result = liabilitySchema.safeParse(tempVendor);
+    if (!result.success) {
+      const fieldError = result.error.errors.find((err) => err.path[0] === field);
+      error = fieldError ? fieldError.message : '';
+    }
+
+    setErrors((prevErrors) => ({ ...prevErrors, [field]: error }));
+    setFormVendor(tempVendor);
   };
+  const fields: { label: string; key: keyof Vendor; type?: string }[] = [
+    { label: 'Liability Insurance Provider', key: 'liab_company' },
+    { label: 'Start Date', key: 'liab_policy_start', type: 'date' },
+    { label: 'End Date', key: 'liab_policy_end', type: 'date' },
+    { label: 'Coverage Amount', key: 'liab_ins_amt', type: 'number' },
+  ];
 
   return (
     <fieldset className="form-section">
       <legend>Liability Insurance Details</legend>
-      <div className="form-row" style={{ display: 'flex', gap: '1rem' }}>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="liProvider">Liability Insurance Provider</label>
-          <input
-            type="text"
-            value={formVendor.liab_company}
-            onChange={(e) => setFormVendor((prev) => ({ ...prev, liab_company: e.target.value }))}
-            id="liProvider"
-          />
-        </div>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="liStartDate">Start Date</label>
-          <input
-            type="date"
-            value={formatDate(formVendor.liab_policy_start)}
-            onChange={(e) => setFormVendor((prev) => ({ ...prev, liab_policy_start: e.target.value }))}
-            id="liStartDate"
-          />
-        </div>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="liEndDate">End Date</label>
-          <input
-            type="date"
-            value={formatDate(formVendor.liab_policy_end)}
-            onChange={(e) => setFormVendor((prev) => ({ ...prev, liab_policy_end: e.target.value }))}
-            id="liEndDate"
-          />
-        </div>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label htmlFor="liCoverage">Coverage Amount</label>
-          <input
-            type="number"
-            value={formVendor.liab_ins_amt}
-            onChange={(e) => setFormVendor((prev) => ({ ...prev, liab_ins_amt: Number(e.target.value) }))}
-            id="liCoverage"
-          />
-        </div>
+      <div className="form-grid" style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))' }}>
+        {fields.map(({ label, key, type }) => (
+          <div className="form-group" key={key}>
+            <label htmlFor={key}>{label}</label>
+            <input
+              id={key}
+              type={type || 'text'}
+              value={type === 'date' ? formatDateForInput(formVendor[key] as string | Date) : String(formVendor[key] || '')}
+              onChange={(e) => validateAndSetVendor(key, e.target.value)}
+            />
+
+            {errors[key] && (
+              <span className="error" style={{ color: 'red' }}>
+                {errors[key]}
+              </span>
+            )}
+          </div>
+        ))}
       </div>
     </fieldset>
   );

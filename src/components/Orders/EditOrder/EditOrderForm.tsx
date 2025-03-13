@@ -8,22 +8,27 @@ import EditOrderCharges from './EditOrderCharges';
 import EditOrderDiscounts from './EditOrderDiscounts';
 import EditOrderTax from './EditOrderTax';
 import { PlusOutlined } from '@ant-design/icons';
-import useOrderHandler from './useOrderHandler';
-import useOrderDetails from './useOrderDetails';
+import { Order, Location, Charge } from '../../../types/OrderTypes';
+import useEditOrder from '../../../hooks/edit/useEditOrder';
 
-const EditOrderForm = ({ order, onClose, onUpdate }) => {
-  const { formOrder, setFormOrder, updateOrder } = useOrderHandler({ order, onClose, onUpdate });
+interface EditOrderFormProps {
+  order: Order;
+  onClose: () => void;
+  onUpdate: () => void;
+}
 
+function EditOrderForm({ order, onClose, onUpdate }: EditOrderFormProps) {
   const {
-    handleOriginChange,
-    handleDestinationChange,
-    handleChargeChange,
-    handleDiscountChange,
-    handleRemoveOrigin,
-    handleRemoveDestination,
-    handleRemoveCharge,
-    handleRemoveDiscount,
-  } = useOrderDetails();
+    formOrder,
+    setFormOrder,
+    updateOrder,
+    handleAddItem,
+    handleItemChange,
+    handleRemoveItem,
+    handleAddChargeOrDiscount,
+    handleChangeChargeOrDiscount,
+    handleRemoveChargeOrDiscount,
+  } = useEditOrder({ order, onClose, onUpdate });
 
   return (
     <div className="form-container">
@@ -36,96 +41,44 @@ const EditOrderForm = ({ order, onClose, onUpdate }) => {
       >
         <EditOrderGeneral formOrder={formOrder} setFormOrder={setFormOrder} />
         <EditOrderShipment formOrder={formOrder} setFormOrder={setFormOrder} />
+
         <fieldset className="form-section">
           <legend>Origin</legend>
           <div className="form-row">
-            {formOrder.origin_location.map((origin, index) => (
+            {formOrder.origin_location?.map((origin, index) => (
               <EditOrderOrigin
                 key={index}
-                formOrder={formOrder}
-                setFormOrder={setFormOrder}
-                origin={origin}
+                origin_location={formOrder.origin_location}
                 index={index}
-                onChange={handleOriginChange}
-                onRemove={handleRemoveOrigin}
+                onAddOrigin={handleAddOrigin}
+                handleRemoveOrigin={handleRemoveOrigin}
+                handleOriginChange={handleOriginChange}
               />
             ))}
-            <button
-              type="button"
-              onClick={() =>
-                setFormOrder((prevOrder) => ({
-                  ...prevOrder,
-                  origin_location: [
-                    ...prevOrder.origin_location,
-                    {
-                      address: '',
-                      city: '',
-                      state: '',
-                      country: '',
-                      postal: '',
-                      date: '',
-                      time: '',
-                      po: '',
-                      phone: '',
-                      notes: '',
-                      packages: '',
-                      weight: '',
-                      dimensions: '',
-                    },
-                  ],
-                }))
-              }
-              className="add-button"
-            >
+            <button type="button" onClick={handleAddOrigin} className="add-button">
               <PlusOutlined />
             </button>
           </div>
         </fieldset>
+
         <fieldset className="form-section">
           <legend>Destination</legend>
           <div className="form-row">
             {formOrder.destination_location.map((destination, index) => (
               <EditOrderDestination
                 key={index}
-                formOrder={formOrder}
-                setFormOrder={setFormOrder}
                 destination={destination}
                 index={index}
-                onChange={handleDestinationChange}
-                onRemove={handleRemoveDestination}
+                onChange={handleItemChange}
+                handleRemoveItem={handleRemoveItem}
               />
             ))}
-            <button
-              type="button"
-              onClick={() =>
-                setFormOrder((prevOrder) => ({
-                  ...prevOrder,
-                  destination_location: [
-                    ...prevOrder.destination_location,
-                    {
-                      address: '',
-                      city: '',
-                      state: '',
-                      country: '',
-                      postal: '',
-                      date: '',
-                      time: '',
-                      po: '',
-                      phone: '',
-                      notes: '',
-                      packages: '',
-                      weight: '',
-                      dimensions: '',
-                    },
-                  ],
-                }))
-              }
-              className="add-button"
-            >
+            <button type="button" onClick={handleAddItem} className="add-button">
               <PlusOutlined />
             </button>
           </div>
         </fieldset>
+
         <EditOrderSpecs formOrder={formOrder} setFormOrder={setFormOrder} />
         <EditOrderRevenue formOrder={formOrder} setFormOrder={setFormOrder} />
 
@@ -135,56 +88,19 @@ const EditOrderForm = ({ order, onClose, onUpdate }) => {
             {formOrder.charges.map((charge, index) => (
               <EditOrderCharges
                 key={index}
-                formOrder={formOrder}
-                setFormOrder={setFormOrder}
                 charge={charge}
                 index={index}
-                onChange={handleChargeChange}
-                onRemove={handleRemoveCharge}
+                onChandleChangeChargeOrDiscounthange={handleChangeChargeOrDiscount}
+                handleRemoveChargeOrDiscount={handleRemoveChargeOrDiscount}
               />
             ))}
-            <button
-              type="button"
-              onClick={() =>
-                setFormOrder((prevOrder) => ({
-                  ...prevOrder,
-                  charges: [...prevOrder.charges, { type: '', charge: '', percent: '' }],
-                }))
-              }
-              className="add-button"
-            >
+            <button type="button" onClick={handleAddChargeOrDiscount} className="add-button">
               <PlusOutlined />
             </button>
           </div>
         </fieldset>
-        <fieldset className="form-section">
-          <legend>Discounts</legend>
-          <div className="form-row">
-            {formOrder.discounts.map((discount, index) => (
-              <EditOrderDiscounts
-                key={index}
-                formOrder={formOrder}
-                setFormOrder={setFormOrder}
-                discount={discount}
-                index={index}
-                onChange={handleDiscountChange}
-                onRemove={handleRemoveDiscount}
-              />
-            ))}
-            <button
-              type="button"
-              onClick={() =>
-                setFormOrder((prevOrder) => ({
-                  ...prevOrder,
-                  discounts: [...prevOrder.discounts, { type: '', charge: '', percent: '' }],
-                }))
-              }
-              className="add-button"
-            >
-              <PlusOutlined />
-            </button>
-          </div>
-        </fieldset>
+
+        <EditOrderDiscounts />
         <EditOrderTax formOrder={formOrder} setFormOrder={setFormOrder} />
         <div className="form-actions">
           <button type="submit" className="btn-submit">
@@ -197,6 +113,6 @@ const EditOrderForm = ({ order, onClose, onUpdate }) => {
       </form>
     </div>
   );
-};
+}
 
 export default EditOrderForm;

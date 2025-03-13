@@ -1,10 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { FC, useState, useEffect } from 'react';
 import { Vendor } from '../../../types/VendorTypes';
-
-interface VendorMailingAddressProps {
-  vendor: Vendor;
-  setVendor: React.Dispatch<React.SetStateAction<Vendor>>;
-}
+import { z } from 'zod';
+import DOMPurify from 'dompurify';
+import { useGoogleAutocomplete } from '../../../hooks/useGoogleAutocomplete';
 
 declare global {
   interface Window {
@@ -12,121 +10,179 @@ declare global {
   }
 }
 
-const VendorMailingAddress: React.FC<VendorMailingAddressProps> = ({ vendor, setVendor }) => {
-  const addressRef = useRef<HTMLInputElement | null>(null);
+interface VendorMailingAddressProps {
+  vendor: Vendor;
+  setVendor: React.Dispatch<React.SetStateAction<Vendor>>;
+}
+
+const mailingSchema = z.object({
+  mailing_address: z
+    .string()
+    .max(255, 'Address is too long')
+    .regex(/^[a-zA-Z0-9\s,.'-]*$/, 'Invalid street format')
+    .optional(),
+  mailing_city: z
+    .string()
+    .max(200, 'City name is too long')
+    .regex(/^[a-zA-Z\s.'-]*$/, 'Invalid city format')
+    .optional(),
+  mailing_state: z
+    .string()
+    .max(200, 'Invalid state')
+    .regex(/^[a-zA-Z\s.'-]*$/, 'Invalid state format')
+    .optional(),
+  mailing_country: z
+    .string()
+    .max(100, 'Invalid country')
+    .regex(/^[a-zA-Z\s.'-]*$/, 'Invalid country format')
+    .optional(),
+  mailing_postal: z
+    .string()
+    .max(20, 'Postal code cannot exceed 20 characters')
+    .regex(/^[a-zA-Z0-9-\s ]*$/, 'Invalid postal code')
+    .optional(),
+  mailing_phone: z
+    .string()
+    .max(30, 'Phone cannot exceed 30 characters')
+    .regex(/^[0-9-+()\s]*$/, 'Invalid phone format')
+    .optional(),
+  mailing_fax: z
+    .string()
+    .max(30, 'Fax cannot exceed 30 characters')
+    .regex(/^[0-9-+()\s]*$/, 'Invalid fax format')
+    .optional(),
+  mailing_email: z.string().max(255, 'Email cannot exceed 255 characters').email('Invalid email format').optional(),
+});
+
+const VendorMailingAddress: FC<VendorMailingAddressProps> = ({ vendor, setVendor }) => {
   const [errors, setErrors] = useState<Record<string, string>>({});
-
+  const [sameAsPrimary, setSameAsPrimary] = useState(false);
   useEffect(() => {
-    const loadGoogleMapsApi = () => {
-      if (window.google && window.google.maps) {
-        initializeAutocomplete();
-        return;
-      }
-      const script = document.createElement('script');
-      script.src = 'https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places';
-      script.async = true;
-      script.defer = true;
-      script.onload = () => {
-        if (window.google && window.google.maps) {
-          initializeAutocomplete();
-        }
-      };
-      document.head.appendChild(script);
-    };
-    loadGoogleMapsApi();
-  }, []);
+    if (!sameAsPrimary && addressRef.current) {
+      const autocomplete = new window.google.maps.places.Autocomplete(addressRef.current, {
+        types: ['address'],
+      });
 
-  const initializeAutocomplete = () => {
-    if (!window.google || !window.google.maps || !addressRef.current) return;
-    const autocomplete = new window.google.maps.places.Autocomplete(addressRef.current, { types: ['address'] });
-    autocomplete.addListener('place_changed', () => {
-      const place = autocomplete.getPlace();
-      if (!place || !place.address_components) return;
-      updateAddressFields(place);
-    });
-  };
-
+      autocomplete.addListener('place_changed', () => {
+        const place = autocomplete.getPlace();
+        updateAddressFields(place);
+      });
+    }
+  }, [sameAsPrimary]);
   const updateAddressFields = (place: google.maps.places.PlaceResult) => {
-    const getComponent = (type: string) => {
-      const component = place.address_components?.find((c) => c.types.includes(type));
-      return component ? component.long_name : '';
-    };
+    const getComponent = (type: string) => place.address_components?.find((c) => c.types.includes(type))?.long_name || '';
     setVendor((prev) => ({
       ...prev,
-      mailing_address: getComponent('street_number') + ' ' + getComponent('route'),
+      mailing_address: `${getComponent('street_number')} ${getComponent('route')}`.trim(),
       mailing_city: getComponent('locality'),
       mailing_state: getComponent('administrative_area_level_1'),
       mailing_country: getComponent('country'),
       mailing_postal: getComponent('postal_code'),
     }));
   };
+  const addressRef = useGoogleAutocomplete(updateAddressFields);
 
-  const validateInput = (name: string, value: string) => {
+  const validateAndSetField = (field: keyof Vendor, value: string) => {
+    const sanitizedValue = DOMPurify.sanitize(value);
     let error = '';
-    if (name.includes('email') && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-      error = 'Invalid email format';
-    } else if (name.includes('phone') || name.includes('fax')) {
-      if (!/^[0-9-+()\s]*$/.test(value)) error = 'Invalid phone/fax format';
-    } else if (/[^a-zA-Z0-9.,'\s-]/.test(value)) {
-      error = 'Invalid characters';
+
+    const tempVendor = { ...vendor, [field]: sanitizedValue };
+
+    if (field in mailingSchema.shape) {
+      const result = mailingSchema.safeParse(tempVendor);
+
+      if (!result.success) {
+        const fieldError = result.error.errors.find((err) => err.path[0] === field);
+        error = fieldError ? fieldError.message : '';
+      }
     }
-    setErrors((prev) => ({ ...prev, [name]: error }));
+
+    setErrors((prevErrors) => ({ ...prevErrors, [field]: error }));
+    setVendor(tempVendor);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    validateInput(name, value);
-    setVendor((prev) => ({ ...prev, [name]: value.trim() }));
+  const handleSameAsPrimaryChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const isChecked = e.target.checked;
+    setSameAsPrimary(isChecked);
+
+    setVendor((prev) => ({
+      ...prev,
+      mailing_address: isChecked ? prev.primary_address : '',
+      mailing_city: isChecked ? prev.primary_city : '',
+      mailing_state: isChecked ? prev.primary_state : '',
+      mailing_country: isChecked ? prev.primary_country : '',
+      mailing_postal: isChecked ? prev.primary_postal : '',
+      mailing_phone: isChecked ? prev.primary_phone : '',
+      mailing_fax: isChecked ? prev.primary_fax : '',
+      mailing_email: isChecked ? prev.primary_email : '',
+    }));
+
+    try {
+      const response = await fetch('/api/update-vendor', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ sameAsPrimary: isChecked }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update the database');
+      }
+      const data = await response.json();
+      console.log('Update successful:', data);
+    } catch (error) {
+      console.error('Error updating the database:', error);
+    }
   };
+  const fields = [
+    { label: 'Street', key: 'mailing_address', placeholder: 'Enter street address' },
+    { label: 'City', key: 'mailing_city', placeholder: 'Enter city name' },
+    { label: 'State', key: 'mailing_state', placeholder: 'Enter state' },
+    { label: 'Country', key: 'mailing_country', placeholder: 'Enter country' },
+    { label: 'Postal Code', key: 'mailing_postal', placeholder: 'Enter postal code' },
+    { label: 'Phone', key: 'mailing_phone', placeholder: 'Enter phone number' },
+    { label: 'Fax', key: 'mailing_fax', placeholder: 'Enter fax number' },
+    { label: 'Email', key: 'mailing_email', placeholder: 'Enter email address' },
+  ];
 
   return (
-    <fieldset>
+    <fieldset className="form-section">
       <legend>Mailing Address</legend>
-      <div className="form-group">
-        <label>
+      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+        <input
+          type="checkbox"
+          id="sameAsPrimary"
+          checked={sameAsPrimary}
+          onChange={handleSameAsPrimaryChange}
+          style={{ transform: 'scale(1.1)', cursor: 'pointer', margin: 0 }}
+        />
+        <label htmlFor="sameAsPrimary" style={{ margin: 0, whiteSpace: 'nowrap' }}>
           Same as Primary Address
-          <input type="checkbox" checked={vendor.sameAsPrimary} onChange={(e) => setVendor({ ...vendor, sameAsPrimary: e.target.checked })} />
         </label>
       </div>
-      {!vendor.sameAsPrimary && (
-        <>
-          <div className="form-group">
-            <label>Street</label>
-            <input type="text" name="mailing_address" ref={addressRef} value={vendor.mailing_address} onChange={handleChange} placeholder="Street" />
-            <span className="error">{errors.mailing_address}</span>
-          </div>
-          <div className="form-group">
-            <label>City</label>
-            <input type="text" name="mailing_city" value={vendor.mailing_city} onChange={handleChange} placeholder="City" />
-          </div>
-          <div className="form-group">
-            <label>State</label>
-            <input type="text" name="mailing_state" value={vendor.mailing_state} onChange={handleChange} placeholder="State" />
-          </div>
-          <div className="form-group">
-            <label>Country</label>
-            <input type="text" name="mailing_country" value={vendor.mailing_country} onChange={handleChange} placeholder="Country" />
-          </div>
-          <div className="form-group">
-            <label>Postal Code</label>
-            <input type="text" name="mailing_postal" value={vendor.mailing_postal} onChange={handleChange} placeholder="Postal Code" />
-          </div>
-          <div className="form-group">
-            <label>Phone</label>
-            <input type="text" name="mailing_phone" value={vendor.mailing_phone} onChange={handleChange} placeholder="Phone" />
-            <span className="error">{errors.mailing_phone}</span>
-          </div>
-          <div className="form-group">
-            <label>Fax</label>
-            <input type="text" name="mailing_fax" value={vendor.mailing_fax} onChange={handleChange} placeholder="Fax" />
-            <span className="error">{errors.mailing_fax}</span>
-          </div>
-          <div className="form-group">
-            <label>Email</label>
-            <input type="email" name="mailing_email" value={vendor.mailing_email} onChange={handleChange} placeholder="Email" />
-            <span className="error">{errors.mailing_email}</span>
-          </div>
-        </>
+
+      {!sameAsPrimary && (
+        <div className="form-grid" style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))' }}>
+          {fields.map(({ label, key }) => (
+            <div className="form-group" key={key}>
+              <label htmlFor={key}>{label}</label>
+              <input
+                type="text"
+                id={key}
+                placeholder={`Enter ${key.replace('mailing_', '')}`}
+                value={(vendor[key as keyof Vendor] as string | number) || ''}
+                onChange={(e) => validateAndSetField(key as keyof Vendor, e.target.value)}
+                ref={key === 'mailing_address' ? addressRef : undefined}
+              />
+              {errors[key] && (
+                <span className="error" style={{ color: 'red' }}>
+                  {errors[key]}
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
       )}
     </fieldset>
   );

@@ -1,5 +1,3 @@
-import axios from 'axios';
-import Swal from 'sweetalert2';
 import { EditOutlined, DeleteOutlined, MailOutlined, PlusOutlined, SearchOutlined, EyeOutlined } from '@ant-design/icons';
 import { Table, TableHeader } from '../common/Table';
 import Modal from '../common/Modal';
@@ -9,12 +7,10 @@ import EditBrokerForm from './EditBroker/EditBrokerForm';
 import ViewBrokerForm from './ViewBroker/ViewBrokerForm';
 import useBrokerTable from '../../hooks/table/useBrokerTable';
 
-const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
-
 const BrokerTable: React.FC = () => {
   const {
+    fetchBrokers,
     brokers,
-    setSelectedBrokers,
     loading,
     searchQuery,
     setSearchQuery,
@@ -44,7 +40,6 @@ const BrokerTable: React.FC = () => {
     openEditModal,
     openViewModal,
     updateBroker,
-    addBroker,
   } = useBrokerTable();
 
   const renderSortableHeader = (header: TableHeader) => {
@@ -57,8 +52,6 @@ const BrokerTable: React.FC = () => {
     );
   };
 
-
-
   const headers: TableHeader[] = [
     {
       key: 'checkbox',
@@ -67,12 +60,12 @@ const BrokerTable: React.FC = () => {
       ) as JSX.Element,
       render: (item) => <input type="checkbox" checked={selectedBrokers.includes(item.id!)} onChange={() => toggleSelect(item.id)} />,
     },
-    { key: 'broker_name', label: 'Name' },
-    { key: 'broker_city', label: 'City' },
-    { key: 'broker_state', label: 'State' },
-    { key: 'broker_email', label: 'Email' },
-    { key: 'broker_phone', label: 'Phone' },
-    { key: 'broker_fax', label: 'Fax' },
+    { key: 'broker_name', label: 'Name', render: (item) => item.broker_name || <span>-</span> },
+    { key: 'broker_city', label: 'City', render: (item) => item.broker_city || <span>-</span> },
+    { key: 'broker_state', label: 'State', render: (item) => item.broker_state || <span>-</span> },
+    { key: 'broker_email', label: 'Email', render: (item) => item.broker_email || <span>-</span> },
+    { key: 'broker_phone', label: 'Phone', render: (item) => item.broker_phone || <span>-</span> },
+    { key: 'broker_fax', label: 'Fax', render: (item) => item.broker_fax || <span>-</span> },
     {
       key: 'actions',
       label: 'Actions',
@@ -136,7 +129,7 @@ const BrokerTable: React.FC = () => {
       </Modal>
 
       <Modal isOpen={isAddModalOpen} onClose={() => setAddModalOpen(false)} title="Add Broker">
-        <AddBrokerForm onClose={() => setAddModalOpen(false)} onAddBroker={addBroker} />
+        <AddBrokerForm onClose={() => setAddModalOpen(false)} onSuccess={fetchBrokers} />{' '}
       </Modal>
 
       <Modal isOpen={isEmailModalOpen} onClose={() => setEmailModalOpen(false)} title="Send Email">
