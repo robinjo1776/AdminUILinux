@@ -55,63 +55,42 @@ const CargoInsurance: React.FC<CargoInsuranceProps> = ({ carrier, setCarrier }) 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    const allowedTypes = [
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/pdf',
-      'image/jpeg',
-      'image/png',
-      'image/gif',
-      'image/tiff',
-      'image/bmp',
-    ];
-
-    if (!allowedTypes.includes(file.type)) {
-      alert('Only DOC, DOCX, PDF, JPG, JPEG, PNG, GIF, TIFF, and BMP files are allowed.');
-      return;
-    }
-
-    if (file.size > MAX_FILE_SIZE) {
-      alert('File size must be less than 10MB.');
-      return;
-    }
-
-    setUploading(true);
-
+  
     const formData = new FormData();
     formData.append('coi_cert', file);
-
+  
     const token = localStorage.getItem('token');
+  
     try {
       const response = await fetch(`${API_URL}/upload`, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Upload failed:', errorText);
-        alert('File upload failed. Please try again.');
-        return;
-      }
-
+  
       const data = await response.json();
-      if (data.fileUrl) {
+      console.log('Upload response:', data); // Debugging log
+  
+      // ✅ Fix the response handling
+      if (data.files?.coi_cert?.fileUrl) {
+        // Ensure fileUrl is absolute
+        const baseURL = API_URL.replace('/api', ''); // Get base URL from API
+        const fullFileUrl = data.files.coi_cert.fileUrl.startsWith('http')
+          ? data.files.coi_cert.fileUrl
+          : `${baseURL}${data.files.coi_cert.fileUrl}`;
+  
         setCarrier((prevCarrier) => ({
           ...prevCarrier,
-          coi_cert: data.fileUrl,
+          coi_cert: fullFileUrl, // Store full file URL
+          coi_cert_name: data.files.coi_cert.fileName, // Store original filename
         }));
       } else {
-        console.error('File URL not returned in response');
+        console.error('File URL not returned in response', data);
         alert('File upload failed: No file URL returned.');
       }
     } catch (error) {
       console.error('Error uploading file:', error);
-      alert('Network error during file upload. Please check your connection.');
+      alert('Network error during file upload.');
     } finally {
       setUploading(false);
     }
